@@ -5,41 +5,33 @@ const Header = ({ name }) => <h2>{name}</h2>
 
 const Button = ({ handleClick, text }) => <button onClick={handleClick}>{text}</button>
 
+const Statistics = ({ good, neutral, bad }) => {
+  const all = good + neutral + bad
+  const average = (all === 0) ? 0 : (good - bad) / all
+  const positive = (all === 0) ? 0 : 100 * good / all
+
+  return (
+    <>
+      <Header name="statistics" />
+      <div>good {good}</div>
+      <div>neutral {neutral}</div>
+      <div>bad {bad}</div>
+      <div>all {all}</div>
+      <div>average {average}</div>
+      <div>positive {positive} %</div>
+    </>
+  )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
-  const [all, setAll] = useState(0)
-  const [average, setAverage] = useState(0.0)
-  const [positive, setPositive] = useState(0.0)
 
-  const handleGoodClick = () => {
-    const updatedGood = good + 1
-    const updatedAll = updatedGood + neutral + bad
-    setGood(updatedGood)
-    setAll(updatedAll)
-    setAverage((updatedGood - bad) / updatedAll)
-    setPositive(100 * updatedGood / updatedAll)
-  }
-
-  const handleNeutralClick = () => {
-    const updatedNeutral = neutral + 1
-    const updatedAll = good + updatedNeutral + bad
-    setNeutral(updatedNeutral)
-    setAll(updatedAll)
-    setAverage((good - bad) / updatedAll)
-    setPositive(100 * good / updatedAll)
-  }
-
-  const handleBadClick = () => {
-    const updatedBad = bad + 1
-    const updatedAll = good + neutral + updatedBad
-    setBad(updatedBad)
-    setAll(updatedAll)
-    setAverage((good - updatedBad) / updatedAll)
-    setPositive(100 * good / updatedAll)
-  }
+  const handleGoodClick = () => setGood(good + 1)
+  const handleNeutralClick = () => setNeutral(neutral + 1)
+  const handleBadClick = () => setBad(bad + 1)
 
   return (
     <div>
@@ -48,13 +40,7 @@ const App = () => {
       <Button handleClick={handleNeutralClick} text="neutral" />
       <Button handleClick={handleBadClick} text="bad" />
 
-      <Header name="statistics" />
-      <div>good {good}</div>
-      <div>neutral {neutral}</div>
-      <div>bad {bad}</div>
-      <div>all {all}</div>
-      <div>average {average}</div>
-      <div>positive {positive} %</div>
+      <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   )
 }
