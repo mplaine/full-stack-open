@@ -26,8 +26,21 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (persons.filter(person => person.name === newName).length > 0) {
-      alert(`${newName} is already added to phonebook`)
+    if (persons.filter(p => p.name === newName).length > 0) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const person = persons.find(p => p.name === newName)
+        const updatedPerson = { ...person, number: newNumber }
+        personService
+          .updatePerson(updatedPerson.id, updatedPerson)
+          .then(updatedPerson => {
+            setPersons(persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson))
+            setNewName('')
+            setNewNumber('')
+          })
+          .catch(error => {
+            alert(`Failed to update a person ${updatedPerson.id}.`)
+          })
+      }
     }
     else {
       const personObject = {
@@ -50,13 +63,13 @@ const App = () => {
   const deletePerson = (person) => {
     if (window.confirm(`Delete ${person.name} ?`)) {
       personService
-      .deletePerson(person.id)
-      .then(deletedPerson => {
-        setPersons(persons.filter(p => p.id !== person.id))
-      })
-      .catch(error => {
-        alert(`Failed to delete a person ${person.id}.`)
-      })
+        .deletePerson(person.id)
+        .then(deletedPerson => {
+          setPersons(persons.filter(p => p.id !== person.id))
+        })
+        .catch(error => {
+          alert(`Failed to delete a person ${person.id}.`)
+        })
     }
   }
   const handleNameChange = (event) => setNewName(event.target.value)
