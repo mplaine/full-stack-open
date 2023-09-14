@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/persons'
@@ -9,6 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [message, setMessage] = useState(null)
 
   const personsToShow = (search.length === 0) ? persons : persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
 
@@ -27,21 +29,30 @@ const App = () => {
     event.preventDefault()
 
     if (persons.filter(p => p.name === newName).length > 0) {
+      // Update person
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
         const person = persons.find(p => p.name === newName)
         const updatedPerson = { ...person, number: newNumber }
+
         personService
           .updatePerson(updatedPerson.id, updatedPerson)
           .then(updatedPerson => {
             setPersons(persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson))
             setNewName('')
             setNewNumber('')
+            setMessage(
+              `Updated ${updatedPerson.name}`
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
           })
           .catch(error => {
             alert(`Failed to update a person ${updatedPerson.id}.`)
           })
       }
     }
+    // Add person
     else {
       const personObject = {
         name: newName,
@@ -54,6 +65,12 @@ const App = () => {
           setPersons(persons.concat(addedPerson))
           setNewName('')
           setNewNumber('')
+          setMessage(
+            `Added ${addedPerson.name}`
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
         .catch(error => {
           alert('Failed to create a new person.')
@@ -79,6 +96,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter text={search} handleChange={handleSearchChange} />
       <h3>add a new</h3>
       <PersonForm name={newName} number={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={addPerson} />
