@@ -12,9 +12,14 @@ const App = () => {
   const personsToShow = (search.length === 0) ? persons : persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
 
   useEffect(() => {
-    axios.get('http://localhost:3001/persons').then(response => {
-      setPersons(response.data)
-    })
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+      .catch(error => {
+        alert('Failed to retrieve all persons.')
+      })
   }, [])
 
   const addPerson = (event) => {
@@ -26,12 +31,19 @@ const App = () => {
     else {
       const personObject = {
         name: newName,
-        number: newNumber,
-        id: persons.length + 1
+        number: newNumber
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+
+      axios
+        .post('http://localhost:3001/persons', personObject)
+        .then(response => {
+          setPersons(persons.concat(response.data));
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert('Failed to create a new person.')
+        })
     }
   }
   const handleNameChange = (event) => setNewName(event.target.value)
