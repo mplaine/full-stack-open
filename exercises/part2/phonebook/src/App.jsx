@@ -9,13 +9,14 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+
   const personsToShow = (search.length === 0) ? persons : persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
 
   useEffect(() => {
     personService
       .getPersons()
-      .then(initialPersons => {
-        setPersons(initialPersons)
+      .then(retrievedPersons => {
+        setPersons(retrievedPersons)
       })
       .catch(error => {
         alert('Failed to retrieve all persons.')
@@ -36,14 +37,26 @@ const App = () => {
 
       personService
         .createPerson(personObject)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson));
+        .then(addedPerson => {
+          setPersons(persons.concat(addedPerson))
           setNewName('')
           setNewNumber('')
         })
         .catch(error => {
           alert('Failed to create a new person.')
         })
+    }
+  }
+  const deletePerson = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personService
+      .deletePerson(person.id)
+      .then(deletedPerson => {
+        setPersons(persons.filter(p => p.id !== person.id))
+      })
+      .catch(error => {
+        alert(`Failed to delete a person ${person.id}.`)
+      })
     }
   }
   const handleNameChange = (event) => setNewName(event.target.value)
@@ -57,7 +70,7 @@ const App = () => {
       <h3>add a new</h3>
       <PersonForm name={newName} number={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={addPerson} />
       <h3>Numbers</h3>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} handlePersonClick={deletePerson} />
     </div>
   )
 }

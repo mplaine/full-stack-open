@@ -1,3 +1,6 @@
-const Person = ({ person }) => <li>{person.name} {person.number}</li>
+const Person = ({ person, handleClick }) =>
+  <li>
+    {person.name} {person.number} <button onClick={() => handleClick(person)}>delete</button>
+  </li>
 
 export default Person
