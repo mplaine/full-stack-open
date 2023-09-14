@@ -10,7 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
-  const [message, setMessage] = useState(null)
+  const [notification, setNotification] = useState(null)
 
   const personsToShow = (search.length === 0) ? persons : persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
 
@@ -21,11 +21,17 @@ const App = () => {
         setPersons(retrievedPersons)
       })
       .catch(error => {
-        alert('Failed to retrieve all persons.')
+        setNotification({
+          message: 'Failed to retrieve all persons.',
+          type: 'error'
+        })
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
   }, [])
 
-  const addPerson = (event) => {
+  const addUpdatePerson = (event) => {
     event.preventDefault()
 
     if (persons.filter(p => p.name === newName).length > 0) {
@@ -40,15 +46,22 @@ const App = () => {
             setPersons(persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson))
             setNewName('')
             setNewNumber('')
-            setMessage(
-              `Updated ${updatedPerson.name}`
-            )
+            setNotification({
+              message: `Updated ${updatedPerson.name}.`,
+              type: 'success'
+            })
             setTimeout(() => {
-              setMessage(null)
+              setNotification(null)
             }, 5000)
           })
           .catch(error => {
-            alert(`Failed to update a person ${updatedPerson.id}.`)
+            setNotification({
+              message: `Failed to update ${updatedPerson.name}.`,
+              type: 'error'
+            })
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
           })
       }
     }
@@ -65,27 +78,47 @@ const App = () => {
           setPersons(persons.concat(addedPerson))
           setNewName('')
           setNewNumber('')
-          setMessage(
-            `Added ${addedPerson.name}`
-          )
+          setNotification({
+            message: `Added ${addedPerson.name}.`,
+            type: 'success'
+          })
           setTimeout(() => {
-            setMessage(null)
+            setNotification(null)
           }, 5000)
         })
         .catch(error => {
-          alert('Failed to create a new person.')
+          setNotification({
+            message: `Failed to create ${personObject.name}.`,
+            type: 'error'
+          })
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
     }
   }
   const deletePerson = (person) => {
-    if (window.confirm(`Delete ${person.name} ?`)) {
+    if (window.confirm(`Delete ${person.name}?`)) {
       personService
         .deletePerson(person.id)
         .then(deletedPerson => {
           setPersons(persons.filter(p => p.id !== person.id))
+          setNotification({
+            message: `Deleted ${person.name}.`,
+            type: 'success'
+          })
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
         .catch(error => {
-          alert(`Failed to delete a person ${person.id}.`)
+          setNotification({
+            message: `Failed to delete ${person.name}.`,
+            type: 'error'
+          })
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
     }
   }
@@ -96,10 +129,10 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={message} />
+      <Notification notification={notification} />
       <Filter text={search} handleChange={handleSearchChange} />
       <h3>add a new</h3>
-      <PersonForm name={newName} number={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={addPerson} />
+      <PersonForm name={newName} number={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} handleSubmit={addUpdatePerson} />
       <h3>Numbers</h3>
       <Persons persons={personsToShow} handlePersonClick={deletePerson} />
     </div>
