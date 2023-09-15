@@ -12,8 +12,11 @@ const App = () => {
   // Constants
   const countriesToShow = (search.length === 0) ? [] : countries.filter(c => c.name.common.toLowerCase().includes(search.toLowerCase()))
 
-  // Event handlers
+  // Functions
   const handleSearchChange = (event) => setSearch(event.target.value)
+  const showCountryDetails = (country) => {
+    setSearch(country.name.common)
+  }
 
   // Effect hooks
   useEffect(() => {
@@ -30,16 +33,7 @@ const App = () => {
   return (
     <div>
       <Search text={search} handleChange={handleSearchChange} />
-      <Countries countries={countriesToShow} />
-      {/* {
-        countriesToShow.length > 10 ? (
-          <div>Too many matches, specify another filter</div>
-        ) : 1 === countriesToShow.length ? (
-          <div>Show country details</div>
-        ) : (
-          <Countries countries={countriesToShow} />
-        )
-      } */}
+      <Countries countries={countriesToShow} handleCountryClick={showCountryDetails} />
     </div>
   )
 }

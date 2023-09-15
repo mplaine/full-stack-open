@@ -1,7 +1,7 @@
 import CountryDetails from './CountryDetails'
 import CountryLine from './CountryLine'
 
-const Countries = ({ countries }) => {
+const Countries = ({ countries, handleCountryClick }) => {
   let content = <></>
   if (countries.length > 10) {
     content = <div>Too many matches, specify another filter</div>
@@ -9,7 +9,7 @@ const Countries = ({ countries }) => {
   else if (1 < countries.length && countries.length <= 10) {
     content =
       <ul style={{ listStyleType: "none", margin: 0, padding: 0 }}>
-        {countries.map(c => <CountryLine key={c.name.common} country={c} />)}
+        {countries.map(c => <CountryLine key={c.name.common} country={c} handleClick={handleCountryClick} />)}
       </ul>
   }
   else if (countries.length === 1) {
