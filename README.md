@@ -12,3 +12,7 @@ My solutions to the Part 0 exercises can be found [here](./exercises/part0/READM
 ### Part 1: Introduction to React
 
 My solutions to the Part 1 exercises can be found [here](./exercises/part1/).
+
+### Part 2: Communicating with server
+
+My solutions to the Part 2 exercises can be found [here](./exercises/part2/).
