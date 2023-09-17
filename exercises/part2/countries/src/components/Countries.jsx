@@ -1,7 +1,7 @@
 import CountryDetails from './CountryDetails'
 import CountryLine from './CountryLine'
 
-const Countries = ({ countries, handleCountryClick }) => {
+const Countries = ({ countries, handleCountryClick, countryDetailsWeather }) => {
   let content = <></>
   if (countries.length > 10) {
     content = <div>Too many matches, specify another filter</div>
@@ -13,7 +13,7 @@ const Countries = ({ countries, handleCountryClick }) => {
       </ul>
   }
   else if (countries.length === 1) {
-    content = <CountryDetails country={countries[0]} />
+    content = <CountryDetails country={countries[0]} weather={countryDetailsWeather} />
   }
 
   return content
