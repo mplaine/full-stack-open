@@ -40,9 +40,10 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-  Person.find({}).then(persons => {
-    response.json(persons)
-  })
+  Person.find({}).
+    then(persons => {
+      response.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -58,16 +59,15 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(p => p.id === id)
-
-  if (person) {
-    persons = persons.filter(p => p.id !== id)
-    response.status(204).end()
-  }
-  else {
-    response.status(404).end()
-  }
+  Person.findByIdAndRemove(request.params.id)
+    .then(deletedPerson => {
+      if (deletedPerson) {
+        response.status(204).end()
+      }
+      else {
+        response.status(404).end()
+      }
+    })
 })
 
 app.post('/api/persons', (request, response) => {
@@ -90,9 +90,10 @@ app.post('/api/persons', (request, response) => {
     number: body.number
   })
 
-  person.save().then(createdPerson => {
-    response.json(createdPerson)
-  })
+  person.save()
+    .then(createdPerson => {
+      response.json(createdPerson)
+    })
 })
 
 app.get('/info', (request, response) => {
