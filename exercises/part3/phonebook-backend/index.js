@@ -39,11 +39,6 @@ let persons = [
   }
 ]
 
-const generateId = () => {
-  const max = 1000000
-  return Math.floor(Math.random() * max)
-}
-
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
@@ -90,15 +85,14 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number
-  }
+  })
 
-  persons = persons.concat(person)
-
-  response.json(person)
+  person.save().then(createdPerson => {
+    response.json(createdPerson)
+  })
 })
 
 app.get('/info', (request, response) => {
