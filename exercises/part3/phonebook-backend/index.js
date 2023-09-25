@@ -6,18 +6,18 @@ require('dotenv').config()
 const Person = require('./models/person')
 
 morgan.token('body', function getRequestBody(req) {
-  if (req.method === 'POST') {
+  if (req.method === 'POST' || req.method === 'PUT') {
     return JSON.stringify(req.body)
   }
 })
 
-const requestLogger = (request, response, next) => {
-  console.log('Method:', request.method)
-  console.log('Path:  ', request.path)
-  console.log('Body:  ', request.body)
-  console.log('---')
-  next()
-}
+// const requestLogger = (request, response, next) => {
+//   console.log('Method:', request.method)
+//   console.log('Path:  ', request.path)
+//   console.log('Body:  ', request.body)
+//   console.log('---')
+//   next()
+// }
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
@@ -39,32 +39,10 @@ const unknownEndpoint = (request, response) => {
 
 app.use(cors())
 app.use(express.json())
-app.use(requestLogger)
+// app.use(requestLogger)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.static('dist'))
 
-let persons = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
 
 app.get('/api/persons', (request, response, next) => {
   Person.find({})
@@ -74,16 +52,17 @@ app.get('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(p => p.id === id)
-
-  if (person) {
-    response.json(person)
-  }
-  else {
-    response.status(404).end()
-  }
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(retrievedPerson => {
+      if (retrievedPerson) {
+        response.json(retrievedPerson)
+      }
+      else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -115,7 +94,12 @@ app.put('/api/persons/:id', (request, response, next) => {
 
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
-      response.json(updatedPerson);
+      if (updatedPerson) {
+        response.json(updatedPerson)
+      }
+      else {
+        response.status(404).end()
+      }
     })
     .catch(error => next(error))
 })
@@ -129,29 +113,38 @@ app.post('/api/persons', (request, response, next) => {
     })
   }
 
-  if (persons.find(p => p.name === body.name)) {
-    return response.status(409).json({
-      error: 'The name already exists in the phonebook'
-    })
-  }
+  Person.find({ name: body.name })
+    .then(result => {
+      if (result.length > 0) {
+        return response.status(409).json({
+          error: 'The name already exists in the phonebook'
+        })
+      }
+      else {
+        const person = new Person({
+          name: body.name,
+          number: body.number
+        })
 
-  const person = new Person({
-    name: body.name,
-    number: body.number
-  })
-
-  person.save()
-    .then(createdPerson => {
-      response.json(createdPerson)
+        person.save()
+          .then(createdPerson => {
+            response.json(createdPerson)
+          })
+          .catch(error => next(error))
+      }
     })
     .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
-  const line1 = `<p>Phonebook has info for ${persons.length} people</p>`
-  const line2 = `<p>${new Date()}</p>`
-  const content = line1 + line2
-  response.send(content)
+  Person.countDocuments({})
+    .then(count => {
+      const line1 = `<p>Phonebook has info for ${count} people</p>`
+      const line2 = `<p>${new Date()}</p>`
+      const content = line1 + line2
+      response.send(content)
+    })
+    .catch(error => next(error))
 })
 
 app.use(unknownEndpoint)
