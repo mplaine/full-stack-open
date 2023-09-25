@@ -16,3 +16,9 @@ My solutions to the Part 1 exercises can be found [here](./exercises/part1/).
 ### Part 2: Communicating with server
 
 My solutions to the Part 2 exercises can be found [here](./exercises/part2/).
+
+### Part 3: Programming a server with NodeJS and Express
+
+My solutions to the Part 3 exercises can be found [here](./exercises/part3/).
+
+The *Phonebook* web service is running online at https://render-test-1etk.onrender.com.
