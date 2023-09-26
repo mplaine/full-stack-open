@@ -12,7 +12,7 @@ const createPerson = (person) => {
   return axios
     .post(baseUrl, person)
     .then(response => response.data)
-}      
+}
 
 const updatePerson = (id, person) => {
   return axios

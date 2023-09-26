@@ -20,7 +20,7 @@ const App = () => {
       .then(retrievedPersons => {
         setPersons(retrievedPersons)
       })
-      .catch(error => {
+      .catch(_error => {
         setNotification({
           message: 'Failed to retrieve all persons.',
           type: 'error'
@@ -101,7 +101,7 @@ const App = () => {
     if (window.confirm(`Delete ${person.name}?`)) {
       personService
         .deletePerson(person.id)
-        .then(deletedPerson => {
+        .then(_deletedPerson => {
           setPersons(persons.filter(p => p.id !== person.id))
           setNotification({
             message: `Deleted ${person.name}.`,
@@ -111,7 +111,7 @@ const App = () => {
             setNotification(null)
           }, 5000)
         })
-        .catch(error => {
+        .catch(_error => {
           setNotification({
             message: `Failed to delete ${person.name}.`,
             type: 'error'
