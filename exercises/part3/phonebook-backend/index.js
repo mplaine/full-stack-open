@@ -23,8 +23,13 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
-    return response.status(400).send({
+    return response.status(400).json({
       error: 'malformatted id'
+    })
+  }
+  else if (error.name === 'ValidationError') {
+    return response.status(400).json({
+      error: error.message
     })
   }
 
@@ -32,7 +37,7 @@ const errorHandler = (error, request, response, next) => {
 }
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({
+  response.status(404).json({
     error: 'unknown endpoint'
   })
 }
@@ -81,18 +86,12 @@ app.delete('/api/persons/:id', (request, response, next) => {
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
 
-  if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: 'The name or number is missing'
-    })
-  }
-
   const person = {
     name: body.name,
     number: body.number,
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
     .then(updatedPerson => {
       if (updatedPerson) {
         response.json(updatedPerson)
@@ -106,12 +105,6 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-
-  if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: 'The name or number is missing'
-    })
-  }
 
   Person.find({ name: body.name })
     .then(result => {

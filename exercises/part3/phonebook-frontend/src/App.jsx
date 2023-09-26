@@ -56,7 +56,7 @@ const App = () => {
           })
           .catch(error => {
             setNotification({
-              message: `Failed to update ${updatedPerson.name}.`,
+              message: error.response.data.error,
               type: 'error'
             })
             setTimeout(() => {
@@ -88,7 +88,7 @@ const App = () => {
         })
         .catch(error => {
           setNotification({
-            message: `Failed to create ${personObject.name}.`,
+            message: error.response.data.error,
             type: 'error'
           })
           setTimeout(() => {
