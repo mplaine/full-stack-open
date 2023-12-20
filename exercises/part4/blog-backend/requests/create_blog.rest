@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Performance audit: Lego.com",
+    "author": "Tammy Everts",
+    "url": "https://www.speedcurve.com/blog/web-performance-audit-lego/",
+    "likes": 0
+}
