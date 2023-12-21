@@ -16,7 +16,7 @@ describe('total likes', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
   ]
   const listWithManyBlogs = [
@@ -26,7 +26,7 @@ describe('total likes', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '6583350a075b46624350114b',
@@ -34,7 +34,7 @@ describe('total likes', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/december-2023-update/',
       likes: 99,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '65833530075b46624350114d',
@@ -42,21 +42,21 @@ describe('total likes', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/core-web-vitals-inp-mobile/',
       likes: 2,
-      __v: 0
-    }
+      __v: 0,
+    },
   ]
 
-  test('of empty list array is zero', () => {
+  test('of an empty list array is zero', () => {
     const result = listHelper.totalLikes(listWithZeroBlogs)
     expect(result).toBe(0)
   })
 
-  test('when list has only one blog equals the likes of that', () => {
+  test('when a list has only one blog equals to the likes of that', () => {
     const result = listHelper.totalLikes(listWithOneBlog)
     expect(result).toBe(5)
   })
 
-  test('of a bigger list is calculated right', () => {
+  test('of a bigger list is calculated correctly', () => {
     const result = listHelper.totalLikes(listWithManyBlogs)
     expect(result).toBe(106)
   })
@@ -71,7 +71,7 @@ describe('favorite blog', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
   ]
   const listWithManyBlogs = [
@@ -81,7 +81,7 @@ describe('favorite blog', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '6583350a075b46624350114b',
@@ -89,7 +89,7 @@ describe('favorite blog', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/december-2023-update/',
       likes: 99,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '65833530075b46624350114d',
@@ -97,17 +97,17 @@ describe('favorite blog', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/core-web-vitals-inp-mobile/',
       likes: 2,
-      __v: 0
+      __v: 0,
     },
   ]
 
-  test('of empty list array is zero', () => {
+  test('of an empty list array is null', () => {
     const result = listHelper.favoriteBlog(listWithZeroBlogs)
     const expected = null
     expect(result).toEqual(expected)
   })
 
-  test('when list has only one blog equals the likes of that', () => {
+  test('when a list has only one blog equals to that', () => {
     const result = listHelper.favoriteBlog(listWithOneBlog)
     const expected = {
       _id: '658334c7075b466243501149',
@@ -115,12 +115,12 @@ describe('favorite blog', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     }
     expect(result).toEqual(expected)
   })
 
-  test('of a bigger list is calculated right', () => {
+  test('of a bigger list is calculated correctly', () => {
     const result = listHelper.favoriteBlog(listWithManyBlogs)
     const expected = {
       _id: '6583350a075b46624350114b',
@@ -128,7 +128,7 @@ describe('favorite blog', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/december-2023-update/',
       likes: 99,
-      __v: 0
+      __v: 0,
     }
     expect(result).toEqual(expected)
   })
@@ -143,7 +143,7 @@ describe('most blogs', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
   ]
   const listWithManyBlogs = [
@@ -153,7 +153,7 @@ describe('most blogs', () => {
       author: 'Tammy Everts',
       url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '6583350a075b46624350114b',
@@ -161,7 +161,7 @@ describe('most blogs', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/december-2023-update/',
       likes: 99,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '65833530075b46624350114d',
@@ -169,25 +169,89 @@ describe('most blogs', () => {
       author: 'Cliff Crocker',
       url: 'https://www.speedcurve.com/blog/core-web-vitals-inp-mobile/',
       likes: 2,
-      __v: 0
+      __v: 0,
     },
   ]
 
-  test('of empty list array is zero', () => {
+  test('of an empty list array is null', () => {
     const result = listHelper.mostBlogs(listWithZeroBlogs)
+    const expected = null
+    expect(result).toBe(expected)
+  })
+
+  test('when a list has only one blog equals to the author of that', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog)
+    const expected = 'Tammy Everts'
+    expect(result).toBe(expected)
+  })
+
+  test('of a bigger list is calculated correctly', () => {
+    const result = listHelper.mostBlogs(listWithManyBlogs)
+    const expected = 'Cliff Crocker'
+    expect(result).toBe(expected)
+  })
+})
+
+describe('most likes', () => {
+  const listWithZeroBlogs = []
+  const listWithOneBlog = [
+    {
+      _id: '658334c7075b466243501149',
+      title: 'Performance audit: Lego.com',
+      author: 'Tammy Everts',
+      url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
+      likes: 5,
+      __v: 0,
+    },
+  ]
+  const listWithManyBlogs = [
+    {
+      _id: '658334c7075b466243501149',
+      title: 'Performance audit: Lego.com',
+      author: 'Tammy Everts',
+      url: 'https://www.speedcurve.com/blog/web-performance-audit-lego/',
+      likes: 5,
+      __v: 0,
+    },
+    {
+      _id: '6583350a075b46624350114b',
+      title: 'NEW! December product update',
+      author: 'Cliff Crocker',
+      url: 'https://www.speedcurve.com/blog/december-2023-update/',
+      likes: 99,
+      __v: 0,
+    },
+    {
+      _id: '65833530075b46624350114d',
+      title: 'Mobile INP performance: The elephant in the room',
+      author: 'Cliff Crocker',
+      url: 'https://www.speedcurve.com/blog/core-web-vitals-inp-mobile/',
+      likes: 2,
+      __v: 0,
+    },
+  ]
+
+  test('of an empty list array is null', () => {
+    const result = listHelper.mostLikes(listWithZeroBlogs)
     const expected = null
     expect(result).toEqual(expected)
   })
 
-  test('when list has only one blog equals the likes of that', () => {
-    const result = listHelper.mostBlogs(listWithOneBlog)
-    const expected = 'Tammy Everts'
+  test('when a list has only one blog equals to the author and likes of that', () => {
+    const result = listHelper.mostLikes(listWithOneBlog)
+    const expected = {
+      author: 'Tammy Everts',
+      likes: 5,
+    }
     expect(result).toEqual(expected)
   })
 
-  test('of a bigger list is calculated right', () => {
-    const result = listHelper.mostBlogs(listWithManyBlogs)
-    const expected = 'Cliff Crocker'
+  test('of a bigger list is calculated correctly', () => {
+    const result = listHelper.mostLikes(listWithManyBlogs)
+    const expected = {
+      author: 'Cliff Crocker',
+      likes: 101,
+    }
     expect(result).toEqual(expected)
   })
 })

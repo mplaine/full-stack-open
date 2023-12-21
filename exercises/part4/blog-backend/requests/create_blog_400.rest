@@ -2,5 +2,5 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Does Interaction to Next Paint actually correlate to user behavior?"
+    "title": "Performance audit: Lego.com",
 }

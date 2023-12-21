@@ -5,5 +5,5 @@ Content-Type: application/json
     "title": "Performance audit: Lego.com",
     "author": "Tammy Everts",
     "url": "https://www.speedcurve.com/blog/web-performance-audit-lego/",
-    "likes": 0
+    "likes": 5,
 }

@@ -21,7 +21,10 @@ const mostBlogs = (blogs) => {
     : _(blogs)
       .groupBy(blog => blog.author)
       .map((items, author) => {
-        return { author: author, count: items.length }
+        return {
+          author: author,
+          count: items.length,
+        }
       })
       .sortBy('count')
       .reverse()
@@ -29,9 +32,26 @@ const mostBlogs = (blogs) => {
       .author
 }
 
+const mostLikes = (blogs) => {
+  return blogs.length === 0
+    ? null
+    : _(blogs)
+      .groupBy(blog => blog.author)
+      .map((items, author) => {
+        return {
+          author: author,
+          likes: items.reduce((sum, blog) => sum + blog.likes, 0),
+        }
+      })
+      .sortBy('likes')
+      .reverse()
+      .first()
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes,
 }
