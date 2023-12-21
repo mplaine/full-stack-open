@@ -1,3 +1,6 @@
+var _ = require('lodash')
+
+
 const dummy = (_blogs) => {
   return 1
 }
@@ -12,8 +15,23 @@ const favoriteBlog = (blogs) => {
     : blogs.sort((a, b) => (b.likes - a.likes))[0]
 }
 
+const mostBlogs = (blogs) => {
+  return blogs.length === 0
+    ? null
+    : _(blogs)
+      .groupBy(blog => blog.author)
+      .map((items, author) => {
+        return { author: author, count: items.length }
+      })
+      .sortBy('count')
+      .reverse()
+      .first()
+      .author
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
+  mostBlogs,
 }
