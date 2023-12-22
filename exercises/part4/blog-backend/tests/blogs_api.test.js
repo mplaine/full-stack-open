@@ -105,9 +105,9 @@ describe('deletion of a blog', () => {
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
 
-    const urls = blogsAtEnd.map(r => r.url)
+    const urls = blogsAtEnd.map(blog => blog.url)
     expect(urls).not.toContain(blogToDelete.url)
-  })
+  }, testTimeoutMS)
 
   test('fails with status code 404 if "id" is invalid', async () => {
     const invalidId = '012345678901234567890123'
@@ -118,7 +118,44 @@ describe('deletion of a blog', () => {
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
-  })
+  }, testTimeoutMS)
+})
+
+describe('modification of a blog', () => {
+  test('succeeds with status code 200 if "id" and data is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = _(blogsAtStart).first()
+    blogToUpdate.likes = -1
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogToUpdate)
+      .expect(200)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    const likes = blogsAtEnd.map(blog => blog.likes)
+    expect(likes).toContain(blogToUpdate.likes)
+  }, testTimeoutMS)
+
+  test('fails with status code 404 if "id" is invalid', async () => {
+    const invalidId = '012345678901234567890123'
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = _(blogsAtStart).first()
+    blogToUpdate.likes = -1
+
+    await api
+      .put(`/api/blogs/${invalidId}`)
+      .send(blogToUpdate)
+      .expect(404)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    const likes = blogsAtEnd.map(blog => blog.likes)
+    expect(likes).not.toContain(blogToUpdate.likes)
+  }, testTimeoutMS)
 })
 
 afterAll(async () => {
