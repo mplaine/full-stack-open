@@ -6,7 +6,7 @@ const app = require('../app')
 const api = supertest(app)
 const testTimeoutMS = 10000 // 10 seconds
 const Blog = require('../models/blog')
-
+const _ = require('lodash')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -40,12 +40,12 @@ describe('blogs api', () => {
     })
   }, testTimeoutMS)
 
-  test('a valid blog can be added ', async () => {
+  test('a valid blog can be added', async () => {
     const newBlog = {
       title: 'How to automatically performance test your pull requests and fight regressions',
       author: 'Joseph Wynn',
       url: 'https://www.speedcurve.com/blog/web-performance-test-pull-requests/',
-      likes: 1
+      likes: 1,
     }
 
     await api
@@ -59,6 +59,26 @@ describe('blogs api', () => {
 
     const urls = blogs.map(blog => blog.url)
     expect(urls).toContain('https://www.speedcurve.com/blog/web-performance-test-pull-requests/')
+  }, testTimeoutMS)
+
+  test('a valid blog with default likes can be added', async () => {
+    const newBlog = {
+      title: '2023 recap: This year was all about making performance easy (well, easier)',
+      author: 'Tammy Everts',
+      url: 'https://www.speedcurve.com/blog/2023-easy-web-performance/',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const blogs = await helper.blogsInDb()
+    expect(blogs).toHaveLength(helper.initialBlogs.length + 1)
+
+    const latestBlog = _(blogs).last()
+    expect(latestBlog.likes).toEqual(0)
   }, testTimeoutMS)
 })
 
