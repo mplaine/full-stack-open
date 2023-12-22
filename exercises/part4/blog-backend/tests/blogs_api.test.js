@@ -30,6 +30,15 @@ describe('blogs api', () => {
 
     expect(response.body).toHaveLength(helper.initialBlogs.length)
   }, testTimeoutMS)
+
+  test('each blog has the "id" property', async () => {
+    const blogs = await helper.blogsInDb()
+
+    blogs.forEach(blog => {
+      expect(blog.id).toBeDefined()
+      // expect(blog).toHaveProperty('id')
+    })
+  }, testTimeoutMS)
 })
 
 afterAll(async () => {
