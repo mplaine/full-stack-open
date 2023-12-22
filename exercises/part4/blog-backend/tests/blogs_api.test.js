@@ -10,14 +10,10 @@ const _ = require('lodash')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-
-  for (let blog of helper.initialBlogs) {
-    let blogObject = new Blog(blog)
-    await blogObject.save()
-  }
+  await Blog.insertMany(helper.initialBlogs)
 })
 
-describe('blogs api', () => {
+describe('when there is initially some blogs saved', () => {
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -26,12 +22,11 @@ describe('blogs api', () => {
   }, testTimeoutMS)
 
   test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
-
-    expect(response.body).toHaveLength(helper.initialBlogs.length)
+    const blogs = await helper.blogsInDb()
+    expect(blogs).toHaveLength(helper.initialBlogs.length)
   }, testTimeoutMS)
 
-  test('each blog has the "id" property', async () => {
+  test('each blog has "id"', async () => {
     const blogs = await helper.blogsInDb()
 
     blogs.forEach(blog => {
@@ -39,8 +34,10 @@ describe('blogs api', () => {
       // expect(blog).toHaveProperty('id')
     })
   }, testTimeoutMS)
+})
 
-  test('a valid blog can be added', async () => {
+describe('addition of a new blog', () => {
+  test('succeeds with valid data', async () => {
     const newBlog = {
       title: 'How to automatically performance test your pull requests and fight regressions',
       author: 'Joseph Wynn',
@@ -54,14 +51,14 @@ describe('blogs api', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogs = await helper.blogsInDb()
-    expect(blogs).toHaveLength(helper.initialBlogs.length + 1)
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-    const urls = blogs.map(blog => blog.url)
+    const urls = blogsAtEnd.map(blog => blog.url)
     expect(urls).toContain('https://www.speedcurve.com/blog/web-performance-test-pull-requests/')
   }, testTimeoutMS)
 
-  test('a valid blog with default likes can be added', async () => {
+  test('succeeds with valid data without "likes"', async () => {
     const newBlog = {
       title: '2023 recap: This year was all about making performance easy (well, easier)',
       author: 'Tammy Everts',
@@ -74,14 +71,14 @@ describe('blogs api', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogs = await helper.blogsInDb()
-    expect(blogs).toHaveLength(helper.initialBlogs.length + 1)
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-    const latestBlog = _(blogs).last()
+    const latestBlog = _(blogsAtEnd).last()
     expect(latestBlog.likes).toEqual(0)
   }, testTimeoutMS)
 
-  test('an invalid blog cannot be added', async () => {
+  test('fails with status code 400 if "title" and "url" are not given', async () => {
     const newBlog = {
       author: 'Tammy Everts',
     }
@@ -91,9 +88,37 @@ describe('blogs api', () => {
       .send(newBlog)
       .expect(400)
 
-    const blogs = await helper.blogsInDb()
-    expect(blogs).toHaveLength(helper.initialBlogs.length)
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
   }, testTimeoutMS)
+})
+
+describe('deletion of a blog', () => {
+  test('succeeds with status code 204 if "id" is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = _(blogsAtStart).first()
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+
+    const urls = blogsAtEnd.map(r => r.url)
+    expect(urls).not.toContain(blogToDelete.url)
+  })
+
+  test('fails with status code 404 if "id" is invalid', async () => {
+    const invalidId = '012345678901234567890123'
+
+    await api
+      .delete(`/api/blogs/${invalidId}`)
+      .expect(404)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  })
 })
 
 afterAll(async () => {
