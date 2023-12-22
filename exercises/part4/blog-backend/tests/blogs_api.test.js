@@ -80,6 +80,20 @@ describe('blogs api', () => {
     const latestBlog = _(blogs).last()
     expect(latestBlog.likes).toEqual(0)
   }, testTimeoutMS)
+
+  test('an invalid blog cannot be added', async () => {
+    const newBlog = {
+      author: 'Tammy Everts',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const blogs = await helper.blogsInDb()
+    expect(blogs).toHaveLength(helper.initialBlogs.length)
+  }, testTimeoutMS)
 })
 
 afterAll(async () => {
