@@ -39,6 +39,27 @@ describe('blogs api', () => {
       // expect(blog).toHaveProperty('id')
     })
   }, testTimeoutMS)
+
+  test('a valid blog can be added ', async () => {
+    const newBlog = {
+      title: 'How to automatically performance test your pull requests and fight regressions',
+      author: 'Joseph Wynn',
+      url: 'https://www.speedcurve.com/blog/web-performance-test-pull-requests/',
+      likes: 1
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const blogs = await helper.blogsInDb()
+    expect(blogs).toHaveLength(helper.initialBlogs.length + 1)
+
+    const urls = blogs.map(blog => blog.url)
+    expect(urls).toContain('https://www.speedcurve.com/blog/web-performance-test-pull-requests/')
+  }, testTimeoutMS)
 })
 
 afterAll(async () => {
