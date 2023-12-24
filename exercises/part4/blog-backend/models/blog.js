@@ -18,7 +18,12 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     required: false,
     default: 0,
-  }
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: false,
+    ref: 'User',
+  },
 })
 blogSchema.set('toJSON', {
   transform: (_document, returnedObject) => {
