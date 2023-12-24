@@ -76,6 +76,44 @@ describe('addition of a new user', () => {
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
   }, testTimeoutMS)
+
+  test('fails with status code 400 if "username" is too short', async () => {
+    const newUser = {
+      username: 'te',
+      name: 'Tammy Everts',
+      password: 'mypassword',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Username must be at least 3 characters long')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
+  }, testTimeoutMS)
+
+  test('fails with status code 400 if "password" is too short', async () => {
+    const newUser = {
+      username: 'teverts',
+      name: 'Tammy Everts',
+      password: 'pw',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Password must be at least 3 characters long')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
+  }, testTimeoutMS)
 })
 
 afterAll(async () => {
