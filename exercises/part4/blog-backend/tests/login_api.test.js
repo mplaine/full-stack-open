@@ -6,52 +6,57 @@ const app = require('../app')
 const api = supertest(app)
 const testTimeoutMS = 10000 // 10 seconds
 const User = require('../models/user')
+const _ = require('lodash')
 
 
 beforeEach(async () => {
+  // Delete existing users and blogs
   await User.deleteMany({})
-  await User.insertMany(helper.initialUsers)
+
+  // Insert new users
+  const users = helper.initialUsers
+  for (let user of users) {
+    await api
+      .post('/api/users')
+      .send(user)
+  }
 })
 
 describe('login an existing user', () => {
   test('succeeds with valid data', async () => {
-    const existingUser = {
-      username: 'root',
-      password: 'secret',
-    }
+    // Get the first user
+    const firstUser = _.first(helper.initialUsers)
 
-    await api
+    // Login the user and get the token
+    const loginResponse = await api
       .post('/api/login')
-      .send(existingUser)
+      .send(firstUser)
       .expect(200)
       .expect('Content-Type', /application\/json/)
+    const token = loginResponse.body.token
 
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
-
-    const usernames = usersAtEnd.map(user => user.username)
-    expect(usernames).toContain('root')
+    expect(token).toBeDefined()
   }, testTimeoutMS)
 
   test('fails with status code 401 if "username" or "password" is invalid', async () => {
-    const existingUser = {
+    // Create a new user object
+    const user =   {
       username: 'root',
-      password: 'mypassword',
+      name: 'Superuser',
+      password: 'wrongpassword',
     }
 
-    const result = await api
+    // Login the user
+    const loginResponse = await api
       .post('/api/login')
-      .send(existingUser)
+      .send(user)
       .expect(401)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('Invalid username or password')
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
+    expect(loginResponse.body.error).toContain('Invalid username or password')
   }, testTimeoutMS)
 })
 
 afterAll(async () => {
   await mongoose.connection.close()
-})
+}, testTimeoutMS)

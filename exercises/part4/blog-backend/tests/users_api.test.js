@@ -9,12 +9,21 @@ const User = require('../models/user')
 
 
 beforeEach(async () => {
+  // Delete existing users and blogs
   await User.deleteMany({})
-  await User.insertMany(helper.initialUsers)
+
+  // Insert new users
+  const users = helper.initialUsers
+  for (let user of users) {
+    await api
+      .post('/api/users')
+      .send(user)
+  }
 })
 
 describe('when there is initially some users saved', () => {
   test('users are returned as json', async () => {
+    // Get all users
     await api
       .get('/api/users')
       .expect(200)
@@ -22,14 +31,16 @@ describe('when there is initially some users saved', () => {
   }, testTimeoutMS)
 
   test('all users are returned', async () => {
+    // Get all users
     const users = await helper.usersInDb()
     expect(users).toHaveLength(helper.initialUsers.length)
   }, testTimeoutMS)
 
   test('each user has "id"', async () => {
+    // Get all users
     const users = await helper.usersInDb()
-    console.log(users)
 
+    // Iterate over users
     users.forEach(user => {
       expect(user.id).toBeDefined()
       // expect(user).toHaveProperty('id')
@@ -39,78 +50,91 @@ describe('when there is initially some users saved', () => {
 
 describe('addition of a new user', () => {
   test('succeeds with valid data', async () => {
+    // Create a new user object
     const newUser = {
       username: 'johndoe',
       name: 'John Doe',
       password: 'mypassword',
     }
 
+    // Insert the user
     await api
       .post('/api/users')
       .send(newUser)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
+    // Get all users
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(helper.initialUsers.length + 1)
 
+    // Get all usernames
     const usernames = usersAtEnd.map(user => user.username)
     expect(usernames).toContain('johndoe')
   }, testTimeoutMS)
 
   test('fails with status code 400 if "username" is already taken', async () => {
+    // Create a new user object
     const newUser = {
       username: 'root',
       name: 'Superuser',
       password: 'mypassword',
     }
 
-    const result = await api
+    // Insert the user
+    const usersResponse = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('expected `username` to be unique')
+    expect(usersResponse.body.error).toContain('expected `username` to be unique')
 
+    // Get all users
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
   }, testTimeoutMS)
 
   test('fails with status code 400 if "username" is too short', async () => {
+    // Create a new user object
     const newUser = {
-      username: 'te',
-      name: 'Tammy Everts',
-      password: 'mypassword',
+      username: 'jw',
+      name: 'Joseph Wynn',
+      password: 'nnyw',
     }
 
-    const result = await api
+    // Insert the user
+    const usersResponse = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('Username must be at least 3 characters long')
+    expect(usersResponse.body.error).toContain('Username must be at least 3 characters long')
 
+    // Get all users
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
   }, testTimeoutMS)
 
   test('fails with status code 400 if "password" is too short', async () => {
+    // Create a new user object
     const newUser = {
-      username: 'teverts',
-      name: 'Tammy Everts',
-      password: 'pw',
+      username: 'jwynn',
+      name: 'Joseph Wynn',
+      password: 'wj',
     }
 
-    const result = await api
+    // Insert the user
+    const usersResponse = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('Password must be at least 3 characters long')
+    expect(usersResponse.body.error).toContain('Password must be at least 3 characters long')
 
+    // Get all users
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(helper.initialUsers.length)
   }, testTimeoutMS)
@@ -118,4 +142,4 @@ describe('addition of a new user', () => {
 
 afterAll(async () => {
   await mongoose.connection.close()
-})
+}, testTimeoutMS)

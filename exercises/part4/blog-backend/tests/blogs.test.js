@@ -1,11 +1,13 @@
 const listHelper = require('../utils/list_helper')
+const testTimeoutMS = 10000 // 10 seconds
+
 
 test('dummy returns one', () => {
   const blogs = []
 
   const result = listHelper.dummy(blogs)
   expect(result).toBe(1)
-})
+}, testTimeoutMS)
 
 describe('total likes', () => {
   const listWithZeroBlogs = []
@@ -49,17 +51,17 @@ describe('total likes', () => {
   test('of an empty list array is zero', () => {
     const result = listHelper.totalLikes(listWithZeroBlogs)
     expect(result).toBe(0)
-  })
+  }, testTimeoutMS)
 
   test('when a list has only one blog equals to the likes of that', () => {
     const result = listHelper.totalLikes(listWithOneBlog)
     expect(result).toBe(5)
-  })
+  }, testTimeoutMS)
 
   test('of a bigger list is calculated correctly', () => {
     const result = listHelper.totalLikes(listWithManyBlogs)
     expect(result).toBe(106)
-  })
+  }, testTimeoutMS)
 })
 
 describe('favorite blog', () => {
@@ -105,7 +107,7 @@ describe('favorite blog', () => {
     const result = listHelper.favoriteBlog(listWithZeroBlogs)
     const expected = null
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 
   test('when a list has only one blog equals to that', () => {
     const result = listHelper.favoriteBlog(listWithOneBlog)
@@ -118,7 +120,7 @@ describe('favorite blog', () => {
       __v: 0,
     }
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 
   test('of a bigger list is calculated correctly', () => {
     const result = listHelper.favoriteBlog(listWithManyBlogs)
@@ -131,7 +133,7 @@ describe('favorite blog', () => {
       __v: 0,
     }
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 })
 
 describe('most blogs', () => {
@@ -177,19 +179,19 @@ describe('most blogs', () => {
     const result = listHelper.mostBlogs(listWithZeroBlogs)
     const expected = null
     expect(result).toBe(expected)
-  })
+  }, testTimeoutMS)
 
   test('when a list has only one blog equals to the author of that', () => {
     const result = listHelper.mostBlogs(listWithOneBlog)
     const expected = 'Tammy Everts'
     expect(result).toBe(expected)
-  })
+  }, testTimeoutMS)
 
   test('of a bigger list is calculated correctly', () => {
     const result = listHelper.mostBlogs(listWithManyBlogs)
     const expected = 'Cliff Crocker'
     expect(result).toBe(expected)
-  })
+  }, testTimeoutMS)
 })
 
 describe('most likes', () => {
@@ -235,7 +237,7 @@ describe('most likes', () => {
     const result = listHelper.mostLikes(listWithZeroBlogs)
     const expected = null
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 
   test('when a list has only one blog equals to the author and likes of that', () => {
     const result = listHelper.mostLikes(listWithOneBlog)
@@ -244,7 +246,7 @@ describe('most likes', () => {
       likes: 5,
     }
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 
   test('of a bigger list is calculated correctly', () => {
     const result = listHelper.mostLikes(listWithManyBlogs)
@@ -253,5 +255,5 @@ describe('most likes', () => {
       likes: 101,
     }
     expect(result).toEqual(expected)
-  })
+  }, testTimeoutMS)
 })

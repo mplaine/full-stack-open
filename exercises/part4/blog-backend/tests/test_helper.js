@@ -6,7 +6,17 @@ const initialUsers = [
   {
     username: 'root',
     name: 'Superuser',
-    passwordHash: '$2b$10$kIaz.mcVUst3k6k5ShYh6O86OHkxwIHen8z7jetCofWbhxjrv71Na', // 'secret' in plain text
+    password: 'topsecret',
+  },
+  {
+    username: 'teverts',
+    name: 'Tammy Everts',
+    password: 'ymmat',
+  },
+  {
+    username: 'ccrocker',
+    name: 'Cliff Crocker',
+    password: 'ffilc',
   },
 ]
 
