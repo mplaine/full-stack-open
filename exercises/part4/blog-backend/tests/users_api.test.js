@@ -6,11 +6,13 @@ const app = require('../app')
 const api = supertest(app)
 const testTimeoutMS = 10000 // 10 seconds
 const User = require('../models/user')
+const Blog = require('../models/blog')
 
 
 beforeEach(async () => {
   // Delete existing users and blogs
   await User.deleteMany({})
+  await Blog.deleteMany({})
 
   // Insert new users
   const users = helper.initialUsers
@@ -19,7 +21,7 @@ beforeEach(async () => {
       .post('/api/users')
       .send(user)
   }
-})
+}, testTimeoutMS)
 
 describe('when there is initially some users saved', () => {
   test('users are returned as json', async () => {

@@ -39,7 +39,7 @@ beforeEach(async () => {
       .set('Authorization', 'Bearer ' + token)
       .send(blog)
   }
-})
+}, testTimeoutMS)
 
 describe('when there is initially some blogs saved', () => {
   test('blogs are returned as json', async () => {
