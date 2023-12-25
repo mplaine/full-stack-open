@@ -39,6 +39,18 @@ describe('when there is initially some blogs saved', () => {
 
 describe('addition of a new blog', () => {
   test('succeeds with valid data', async () => {
+    const existingUser = {
+      username: 'root',
+      password: 'secret',
+    }
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send(existingUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    const token = loginResponse.body.token
+
     const newBlog = {
       title: 'How to automatically performance test your pull requests and fight regressions',
       author: 'Joseph Wynn',
@@ -48,6 +60,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', 'Bearer ' + token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -60,6 +73,18 @@ describe('addition of a new blog', () => {
   }, testTimeoutMS)
 
   test('succeeds with valid data without "likes"', async () => {
+    const existingUser = {
+      username: 'root',
+      password: 'secret',
+    }
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send(existingUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    const token = loginResponse.body.token
+
     const newBlog = {
       title: '2023 recap: This year was all about making performance easy (well, easier)',
       author: 'Tammy Everts',
@@ -68,6 +93,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', 'Bearer ' + token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -80,12 +106,25 @@ describe('addition of a new blog', () => {
   }, testTimeoutMS)
 
   test('fails with status code 400 if "title" and "url" are not given', async () => {
+    const existingUser = {
+      username: 'root',
+      password: 'secret',
+    }
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send(existingUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    const token = loginResponse.body.token
+
     const newBlog = {
       author: 'Tammy Everts',
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', 'Bearer ' + token)
       .send(newBlog)
       .expect(400)
 
