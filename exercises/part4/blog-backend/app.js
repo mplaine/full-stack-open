@@ -3,21 +3,21 @@ const express = require('express')
 require('express-async-errors')
 const app = express()
 const cors = require('cors')
-const loginRouter = require('./controllers/login')
-const usersRouter = require('./controllers/users')
-const blogsRouter = require('./controllers/blogs')
 const middleware = require('./utils/middleware')
+app.use(middleware.tokenExtractor)
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
 const morgan = require('morgan')
-
 morgan.token('body', function getRequestBody(req) {
   if (req.method === 'POST' || req.method === 'PUT') {
     return JSON.stringify(req.body)
   }
 })
+const loginRouter = require('./controllers/login')
+const usersRouter = require('./controllers/users')
+const blogsRouter = require('./controllers/blogs')
 
-mongoose.set('strictQuery', false)
 
 logger.info('connecting to', config.MONGODB_URI)
 
