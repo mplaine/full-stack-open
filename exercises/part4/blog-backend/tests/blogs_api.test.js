@@ -143,7 +143,7 @@ describe('addition of a new blog', () => {
     expect(latestBlog.likes).toEqual(0)
   }, testTimeoutMS)
 
-  test('fails with status code 400 if "title" and "url" are not given', async () => {
+  test('fails with status code 400 if "title" and "url" are not provided', async () => {
     // Get the first user
     const firstUser = _.first(helper.initialUsers)
 
@@ -166,6 +166,26 @@ describe('addition of a new blog', () => {
       .set('Authorization', 'Bearer ' + token)
       .send(newBlog)
       .expect(400)
+
+    // Get all blogs
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  }, testTimeoutMS)
+
+  test('fails with status code 401 if token is not provided', async () => {
+    // Create a new blog object
+    const newBlog = {
+      title: 'How to automatically performance test your pull requests and fight regressions',
+      author: 'Joseph Wynn',
+      url: 'https://www.speedcurve.com/blog/web-performance-test-pull-requests/',
+      likes: 1,
+    }
+
+    // Insert the blog
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
 
     // Get all blogs
     const blogsAtEnd = await helper.blogsInDb()
@@ -238,6 +258,23 @@ describe('deletion of a blog', () => {
     // Get all URLs
     const urls = blogsAtEnd.map(blog => blog.url)
     expect(urls).toContain(blogToDelete.url)
+  }, testTimeoutMS)
+
+  test('fails with status code 401 if token is not provided', async () => {
+    // Get all blogs
+    const blogsAtStart = await helper.blogsInDb()
+
+    // Get the first blog to be deleted
+    const blogToDelete = _.first(blogsAtStart)
+
+    // Delete the blog
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(401)
+
+    // Get all blogs
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
   }, testTimeoutMS)
 
   test('fails with status code 404 if "id" is invalid', async () => {

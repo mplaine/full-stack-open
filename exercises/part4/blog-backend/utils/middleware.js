@@ -47,14 +47,17 @@ const tokenExtractor = (request, response, next) => {
 
 const userExtractor = async (request, response, next) => {
   const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    const token = authorization.replace('Bearer ', '')
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'Invalid token' })
-    }
-    request.user = await User.findById(decodedToken.id)
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return response.status(401).json({ error: 'Invalid token' })
   }
+
+  const token = authorization.replace('Bearer ', '')
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'Invalid token' })
+  }
+
+  request.user = await User.findById(decodedToken.id)
 
   next()
 }
