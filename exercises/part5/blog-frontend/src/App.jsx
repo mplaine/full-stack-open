@@ -54,6 +54,12 @@ const App = () => {
     try {
       const createdBlog = await blogService.create(newBlogObject)
       if (createdBlog) {
+        const userId = createdBlog.user
+        createdBlog.user = {
+          username: user.username,
+          name: user.name,
+          id: userId,
+        }
         setBlogs(blogs.concat(createdBlog))
         setNotification({
           message: `A new blog "${createdBlog.title}" was successfully created`,
