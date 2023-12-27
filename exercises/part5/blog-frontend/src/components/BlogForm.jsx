@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import blogService from '../services/blogs'
 
 
-const BlogForm = ({ blogs, setBlogs }) => {
+const BlogForm = ({ blogs, setBlogs, setNotification }) => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
@@ -27,9 +27,22 @@ const BlogForm = ({ blogs, setBlogs }) => {
       if (createdBlog) {
         setBlogs(blogs.concat(createdBlog))
         cleanForm()
+        setNotification({
+          message: `A new blog "${createdBlog.title}" added successfully`,
+          type: 'success'
+        })
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       }
     } catch (exception) {
-      console.error(`Failed to create a new blog "${newBlogObject.title}"`)
+      setNotification({
+        message: exception.response.data.error,
+        type: 'error'
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     }
   }
 
