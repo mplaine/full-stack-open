@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Button from './components/Button'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -40,7 +41,7 @@ const App = () => {
   const blogsForm = () => (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in</p>
+      <p>{user.name} logged in <Button handleClick={handleLogout} text="logout" /></p>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
@@ -63,6 +64,15 @@ const App = () => {
     } catch (exception) {
       console.error('Wrong credentials')
     }
+  }
+
+  const handleLogout = (event) => {
+    event.preventDefault()
+
+    window.localStorage.removeItem('loggedInBlogAppUser')
+    setUser(null)
+    setUsername('')
+    setPassword('')
   }
 
   useEffect(() => {
