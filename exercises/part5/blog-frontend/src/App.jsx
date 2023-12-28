@@ -7,6 +7,7 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import compareByLikes from './utils'
 
 
 const App = () => {
@@ -60,7 +61,7 @@ const App = () => {
           name: user.name,
           id: userId,
         }
-        setBlogs(blogs.concat(createdBlog))
+        setBlogs(blogs.concat(createdBlog).sort(compareByLikes))
         setNotification({
           message: `A new blog "${createdBlog.title}" was successfully created`,
           type: 'success'
@@ -93,7 +94,7 @@ const App = () => {
           name: user.name,
           id: userId,
         }
-        setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+        setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog).sort(compareByLikes))
         setNotification({
           message: `An existing blog "${updatedBlog.title}" was successfully updated`,
           type: 'success'
@@ -151,7 +152,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs(blogs)
+      setBlogs(blogs.sort(compareByLikes))
     )
   }, [])
 
