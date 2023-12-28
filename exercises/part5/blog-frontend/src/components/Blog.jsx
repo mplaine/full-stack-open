@@ -3,7 +3,7 @@ import Button from './Button'
 
 
 const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
 
   const toggleVisibility = () => {
     setVisible(!visible)
