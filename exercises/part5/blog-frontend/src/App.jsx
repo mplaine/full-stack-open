@@ -53,7 +53,7 @@ const App = () => {
     blogFormRef.current.toggleVisibility()
 
     try {
-      const createdBlog = await blogService.create(newBlogObject)
+      const createdBlog = await blogService.createBlog(newBlogObject)
       if (createdBlog) {
         const userId = createdBlog.user
         createdBlog.user = {
@@ -86,7 +86,7 @@ const App = () => {
 
   const updateBlog = async (updatedBlogObject) => {
     try {
-      const updatedBlog = await blogService.update(updatedBlogObject.id, updatedBlogObject)
+      const updatedBlog = await blogService.updateBlog(updatedBlogObject.id, updatedBlogObject)
       if (updatedBlog) {
         const userId = updatedBlog.user
         updatedBlog.user = {
@@ -103,6 +103,28 @@ const App = () => {
           setNotification(null)
         }, 5000)
       }
+    } catch (exception) {
+      setNotification({
+        message: exception.response.data.error,
+        type: 'error'
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
+  }
+
+  const deleteBlog = async (blogToBeDeleted) => {
+    try {
+      await blogService.deleteBlog(blogToBeDeleted.id)
+      setBlogs(blogs.filter(blog => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
+      setNotification({
+        message: `An existing blog "${blogToBeDeleted.title}" was successfully removed`,
+        type: 'success'
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch (exception) {
       setNotification({
         message: exception.response.data.error,
@@ -131,14 +153,12 @@ const App = () => {
         <BlogForm createBlog={createBlog} />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />
       )}
     </div>
   )
 
   const handleLogout = (event) => {
-    event.preventDefault()
-
     setNotification({
       message: `${user.name} logged out successfully`,
       type: 'success'
@@ -151,7 +171,7 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    blogService.getBlogs().then(blogs =>
       setBlogs(blogs.sort(compareByLikes))
     )
   }, [])

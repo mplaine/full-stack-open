@@ -2,8 +2,8 @@ import { useState } from 'react'
 import Button from './Button'
 
 
-const Blog = ({ blog, updateBlog }) => {
-  const [visible, setVisible] = useState(false)
+const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
+  const [visible, setVisible] = useState(true)
 
   const toggleVisibility = () => {
     setVisible(!visible)
@@ -18,14 +18,10 @@ const Blog = ({ blog, updateBlog }) => {
   }
 
   const handleToggle = (event) => {
-    event.preventDefault()
-
     toggleVisibility()
   }
 
   const handleLike = (event) => {
-    event.preventDefault()
-
     const updatedBlogObject = {
       ...blog,
       likes: blog.likes + 1,
@@ -33,6 +29,12 @@ const Blog = ({ blog, updateBlog }) => {
     }
 
     updateBlog(updatedBlogObject)
+  }
+
+  const handleDelete = (event) => {
+    if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
+      deleteBlog(blog)
+    }
   }
 
   return (
@@ -51,6 +53,11 @@ const Blog = ({ blog, updateBlog }) => {
           <div>
             {blog.user.name}
           </div>
+          {user.username === blog.user.username &&
+            <div>
+              <Button handleClick={handleDelete} text="remove" />
+            </div>
+          }
         </>
       }
     </div>
