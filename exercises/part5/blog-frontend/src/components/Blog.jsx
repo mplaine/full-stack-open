@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Button from './Button'
 
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [visible, setVisible] = useState(false)
 
   const toggleVisibility = () => {
@@ -25,6 +25,14 @@ const Blog = ({ blog }) => {
 
   const handleLike = (event) => {
     event.preventDefault()
+
+    const updatedBlogObject = {
+      ...blog,
+      likes: blog.likes + 1,
+      user: blog.user.id,
+    }
+
+    updateBlog(updatedBlogObject)
   }
 
   return (

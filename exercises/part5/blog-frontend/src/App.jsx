@@ -83,6 +83,36 @@ const App = () => {
     return isSuccess
   }
 
+  const updateBlog = async (updatedBlogObject) => {
+    try {
+      const updatedBlog = await blogService.update(updatedBlogObject.id, updatedBlogObject)
+      if (updatedBlog) {
+        const userId = updatedBlog.user
+        updatedBlog.user = {
+          username: user.username,
+          name: user.name,
+          id: userId,
+        }
+        setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+        setNotification({
+          message: `An existing blog "${updatedBlog.title}" was successfully updated`,
+          type: 'success'
+        })
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      }
+    } catch (exception) {
+      setNotification({
+        message: exception.response.data.error,
+        type: 'error'
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
+  }
+
   const loginView = () => (
     <div>
       <h2>log in to application</h2>
@@ -100,7 +130,7 @@ const App = () => {
         <BlogForm createBlog={createBlog} />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
       )}
     </div>
   )
