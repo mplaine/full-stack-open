@@ -22,12 +22,12 @@ describe('<Blog />', () => {
     },
     id: '658c6a6a12d561b9ad496925'
   }
-  const updateMockHandler = jest.fn()
-  const deleteMockHandler = jest.fn()
+  const updateBlog = jest.fn()
+  const deleteBlog = jest.fn()
   let container
 
   beforeEach(() => {
-    container = render(<Blog blog={blog} updateBlog={updateMockHandler} deleteBlog={deleteMockHandler} user={user} />).container
+    container = render(<Blog blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />).container
   })
 
   test('renders title and author', async () => {
@@ -41,19 +41,24 @@ describe('<Blog />', () => {
 
   test('after clicking the "view" button, shows URL and likes', async () => {
     const user = userEvent.setup()
+
     const button = screen.getByText('view')
     await user.click(button)
+
     expect(container).toHaveTextContent(blog.url)
     expect(container).toHaveTextContent(`likes ${blog.likes}`)
   })
 
   test('clicking the "like" button twice calls the given event handler twice', async () => {
     const user = userEvent.setup()
+
     const viewButton = screen.getByText('view')
     await user.click(viewButton)
+
     const likeButton = screen.getByText('like')
     await user.click(likeButton)
     await user.click(likeButton)
-    expect(updateMockHandler.mock.calls).toHaveLength(2)
+
+    expect(updateBlog.mock.calls).toHaveLength(2)
   })
 })
