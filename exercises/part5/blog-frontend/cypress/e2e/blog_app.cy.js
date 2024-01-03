@@ -60,5 +60,23 @@ describe('Blog app', function() {
         .should('contain', 'A new blog "New title" was successfully created')
         .and('have.css', 'color', 'rgb(0, 128, 0)')
     })
+
+    describe('When a blog exists', function () {
+      beforeEach(function () {
+        cy.createBlog(blog)
+      })
+
+      it('users can like it', function () {
+        cy.contains('view').click()
+        cy.contains('hide')
+
+        cy.contains('like').click()
+        cy.contains(`likes ${blog.likes + 1}`)
+
+        cy.get('.success')
+          .should('contain', `An existing blog "${blog.title}" was successfully updated`)
+          .and('have.css', 'color', 'rgb(0, 128, 0)')
+      })
+    })
   })
 })
