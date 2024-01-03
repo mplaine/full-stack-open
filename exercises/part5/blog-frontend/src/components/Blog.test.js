@@ -46,4 +46,14 @@ describe('<Blog />', () => {
     expect(container).toHaveTextContent(blog.url)
     expect(container).toHaveTextContent(`likes ${blog.likes}`)
   })
+
+  test('clicking the "like" button twice calls the given event handler twice', async () => {
+    const user = userEvent.setup()
+    const viewButton = screen.getByText('view')
+    await user.click(viewButton)
+    const likeButton = screen.getByText('like')
+    await user.click(likeButton)
+    await user.click(likeButton)
+    expect(updateMockHandler.mock.calls).toHaveLength(2)
+  })
 })
