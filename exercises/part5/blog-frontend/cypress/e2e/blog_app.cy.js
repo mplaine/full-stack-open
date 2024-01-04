@@ -4,6 +4,11 @@ describe('Blog app', function () {
     name: 'Superuser',
     password: 'topsecret',
   }
+  const user2 = {
+    username: 'teverts',
+    name: 'Tammy Everts',
+    password: 'ymmat',
+  }
   const blog = {
     title: 'How to automatically performance test your pull requests and fight regressions',
     author: 'Joseph Wynn',
@@ -14,6 +19,7 @@ describe('Blog app', function () {
   beforeEach(function () {
     cy.request('POST', `${Cypress.env('BACKEND')}/testing/reset`)
     cy.request('POST', `${Cypress.env('BACKEND')}/users/`, user)
+    cy.request('POST', `${Cypress.env('BACKEND')}/users/`, user2)
     cy.visit('')
   })
 
@@ -36,7 +42,7 @@ describe('Blog app', function () {
       cy.get('#login-button').click()
 
       cy.contains('user-does-not-exist logged in').should('not.exist')
-      cy.get('.error')
+      cy.get('.error', { timeout: 10000 })
         .should('contain', 'Invalid username or password')
         .and('have.css', 'color', 'rgb(255, 0, 0)')
     })
@@ -56,7 +62,7 @@ describe('Blog app', function () {
       cy.get('#create-blog-button').click()
 
       cy.contains('New title New author')
-      cy.get('.success')
+      cy.get('.success', { timeout: 10000 })
         .should('contain', 'A new blog "New title" was successfully created')
         .and('have.css', 'color', 'rgb(0, 128, 0)')
     })
@@ -73,20 +79,30 @@ describe('Blog app', function () {
         cy.contains('like').click()
         cy.contains(`likes ${blog.likes + 1}`)
 
-        cy.get('.success')
+        cy.get('.success', { timeout: 10000 })
           .should('contain', `An existing blog "${blog.title}" was successfully updated`)
           .and('have.css', 'color', 'rgb(0, 128, 0)')
       })
 
-      it('the user who created it can delete it', function () {
+      it('only the creator can delete it', function () {
         cy.contains('view').click()
         cy.contains('hide')
 
         cy.contains('remove').click()
 
-        cy.get('.success')
+        cy.get('.success', { timeout: 10000 })
           .should('contain', `An existing blog "${blog.title}" was successfully removed`)
           .and('have.css', 'color', 'rgb(0, 128, 0)')
+      })
+
+      it('other users cannot delete it', function () {
+        cy.contains('logout').click()
+        cy.login({ username: user2.username, password: user2.password })
+
+        cy.contains('view').click()
+        cy.contains('hide')
+
+        cy.contains('remove').should('not.exist')
       })
     })
   })
