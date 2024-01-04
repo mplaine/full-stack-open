@@ -1,4 +1,4 @@
-describe('Blog app', function() {
+describe('Blog app', function () {
   const user = {
     username: 'root',
     name: 'Superuser',
@@ -17,12 +17,12 @@ describe('Blog app', function() {
     cy.visit('')
   })
 
-  it('login form is shown', function() {
+  it('login form is shown', function () {
     cy.contains('log in to application')
   })
 
-  describe('Login', function() {
-    it('succeeds with correct credentials', function() {
+  describe('Login', function () {
+    it('succeeds with correct credentials', function () {
       cy.get('input[name="Username"]').type(user.username)
       cy.get('input[name="Password"]').type(user.password)
       cy.get('#login-button').click()
@@ -30,7 +30,7 @@ describe('Blog app', function() {
       cy.contains('Superuser logged in')
     })
 
-    it('fails with wrong credentials', function() {
+    it('fails with wrong credentials', function () {
       cy.get('input[name="Username"]').type('user-does-not-exist')
       cy.get('input[name="Password"]').type('mypassword')
       cy.get('#login-button').click()
@@ -42,12 +42,12 @@ describe('Blog app', function() {
     })
   })
 
-  describe('When logged in', function() {
+  describe('When logged in', function () {
     beforeEach(function () {
       cy.login({ username: user.username, password: user.password })
     })
 
-    it('A blog can be created', function() {
+    it('A blog can be created', function () {
       cy.contains('create new blog').click()
 
       cy.get('input[name="Title"]').type('New title')
@@ -75,6 +75,17 @@ describe('Blog app', function() {
 
         cy.get('.success')
           .should('contain', `An existing blog "${blog.title}" was successfully updated`)
+          .and('have.css', 'color', 'rgb(0, 128, 0)')
+      })
+
+      it('the user who created it can delete it', function () {
+        cy.contains('view').click()
+        cy.contains('hide')
+
+        cy.contains('remove').click()
+
+        cy.get('.success')
+          .should('contain', `An existing blog "${blog.title}" was successfully removed`)
           .and('have.css', 'color', 'rgb(0, 128, 0)')
       })
     })
