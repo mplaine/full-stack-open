@@ -26,3 +26,7 @@ The *Phonebook* web service is running online at <https://phonebook-01o9.onrende
 ### Part 4: Testing Express servers, user administration
 
 My solutions to the Part 4 exercises can be found [here](./exercises/part4/).
+
+### Part 5: Testing React apps
+
+My solutions to the Part 5 exercises can be found [here](./exercises/part5/).
