@@ -1,0 +1,2286 @@
+Notes
+=====
+
+
+Part 0: Fundamentals of Web apps
+--------------------------------
+* Always keep the Developer Console open on your web browser.
+  - Disable cache
+* Example application (traditional): https://studies.cs.helsinki.fi/exampleapp/
+* List of HTTP status codes: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+ - 1xx informational response
+ - 2xx success
+ - 3xx redirection
+ - 4xx client errors
+ - 5xx server errors
+* List of HTTP header fields: https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+* UML - Sequence diagrams: https://www.geeksforgeeks.org/unified-modeling-language-uml-sequence-diagrams/
+* The sequence diagram visualizes how the browser and server are communicating over the time. The time flows in the diagram from top to bottom, so the diagram starts with the first request that the browser sends to server, followed by the response.
+* In traditional web applications, the browser is "dumb". It only fetches HTML data from the server, and all application logic is on the server. A server can be created using Java Spring , Python Flask or Ruby on Rails to name just a few examples.
+* Debugging: Use console.log('Your message') to output on the console.
+* XMLHttpRequest (XHR): https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+  - Asynchronous requests (no full page refresh needed)
+* Document Object Model (DOM): https://en.wikipedia.org/wiki/Document_Object_Model
+  - Application Programming Interface (API) that enables programmatic modification of the element trees corresponding to web pages.
+* Cascading Style Sheets (CSS): https://developer.mozilla.org/en-US/docs/Web/CSS
+  - CSS rules
+  - CSS selectors
+* URL redicrection (HTTPS status code 302): https://en.wikipedia.org/wiki/URL_redirection
+* AJAX: https://en.wikipedia.org/wiki/Ajax_(programming)
+  - Enables the fetching of content to web pages using JavaScript included within the HTML, without the need to rerender the page.
+* Single-page application (SPA): https://en.wikipedia.org/wiki/Single-page_application
+  - SPA-style websites don't fetch all of their pages separately from the server like our sample application does, but instead comprise only one HTML page fetched from the server, the contents of which are manipulated with JavaScript that executes in the browser.
+  - The SPA version of the app does not traditionally send the form data, but instead uses the JavaScript code it fetched from the server.
+* Example application (SPA): https://studies.cs.helsinki.fi/exampleapp/spa
+* The form's submit event handler immediately calls the method e.preventDefault() to prevent the default handling of form's submit.
+* jQuery: https://jquery.com/
+  - cross-browser compatibility, helper functions
+* SPA frameworks:
+  - BackboneJS: http://backbonejs.org/
+  - AngularJS: https://angularjs.org/
+  - React: https://react.dev/
+  - VueJS: https://vuejs.org/
+* Full-stack web development = covers all parts of the application, including the frontend, the backend, and the database.
+* Node.js, JavaScript runtime environment: https://nodejs.org/en/
+* JavaScript fatigue:
+  - https://auth0.com/blog/how-to-manage-javascript-fatigue/
+  - https://medium.com/@ericclemmons/javascript-fatigue-48d4011b6fc4
+* HTML basics: https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics
+* CSS basics: https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics
+* Forms tutorial: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Your_first_HTML_form
+* JavaScript basics: https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/JavaScript_basics
+* Mermaid: Mermaid is a Markdown-inspired tool that renders text into diagrams.
+  - https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams
+  - https://github.com/mermaid-js/mermaid#sequence-diagram-docs---live-editor
+  - components, messages, notes, ...
+
+
+Part 1: Introduction to React
+-----------------------------
+* React: https://react.dev/
+* Vite: https://vitejs.dev/
+* Create a new React application:
+  npm create vite@latest part1 -- --template react
+* Run the application:
+  npm run dev
+* Main files: main.jsx, App.jsx (React component)
+* Remove unnecessary files, such as App.css, index.css, and the assets directory
+* JavaScript arrow functions (part of ES6): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+  const App = () => { ... }
+* React components:
+  - Evaluated JavaScript parts use { .. }
+  - Rendered return values use ( ... )
+  - JavaScript at the top and output (HTML) at the bottom
+  - Export the component: export default App
+  - JSX (HTML inside JavaScript): https://react.dev/learn/writing-markup-with-jsx
+  - Under the hood, JSX returned by React components is compiled into JavaScript using Babel (https://babeljs.io/repl/).
+  - With JSX, you can easily embed dynamic content by writing appropriate JavaScript within curly braces.
+  - Every JSX tag needs to be closed!
+  - First letter of React component names must be capitalized.
+  - The content of a React component (usually) needs to contain one root element (e.g., <div>...</div>, array [...], fragment <>...</>).
+  - Do not render objects as they are not valid as a React child!!
+  - Rendering arrays with primitive values is ok
+* A core philosophy of React is composing applications from many specialized reusable components.
+* Fragment (empty element): https://react.dev/reference/react/Fragment
+* Props enable to pass data to compoennts
+  - https://react.dev/learn/passing-props-to-a-component
+  - <Hello name='George' />
+    const Hello = (props) => {
+      return (
+        <div>
+          <p>Hello {props.name}</p>
+        </div>
+      )
+    }
+* ESLint tool: https://eslint.org/
+  - To validate your ECMAScript (JavaScript) code
+  - Configuration: .eslintrc.cjs
+* ECMAScript: https://en.wikipedia.org/wiki/ECMAScript
+  - As of June 2023, the latest version is ECMAScript 2023 (ES14): https://www.ecma-international.org/ecma-262/
+* Browsers do not yet support all of JavaScript's newest features. Due to this fact, a lot of code run in browsers has been transpiled from a newer version of JavaScript to an older, more compatible version.
+  - Babel is the most popular tool: https://babeljs.io/
+* Node.js (https://nodejs.org/en/) is a JavaScript runtime environment based on Google's Chrome V8 JavaScript engine and works practically anywhere - from servers to mobile phones.
+  - The latest versions of Node already understand the latest versions of JavaScript, so the code does not need to be transpiled.
+* Variables:
+  - const in ES6 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const) does not define a variable but a constant for which the value can no longer be changed.
+  - let in ES6 (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let) defines a normal variable.
+  - var (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var) was, for a long time, the only way to define variables. Avoid it in modern apps.
+  - https://medium.com/craft-academy/javascript-variables-should-you-use-let-var-or-const-394f7645c88f
+  - http://www.jstips.co/en/javascript/keyword-var-vs-let/
+  - https://youtu.be/sjyJBL5fkp8
+* Arrays:
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+  - length, push, ...
+  - Contents can be modified even though it is defined as a const!
+  - myArray.forEach(value => { ... }). https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+  - Use concat in React code to keep the original array unchanged: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
+  - map method creates a new array: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+    - const m2 = t.map(value => '<li>' + value + '</li>')
+* Immutable (unmodifiable) data structures: https://en.wikipedia.org/wiki/Immutable_object
+* React often uses techniques from functional programming.
+* Destructuring assignment: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+  - const [first, second, ...rest] = t
+* Objects:
+  - Object literals: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types#Object_literals
+    const object1 = {
+      name: 'Arto Hellas',
+      age: 35,
+      education: 'PhD',
+    }
+  - The values of the properties can be of any type, like integers, strings, arrays, objects...
+  - The properties of an object are referenced by using the "dot" notation, or by using brackets.
+  - Add properties on the fly: object1['secret number'] = 12341
+  - Objects can also be defined using so-called constructor functions, which results in a mechanism reminiscent of many other programming languages, e.g. Java's classes.
+* Functions:
+  - Arrow functions (ES6): const sum = (p1, p2) => { ... return something }
+  - If there is just a single parameter, we can exclude the parentheses from the definition.
+  - If the function only contains a single expression then the braces are not needed. const square = p => p * p
+  - Before arrow functions, the only way to define functions was by using the keyword function.
+  - There are two ways to reference the function:
+    - One is giving a name in a function declaration.
+      - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function
+      - function product(a, b) { ... }
+    - The other way to define the function is by using a function expression.
+      - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/function
+      - const average = function(a, b) { ... }
+* Object methods and "this"
+  - The keyword this: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+  - Methods can be assigned to objects even after the creation of the object:
+    user.growOlder = function() {
+      this.age += 1
+    }
+  - setTimeout function: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
+  - Contrary to other languages, in JavaScript the value of this is defined based on how the method is called. When calling the method through a reference, the value of this becomes the so-called global object and the end result is often not what the software developer had originally intended.
+  - The value of this in JavaScript is defined based on how the method is being called.
+    const arto = {
+      name: 'Arto Hellas',
+      greet: function() {
+        console.log('hello, my name is ' + this.name)
+      },
+    }
+    setTimeout(arto.greet, 1000)
+  - There are several mechanisms by which the original this can be preserved. One of these is using a method called bind:
+    - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+    - Calling arto.greet.bind(arto) creates a new function where this is bound to point to Arto, independent of where and how the method is being called.
+      setTimeout(arto.greet.bind(arto), 1000)
+  - Global object: https://developer.mozilla.org/en-US/docs/Glossary/Global_object
+  - Avoid these issues by using "this-less" JavaScript.
+  - Understand JavaScript's this keyword in depth: https://egghead.io/courses/understand-javascript-s-this-keyword-in-depth
+* Classes:
+  - There is no class mechanism in JavaScript like the ones in object-oriented programming languages.
+  - Simulate classes (ES6): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
+    class Person {
+      constructor(name, age) {
+        this.name = name
+        this.age = age
+      }
+      greet() {
+        console.log('hello, my name is ' + this.name)
+      }
+    }
+    const adam = new Person('Adam Ondra', 29)
+    adam.greet()
+  - JavaScript prototypal inheritance: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Inheritance
+  - JavaScript data structures: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures
+  - Classes divide opinions: https://github.com/petsel/not-awesome-es6-classes and https://medium.com/@rajaraodv/is-class-in-es6-the-new-bad-part-6c4e6fe1ee65
+  - The ES6 class syntax is used a lot in "old" React and also in Node.js, hence an understanding of it is beneficial even in this course.
+  - Use React Hooks to avoid the use of classes: https://react.dev/reference/react
+* JavaScript material:
+  - Mozilla JavaScript Guide: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  - Re-introduction to JavaScript: https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript
+  - JavaScript in-depth: https://github.com/getify/You-Dont-Know-JS
+  - javascript.info: https://javascript.info/
+  - Eloquent JavaScript book: https://eloquentjavascript.net/
+  - Namaste JavaScript: https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP
+  - Egghead.io: https://egghead.io/
+* Use helper arrow functions within components. It is common to use nested (arrow) functions in JavaScript.
+* Destructure values from objects and arrays upon assignment: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+  const Hello = (props) => { const { name, age } = props ... } -- OR -- const Hello = ({ name, age }) => { ... }
+* Page re-rendering using setInterval (bad approach): https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
+  setInterval(() => {
+    refresh()
+    counter += 1
+  }, 1000)
+* Stateful components with the React state hook: https://react.dev/learn/state-a-components-memory
+  import { useState } from 'react'
+  const App = () => {
+    const [ counter, setCounter ] = useState(0)
+    setTimeout(
+      () => setCounter(counter + 1),
+      1000
+    )
+    return (
+      <div>{counter}</div>
+    )
+  }
+  export default App
+* The counter variable is assigned the initial value of state which is zero. The variable setCounter is assigned a function that will be used to modify the state.
+* When the state modifying function setCounter is called, React re-renders the component which means that the function body of the component function gets re-executed.
+* Every time the setCounter modifies the state it causes the component to re-render.
+* Mouse events: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+* Register an event handler function with React: https://react.dev/learn/responding-to-events
+  const handleClick = () => {
+    console.log('clicked')
+  }
+  ...
+  <button onClick={handleClick}>plus</button>
+* The event handler function can also be defined directly in the value assignment of the onClick-attribute:
+  <button onClick={() => setCounter(counter + 1)}>plus</button>
+* An event handler is supposed to be either a function or a function reference, not a function call.
+* Usually defining event handlers within JSX-templates (mixed JS+HTML code) is not a good idea. Here it's ok, because our event handlers are so simple.
+* It's recommended to write React components that are small and reusable across the application and even across projects.
+* Lift state up: https://react.dev/learn/sharing-state-between-components
+* In React, it’s conventional to use onSomething names for props which take functions which handle events and handleSomething for the actual function definitions which handle those events.
+  - https://react.dev/learn/tutorial-tic-tac-toe
+* Calling a function that changes the state causes the component to rerender!!
+* So, if a user clicks the plus button, the button's event handler changes the value of counter to 1, and the App component is rerendered. This causes its subcomponents Display and Button to also be re-rendered.
+* We can define the function using the more compact form of arrow functions if the function defining the component contains only the return statement:
+  const Display = ({ counter }) => <div>{counter}</div>
+* Naming event handler props: https://react.dev/learn/responding-to-events#naming-event-handler-props
+* By convention, event handler props should start with on, followed by a capital letter. For example, the Button component’s onClick prop could have been called onSmash.
+* Simplified button component:
+  const Button = ({ onSmash, text }) => <button onClick={onSmash}>{text}</button>
+* However, be careful to not oversimplify your components, as this makes adding complexity a more tedious task down the road.
+* Objects can be used for more complex state management:
+  const [clicks, setClicks] = useState({
+    left: 0, right: 0
+  })
+* Object spread syntax (2018): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+  const newClicks = { 
+    ...clicks, 
+    left: clicks.left + 1 
+  }
+* It is forbidden in React to mutate state directly, since it can result in unexpected side effects: https://stackoverflow.com/a/40309023
+  const handleLeftClick = () => {
+    clicks.left++  // FORBIDDEN!!!
+    setClicks(clicks)
+  }
+* Changing state has to always be done by setting the state to a new object. If properties from the previous state object are not changed, they need to simply be copied, which is done by copying those properties into a new object and setting that as the new state.
+* See when to store a React application state in a more complex data structure: https://react.dev/learn/choosing-the-state-structure
+* Initializing a state with an array and modifying it with concat:
+  const [allClicks, setAll] = useState([])
+  const handleLeftClick = () => {
+    setAll(allClicks.concat('L'))
+    setLeft(left + 1)
+  }
+* The concat method, which does not mutate the existing array but rather returns a new copy of the array with the item added to it.
+  - Don't use push with arrays!
+* A state update in React happens asynchronously, i.e. not immediately but "at some point" before the component is rendered again.
+  - The following does NOT work:
+    const handleLeftClick = () => {
+      setAll(allClicks.concat('L'))
+      setLeft(left + 1)
+      setTotal(left + right)  // FAILS!!!
+    }
+  - Fixed code:
+    const handleLeftClick = () => {
+      setAll(allClicks.concat('L'))
+      const updatedLeft = left + 1  // FIX!!!
+      setLeft(updatedLeft)
+      setTotal(updatedLeft + right) // FIX!!!
+    }
+* Conditional React rendering: https://react.dev/learn/conditional-rendering
+  const History = (props) => {
+    if (props.allClicks.length === 0) {
+      return (
+        <div>...</div>
+      )
+    }
+    return (
+      <div>...</div>
+    )
+  }
+* State book (React 16.8.0+): https://react.dev/learn/state-a-components-memory
+  - Class components were used before that: https://react.dev/reference/react/Component
+* Install React Developer Tools extension to Chrome for easier debugging: https://react.dev/learn/react-developer-tools
+* Separate things using comma (not plus) to debug objects:
+  console.log('props value is', props)
+* Debugging to the console is only one way to debug React applications.
+* You can pause the execution of your application code in the Chrome developer console's debugger, by writing the command debugger anywhere in your code.
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger
+* The useState function (as well as the useEffect function introduced later on in the course) must not be called from inside of a loop, a conditional expression, or any place that is not a function defining a component. This must be done to ensure that the hooks are always called in the same order, and if this isn't the case the application will behave erratically.
+* Event handlers must always be a function or a reference to a function. The button will not work if the event handler is set to a variable of any other type.
+* When the component (<button onClick={setValue(0)}>button</button>) is rendered the function setValue(0) gets executed which in turn causes the component to be re-rendered. Re-rendering in turn calls setValue(0) again, resulting in an infinite recursion.
+* Defining event handlers directly in the attribute of the button is not necessarily the best possible idea.
+* Another way to define an event handler is to use a function that returns a function. Very confusing and not advised to be used.
+  const hello = () => {
+    const handler = () => console.log('hello world')
+    return handler
+  }
+  ...
+  <button onClick={hello()}>button</button>
+* Do Not Define Components Within Components!!!
+  - The biggest problems are because React treats a component defined inside of another component as a new component in every render. This makes it impossible for React to optimize the component.
+* Multiple components can be defined, but is not recommended, in one file. For example, App and Button in App.jsx
+* The official React documentation: https://react.dev/learn
+* Start learning React: https://egghead.io/courses/start-learning-react
+* Beginner's guide to React: https://egghead.io/courses/the-beginner-s-guide-to-reactjs
+* Web programmers oath:
+  - I will have my browser developer console open all the time
+  - I progress with small steps
+  - I will write lots of console.log statements to make sure I understand how the code behaves and to help pinpointing problems
+  - If my code does not work, I will not write more code. Instead I start deleting the code until it works or just return to a state when everything was still working
+* You can create a copy of an array like this:
+  const points = [1, 4, 6, 3]
+  const copy = [...points]
+  copy[2] += 1 // increment the value in position 2 by one
+* You can create a copy of an object like this:
+  const points = { 0: 1, 1: 3, 2: 4, 3: 2 }
+  const copy = { ...points }
+  copy[2] += 1 // increment the property 2 value by one
+* Create a zero-filled array: Array(anecdotes.length).fill(0)
+* setMostVotesIndex(updatedVotes.indexOf(Math.max(...updatedVotes)))
+* const randomInt = Math.floor(Math.random() * anecdotes.length)
+* Objects and functions can be passed as props to a component.
+  <Total parts={course.parts} />
+* Conditional rendering: (text === 'positive') ? ' %' : ''
+
+
+Part 2: Communicating with server
+---------------------------------
+* Debugging React applications: https://fullstackopen.com/en/part1/a_more_complex_state_debugging_react_apps#debugging-react-applications
+* Visual Studio Code snippets: https://code.visualstudio.com/docs/editor/userdefinedsnippets#_creating-your-own-snippets
+  - Useful snippets: https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets
+  - Example:
+    {
+      "console.log": {
+        "prefix": "clog",
+        "body": [
+          "console.log('$1')",
+        ],
+        "description": "Log output to console"
+      }
+    }
+  - Usage: type log and hit Tab to autocomplete.
+* The functional programming operators of the JavaScript array, such as find, filter, and map.
+* Functional programming in JavaScript: https://www.youtube.com/playlist?list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84
+  - Higher-order functions: https://www.youtube.com/watch?v=BMUiFMZr7vk&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84
+  - Map: https://www.youtube.com/watch?v=bCqtb-Z5YGQ&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84&index=2
+  - Reduce basics: https://www.youtube.com/watch?v=Wl98eZpkp-c&t=31s
+* Generate React elements from the array of objects using the map function:
+  notes.map(note => <li>{note.content}</li>)
+* The code generating JavaScript must be wrapped in curly braces in a JSX template.
+* The list items, i.e. the elements generated by the map method, must each have a unique key value: an attribute called key.
+  <ul>
+    {notes.map(note => 
+      <li key={note.id}>  // add the key attribute with a unique value!!!
+        {note.content}
+      </li>
+    )}
+  </ul>
+* More on the usage of key attributes: https://react.dev/learn/preserving-and-resetting-state#option-2-resetting-state-with-a-key
+* The map function: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+* Map always creates a new array, the elements of which have been created from the elements of the original array by mapping: using the function given as a parameter to the map method.
+  - Example: const result = notes.map(note => note.id)
+  - Concise form: note => note.id
+  - Full form: (note) => { return note.id }
+* Anti-pattern: Array Indexes as Keys (not recommended!!!): https://robinpokorny.medium.com/index-as-a-key-is-an-anti-pattern-e0349aece318
+  - The indexes can be retrieved by passing a second parameter to the callback function of the map method:
+    <ul>
+      {notes.map((note, i) => 
+        <li key={i}>
+          {note.content}
+        </li>
+      )}
+    </ul>
+* Destructuring assignment: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+* Common practice is to declare each component in its own file as an ES6-module.
+* Import in JavaScript: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+  import ReactDOM from "react-dom/client"
+  import Note from './components/Note'
+* When importing our own components, their location must be given in relation to the importing file.
+* In smaller applications, components are usually placed in a directory called components, which is in turn placed within the src directory. The convention is to name the file after the component. For example, Note.jsx
+* Export in JavaScript: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+  export default Note
+* Install application dependencies:
+  npm install
+* Start the application:
+  npm run start
+* More on debugging: Quite often the root of the problem is that the props are expected to be of a different type, or called with a different name than they actually are, and destructuring fails as a result. The problem often begins to solve itself when destructuring is removed and we see what the props contain.
+* Note that if you copy a project from one place to another, you might have to delete the node_modules directory and install the dependencies again with the command npm install before you can start the application.
+* Generally, it's not recommended that you copy a project's whole contents and/or add the node_modules directory to the version control system.
+* The reduce method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+* HTML forms: https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms
+  <form onSubmit={addNote}>
+    <input />
+    <button type="submit">save</button>
+  </form> 
+* OnSomething event handlers include the event parameter, which is the event that triggers the call to the event handler function.
+  const addNote = (event) => {
+    event.preventDefault()
+    console.log('button clicked', event.target)
+  }
+* The event handler immediately calls the event.preventDefault() method, which prevents the default action of submitting a form. The default action would, among other things, cause the page to reload.
+  - https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event
+* The target of the event stored in event.target.
+* Controlling an input with a state variable a.k.a. controlled components: https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable
+  const [newNote, setNewNote] = useState('placeholder text')
+  <input value={newNote} onChange={handleNoteChange} />
+* The event handler is called every time a change occurs in the input element.
+  const handleNoteChange = (event) => {
+    console.log(event.target.value)
+    setNewNote(event.target.value)
+  }
+* Note that we did not need to call the event.preventDefault() method like we did in the onSubmit event handler. This is because no default action occurs on an input change, unlike a form submission.
+* Never mutate state directly in React! https://react.dev/learn/updating-objects-in-state#why-is-mutating-state-not-recommended-in-react
+* Filtering displayed elements:
+  const notesToShow = showAll ? notes : notes.filter(note => note.important === true)
+* Conditional operator: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator
+  const result = condition ? val1 : val2
+* The filter method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+  notes.filter(note => note.important)
+* When performing comparisons, it's therefore safer to exclusively use val1 === val2.
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness
+* Toggling a value: The event handler switches the value of showAll from true to false and vice versa:
+  () => setShowAll(!showAll)
+* Debugging the value of a component temporarily: <div>debug: {newName}</div>
+* JavaScript arrays have numerous suitable methods for preventing the user from being able to add a value that already exist in the array.
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+* How to check object equality: https://www.joshbritz.co/posts/why-its-so-hard-to-check-object-equality/
+* Alert command: https://developer.mozilla.org/en-US/docs/Web/API/Window/alert
+* When you are forming strings that contain values from variables, it is recommended to use a template string (ES6) (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals):
+  `${newName} is already added to phonebook`
+* When you are working on new functionality, it's often useful to "hardcode" some dummy data into your application.
+* JSON Server to act as a server: https://github.com/typicode/json-server
+* Install JSON server globally:
+  npm install -g json-server
+* Run JSON server (uses port 3000 by default):
+  json-server --port 3001 --watch db.json
+* Run JSON server without global installation:
+  npx json-server --port 3001 --watch db.json
+* Format JSON data in the browser: https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc
+* Whenever a new note is added to the application, the React code also sends it to the JSON server to make the new note persist in "memory".
+* json-server is a handy tool that enables the use of server-side functionality in the development phase without the need to program any of it.
+* XMLHttpRequest, HTTP request made using an XHR object: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+* The use of XHR is no longer recommended, and browsers already widely support the fetch method, which is based on so-called promises, instead of the event-driven model used by XHR.
+* The fetch method: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch
+* Promises: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+* In XHR, it is worth noting that the code in the event handler is defined before the request is sent to the server. Despite this, the code within the event handler will be executed at a later point in time.
+* JavaScript engines, or runtime environments follow the asynchronous model: https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop
+  - This requires all IO operations (with some exceptions) to be executed as non-blocking. This means that code execution continues immediately after calling an IO function, without waiting for it to return.
+    - https://en.wikipedia.org/wiki/Input/output
+* When an asynchronous operation is completed, or, more specifically, at some point after its completion, the JavaScript engine calls the event handlers registered to the operation.
+* Currently, JavaScript engines are single-threaded, which means that they cannot execute code in parallel. As a result, it is a requirement in practice to use a non-blocking model for executing IO operations. Otherwise, the browser would "freeze" during, for instance, the fetching of data from a server.
+* Another consequence of this single-threaded nature of JavaScript engines is that if some code execution takes up a lot of time, the browser will get stuck for the duration of the execution.
+* What the heck is the event loop anyway? https://www.youtube.com/watch?v=8aGhZQkoFbQ
+* Web workers allow to run parallelized code: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+* The event loop of an individual browser window is, however, still only handled by a single thread: https://medium.com/techtrument/multithreading-javascript-46156179cf9a
+* The Axios library for communication between the browser and server: https://github.com/axios/axios
+  - It functions like fetch but is somewhat more pleasant to use.
+* Nowadays, practically all JavaScript projects are defined using the node package manager, aka npm.
+  - https://docs.npmjs.com/getting-started/what-is-npm
+* A clear indicator that a project uses npm is the package.json file located at the root of the project
+* package.json:
+  - scripts: commands to be executed by developers
+  - dependencies: app dependencies
+  - devDependencies: development dependencies
+* Install Axios:
+  npm install axios
+* npm-commands should always be run in the project root directory, which is where the package.json file can be found.
+* Install JSON server as a development dependency using --save-dev:
+  npm install json-server --save-dev
+  - package.json > scripts:
+    "server": "json-server -p3001 --watch db.json"
+* Run the JSON server:
+  npm run server
+* To run json-server and your react app simultaneously, you may need to use two terminal windows. One to keep json-server running and the other to run our React application.
+* Axios example that return a promise:
+  import axios from 'axios'
+  const promise = axios.get('http://localhost:3001/notes')
+  console.log(promise)
+  const promise2 = axios.get('http://localhost:3001/foobar')
+  console.log(promise2)
+* Axios' method get returns a promise: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises
+* A Promise is an object representing the eventual completion or failure of an asynchronous operation.
+* In other words, a promise is an object that represents an asynchronous operation. A promise can have three distinct states:
+  - The promise is pending: It means that the final value (one of the following two) is not available yet.
+  - The promise is fulfilled: It means that the operation has been completed and the final value is available, which generally is a successful operation. This state is sometimes also called resolved.
+  - The promise is rejected: It means that an error prevented the final value from being determined, which generally represents a failed operation.
+* If, and when, we want to access the result of the operation represented by the promise, we must register an event handler to the promise. This is achieved using the method then:
+  promise.then(response => {
+    console.log(response)
+  })
+* The response object contains all the essential data related to the response of an HTTP GET request, which would include the returned data, status code, and headers.
+* Storing the promise object in a variable is generally unnecessary, and it's instead common to chain the then method call to the axios method call, so that it follows it directly:
+  axios
+    .get('http://localhost:3001/notes')
+    .then(response => {
+      const notes = response.data
+      console.log(notes)
+    })
+* The data returned by the server is plain text, basically just one long string. The axios library is still able to parse the data into a JavaScript array, since the server has specified that the data format is application/json; charset=utf-8 (see the previous image) using the content-type header.
+* The React Effect hooks: https://react.dev/reference/react#effect-hooks
+* The Effect Hook lets you perform side effects on function components. Data fetching, setting up a subscription, and manually changing the DOM in React components are all examples of side effects.
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        console.log('promise fulfilled')
+        setNotes(response.data)
+      })
+  }, [])
+* As always, a call to a state-updating function triggers the re-rendering of the component.
+* Alternative implementation of the Effect hook:
+  const hook = () => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        console.log('promise fulfilled')
+        setNotes(response.data)
+      })
+  }
+  useEffect(hook, [])
+* Now we can see more clearly that the function useEffect takes two parameters. The first is a function, the effect itself.
+* By default, effects run after every completed render, but you can choose to fire it only when certain values have changed.
+* The second parameter of useEffect is used to specify how often the effect is run. If the second parameter is an empty array [], then the effect is only run along with the first render of the component.
+* Run the React frontend application in development mode:
+  npm run dev
+* The json-server package claims to be a so-called REST or RESTful API in its documentation.
+* REST API conventions: https://en.wikipedia.org/wiki/Representational_state_transfer#Applied_to_web_services
+* JSON server routes: https://github.com/typicode/json-server#routes
+* In REST terminology, we refer to individual data objects, such as the notes in our application, as resources. Every resource has a unique address associated with it - its URL. According to a general convention used by json-server, we would be able to locate an individual note at the resource URL notes/3, where 3 is the id of the resource. The notes URL, on the other hand, would point to a resource collection containing all the notes.
+* Get all notes: GET /notes/ -> array of note objects (200)
+* Get a specific note: GET /notes/3 -> note object (200)
+* Create a new note: POST /notes/ + new note object data -> created note object (201)
+* Update an existing note: PUT /notes/3 + updated note object data -> updated note object (200)
+* Delete an existing note: DELETE /notes/3 -> - (204)
+* Not found: 404
+* The data for the new note resource is sent in the body of the request.
+* json-server requires all data to be sent in JSON format. What this means in practice is that the data must be a correctly formatted string and that the request must contain the Content-Type request header with the value application/json.
+* An important detail to remember is that the concat method does not change the component's original state, but instead creates a new copy of the list.
+* Postman, an HTTP client, helps us to debug our server applications: https://www.postman.com
+* Find a note: const note = notes.find(n => n.id === id)
+* Updated note: const changedNote = { ...note, important: !note.important }
+* The array find method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+* The object spread syntax: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+* Never mutate state directly in React.
+* Shallow copy, meaning that the values of the new object are the same as the values of the old object.
+  https://en.wikipedia.org/wiki/Object_copying#Shallow_copy
+* Update a note:
+  axios.put(url, changedNote).then(response => {
+    setNotes(notes.map(note => note.id !== id ? note : response.data))
+  })
+* Single responsibility principle: https://en.wikipedia.org/wiki/Single_responsibility_principle
+* Files in the services module handle client-server communication.
+  const update = (id, newObject) => {
+    const request = axios.put(`${baseUrl}/${id}`, newObject)
+    return request.then(response => response.data)
+  }
+  ... Components using the service:
+  import noteService from './services/notes' // pay attention to the fact that the file suffix (.js) is dropped
+  noteService
+    .getAll()
+    .then(notes => {
+      setNotes(notes)
+    })
+* The modified getAll function still returns a promise, as the then method of a promise also returns a promise:
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
+* Promise chaining: https://javascript.info/promise-chaining
+* Async and performance book: https://github.com/getify/You-Dont-Know-JS/tree/1st-ed and https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/async%20%26%20performance/ch3.md
+* Exporting code from modules:
+  export default { 
+    getAll: getAll, 
+    create: create, 
+    update: update 
+  }
+* Since the names of the keys and the assigned variables are the same, we can write the object definition with a more compact syntax:
+  export default { getAll, create, update }
+* Compact way to define objects using variables: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer#Property_definitions
+  - original:
+    const person = {
+      name: name,
+      age: age
+    }
+  - Compact:
+    const person = { name, age }
+* When an HTTP request fails, the associated promise is rejected.
+* The more common way of adding a handler for rejected promises is to use the catch method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
+  axios
+    .get('http://example.com/probably_will_fail')
+    .then(response => {
+      console.log('success!')
+    })
+    .catch(error => {
+      console.log('fail')
+    })
+* Promise chaining: https://javascript.info/promise-chaining
+* The catch method can be used to define a handler function at the end of a promise chain, which is called once any promise in the chain throws an error and the promise becomes rejected.
+* The confirm method: https://developer.mozilla.org/en-US/docs/Web/API/Window/confirm
+* Full stack developer's oath:
+  - I will have my browser developer console open all the time
+  - I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+  - I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+  - I will progress with small steps
+  - I will write lots of console.log statements to make sure I understand how the code behaves and to help pinpoint problems
+  - If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+* CSS processor: https://developer.mozilla.org/en-US/docs/Glossary/CSS_preprocessor
+* CSS rules comprise of selectors and declarations. Add index.css under the src/ directory with the content below.
+  h1 {
+    color: green;
+  }
+* The selector defines which elements the rule should be applied to. The selector above is h1, which will match all of the h1 header tags in our application.
+* Different types of selectors: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
+  - Class selectors: https://developer.mozilla.org/en-US/docs/Web/CSS/Class_selectors
+* The declaration sets the color property to the value green. One CSS rule can contain an arbitrary number of properties. 
+* Import the CSS file to main.jsx:
+  import './index.css'
+* In React we have to use the className attribute instead of the class attribute: https://react.dev/learn#adding-styles
+* If the value of the message prop is null, then nothing is rendered to the screen, and in other cases, the message gets rendered inside of a div element.
+  const Notification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+
+    return (
+      <div className='error'>
+        {message}
+      </div>
+    )
+  }
+* Handling errors:
+  .catch(error => {
+    setErrorMessage(
+      `Note '${note.content}' was already removed from server`
+    )
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+    setNotes(notes.filter(n => n.id !== id))
+  })
+* React also makes it possible to write styles directly in the code as so-called inline styles: https://react-cn.github.io/react/tips/inline-styles.html
+  - https://react.dev/reference/react-dom/components/common#applying-css-styles
+  - Example of React inline styles:
+    const footerStyle = {
+      color: 'green',
+      fontStyle: 'italic',
+      fontSize: 16
+    }
+    ...
+    <div style={footerStyle}>
+* Every CSS property is defined as a separate property of the JavaScript object. Numeric values for pixels can be simply defined as integers. One of the major differences compared to regular CSS, is that hyphenated (kebab case) CSS properties are written in camelCase.
+* Inline styles come with certain limitations. For instance, so-called pseudo-classes can't be used straightforwardly.
+  - https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
+* The philosophy of React is, in fact, the polar opposite of the old-school goal of writing CSS, HTML, and JavaScript into their separate files. Since the separation of CSS, HTML, and JavaScript into separate files did not seem to scale well in larger applications, React bases the division of the application along the lines of its logical functional entities.
+* The structural units that make up the application's functional entities are React components. A React component defines the HTML for structuring the content, the JavaScript functions for determining functionality, and also the component's styling; all in one place. This is to create individual components that are as independent and reusable as possible.
+* If the state would be only saving "one thing", a more proper initial value would be null denoting that there is nothing in the state at the start.
+  const [currency, setCurrency] = useState(null)
+* // do not render anything if notes is still null
+  if (!notes) { 
+    return null 
+  }
+* The second parameter of useEffect is used to specify how often the effect is run: https://react.dev/reference/react/useEffect#parameters
+* If the second parameter is an empty array [], it's content never changes and the effect is only run after the first render of the component.
+* However, there are situations where we want to perform the effect at other times, e.g. when the state of the component changes in a particular way.
+* Exchange rate API: https://www.exchangerate-api.com/
+  useEffect(() => { ... }, [currency])
+* Prevent requesting the exchange rates just after the first render when the variable currency still has the initial value, i.e. a null value.
+  if (currency) { 
+    // exchange rates are fetched
+  }
+* REST countries: https://studies.cs.helsinki.fi/restcountries/
+* Open weather map API: https://openweathermap.org/
+* You need an api-key to use almost every weather service. Do not save the api-key to source control! Nor hardcode the api-key to your source code. Instead use an environment variable to save the key.
+  - https://vitejs.dev/guide/env-and-mode.html
+* Assuming the api-key is 54l41n3n4v41m34rv0, when the application is started like so:
+  export VITE_SOME_KEY=54l41n3n4v41m34rv0 && npm run dev // For Linux/macOS Bash
+  ($env:VITE_SOME_KEY="54l41n3n4v41m34rv0") -and (npm run dev) // For Windows PowerShell
+  set "VITE_SOME_KEY=54l41n3n4v41m34rv0" && npm run dev // For Windows cmd.exe
+* You can access the value of the key from the import.meta.env object:
+  const api_key = import.meta.env.VITE_SOME_KEY
+* import { useState, useEffect } from 'react'
+* const countriesToShow = (search.length === 0) ? [] : countries.filter(c => c.name.common.toLowerCase().includes(search.toLowerCase()))
+* <ul>
+    {Object.entries(country.languages).map(([key, value]) => (
+      <li key={key}>{value}</li>
+    ))}
+  </ul>
+* {weather &&
+    <>...</>
+  }
+* {courses.map(course => <Course key={course.id} course={course} />)}
+* <Total sum={course.parts.reduce((total, part) => total + part.exercises, 0)} />
+* if (persons.filter(p => p.name === newName).length > 0) { ... }
+* const createPerson = (person) => {
+    return axios
+      .post(baseUrl, person)
+      .then(response => response.data)
+  }
+* const Notification = ({ notification }) => {
+    if (notification === null) {
+      return null
+    }
+
+    return (
+      <div className={'notification' + (notification.type === 'success' ? ' success' : ' error')}>
+        {notification.message}
+      </div>
+    )
+  }
+  export default Notification
+
+
+Part 3: Programming a server with NodeJS and Express
+----------------------------------------------------
+*  NodeJS is a JavaScript runtime based on Google's Chrome V8 JavaScript engine.
+   - https://nodejs.org/en/ (v18.13.0+)
+   - https://developers.google.com/v8/
+* Check Node version: node -v
+* browsers don't yet support the newest features of JavaScript, and that is why the code running in the browser must be transpiled with e.g. babel (https://babeljs.io/).
+* The newest version of Node supports a large majority of the latest features of JavaScript, so we can use the latest features without having to transpile our code.
+* npm is a tool used for managing JavaScript packages: https://www.npmjs.com/
+* Create a new template for an application: 
+  npm init (answer questions -> generates package.json)
+* package.json:
+  - scripts (commands)
+  - dependencies
+  - development dependencies
+* Define a script for starting the application server:
+  "start": "node index.js"
+* Start the application using the script above:
+  npm run start
+* Start the applcation without the script (not recommended):
+  node index.js
+* Import Node's built-in web server module:
+  const http = require('http')  // Node.js uses so-called CommonJS modules
+* Code that runs in the browser uses ES6 modules. Modules are defined with an export and taken into use with an import.
+  import http from 'http'
+* CommonJS modules: https://en.wikipedia.org/wiki/CommonJS
+* Node supports now also the use of ES6 modules, but since the support is not quite perfect yet, we'll stick to CommonJS modules.
+  - https://nodejs.org/api/esm.html#modules-ecmascript-modules
+* The server can be shut down by pressing Ctrl+C in the console.
+* Express (http://expressjs.com/) is by far the most popular library to build a backend server (based on Node.js).
+  npm install express
+* Transitive dependencies are the depedendencies of a dependency: https://lexi-lambda.github.io/blog/2016/08/24/understanding-the-npm-dependency-model/
+* Semantic versioning: https://docs.npmjs.com/getting-started/semantic-versioning
+* The caret in the front of ^4.18.2 means that if and when the dependencies of a project are updated, the version of express that is installed will be at least 4.18.2. However, the installed version of express can also have a larger patch number (the last number), or a larger minor number (the middle number). The major version of the library indicated by the first major number must be the same.
+* Install dependencies:
+  npm install
+* Update dependencies:
+  npm update
+* If the major number of a dependency does not change, then the newer versions should be backwards compatible:
+  https://en.wikipedia.org/wiki/Backward_compatibility
+* The future versions (5.0.0+) of express may contain changes that would cause our application to no longer work.
+* Import Express and create an express application:
+  const express = require('express')
+  const app = express()
+* Define a route to the application:
+  app.get('/', (request, response) => {
+    response.send('<h1>Hello World!</h1>')
+  })
+* Request parameter: http://expressjs.com/en/4x/api.html#req
+* Response parameter: http://expressjs.com/en/4x/api.html#res
+* The send method: http://expressjs.com/en/4x/api.html#res.send
+* JSON response: http://expressjs.com/en/4x/api.html#res.json
+* Since the parameter is a string, express automatically sets the value of the Content-Type header to be text/html.
+* The status code of the response defaults to 200.
+* Define another route to the application:
+  app.get('/api/notes', (request, response) => {
+    response.json(notes)
+  })
+* Express automatically sets the Content-Type header with the appropriate value of application/json.
+* Express automatically transforms data to JSON (no need for JSON.stringify(...))
+* JSON is a string and not a JavaScript object: https://en.wikipedia.org/wiki/JSON
+* Interactive node-repl: https://nodejs.org/docs/latest-v8.x/api/repl.html
+  - Start by typing in "node" in the command line.
+  - Exit the shell by typing in ".exit".
+* nodemon (https://github.com/remy/nodemon) will watch the files in the directory in which nodemon was started, and if any files change, nodemon will automatically restart your node application.
+* Install nodemon:
+  npm install --save-dev nodemon
+* If you accidentally used the wrong command and the nodemon dependency was added under "dependencies" instead of "devDependencies", then manually change its place in package.json.
+* By development dependencies, we are referring to tools that are needed only during the development of the application, e.g. for testing or automatically restarting the application, like nodemon.
+* These development dependencies are not needed when the application is run in production mode on the production server (e.g. Fly.io or Heroku).
+* Hot reload in frontend development: https://gaearon.github.io/react-hot-loader/getstarted/
+* The script for package.json to start the application server in development mode:
+  "dev": "nodemon index.js"
+* Start the application in development mode using the script above:
+  npm run dev
+* Start the application in development mode without the script (not recommended):
+  node_modules/.bin/nodemon index.js
+* Representational State Transfer, aka REST, was introduced in 2000 in Roy Fielding's dissertation (https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm). REST is an architectural style meant for building scalable web applications.
+  - Applied to web services: https://en.wikipedia.org/wiki/Representational_state_transfer#Applied_to_web_services
+* Singular things, like notes in the case of our application, are called resources in RESTful thinking. Every resource has an associated URL which is the resource's unique address.
+* One convention for creating unique addresses is to combine the name of the resource type with the resource's unique identifier.
+  - www.example.com/api/notes/10
+* We can execute different operations on resources. The operation to be executed is defined by the HTTP verb:
+  URL	verb	functionality
+  - notes/10	GET	fetches a single resource (200)
+  - notes	GET	fetches all resources in the collection (200)
+  - notes	POST	creates a new resource based on the request data (201)
+  - notes/10	DELETE	removes the identified resource (204)
+  - notes/10	PUT	replaces the entire identified resource with the request data (200)
+  - notes/10	PATCH	replaces a part of the identified resource with the request data (200)
+* Second level of RESTful maturity: https://martinfowler.com/articles/richardsonMaturityModel.html
+* CRUD API: https://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+* Resource-oriented architecture (not REST): https://en.wikipedia.org/wiki/Resource-oriented_architecture
+* Route: http://expressjs.com/en/guide/routing.html
+* Route parameters: http://expressjs.com/en/guide/routing.html#route-parameters
+  app.get('/api/notes/:id', (request, response) => {
+    const id = Number(request.params.id)
+    const note = notes.find(note => note.id === id)
+    if (note) {
+      response.json(note)
+    }
+    else {
+      response.status(404).end()
+    }
+  })
+* If no note is found, the server should respond with the status code 404 not found instead of 200.
+  - https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found
+* Since no data is attached to the response, we use the status method for setting the status and the end method for responding to the request without sending any data.
+* Response status method: http://expressjs.com/en/4x/api.html#res.status
+* Response end method: http://expressjs.com/en/4x/api.html#res.end
+* The if-condition leverages the fact that all JavaScript objects are truthy, meaning that they evaluate to true in a comparison operation. However, undefined is falsy meaning that it will evaluate to false.
+  - Truthy: https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+  - Falsy: https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+* We do not need to display anything (e.g., error message) in the browser because REST APIs are interfaces that are intended for programmatic use, and the error status code is all that is needed.
+* Custom error message: https://stackoverflow.com/questions/14154337/how-to-send-a-custom-http-status-message-in-node-express/36507614#36507614
+* If deleting the resource is successful, meaning that the note exists and is removed, we respond to the request with the status code 204 no content and return no data with the response.
+  - https://www.rfc-editor.org/rfc/rfc9110.html#name-204-no-content
+* There's no consensus on what status code should be returned to a DELETE request if the resource does not exist. The only two options are 204 and 404.
+* curl: https://curl.haxx.se/
+* Postman, HTTP client: https://www.postman.com/
+* Visual Studio Code REST client extension: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+  - Make a directory "requests" at the root of the application named requests. We save all the REST client requests in the directory as files that end with the .rest extension.
+* WebStorm HTTP Client: https://www.jetbrains.com/help/webstorm/http-client-in-product-code-editor.html
+* Adding a note happens by making an HTTP POST request to the address http://localhost:3001/api/notes, and by sending all the information for the new note in the request body in JSON format.
+  - Request body: https://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7
+* To access the data easily, we need the help of the express json-parser that we can use with the command app.use(express.json()).
+  - JSON parser: https://expressjs.com/en/api.html
+  app.post('/api/notes', (request, response) => {
+    const note = request.body
+    console.log(note)
+    response.json(note)
+  })
+* Without the json-parser, the body property would be undefined. The json-parser takes the JSON data of a request, transforms it into a JavaScript object and then attaches it to the body property of the request object before the route handler is called.
+* Thanks to Nodemon any changes we make to the code will restart the application.
+* The server will not be able to parse the data correctly without the correct value in the request header content type.
+* MIME types: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+* How to format Visual Studio Code REST client requests: https://github.com/Huachao/vscode-restclient/blob/master/README.md#usage
+* You can add multiple requests in the same file using ### separators:
+* The get method of the request object can be used for getting the value of a single header. The request object also has the headers property, that contains all of the headers of a specific request.
+* Problems can occur with the VS REST client if you accidentally add an empty line between the top row and the row specifying the HTTP headers. In this situation, the REST client interprets this to mean that all headers are left empty, which leads to the backend server not knowing that the data it has received is in the JSON format.
+* The content property may not be empty:
+  if (!body.content) {
+    return response.status(400).json({ 
+      error: 'content missing' 
+    })
+  }
+* Bad request (400) when received data is missing: https://www.rfc-editor.org/rfc/rfc9110.html#name-400-bad-request
+* The important property will be given default value false:
+  important: Boolean(body.important) || false
+* If the data saved in the body variable has the important property, the expression will evaluate its value and convert it to a boolean value. If the property does not exist, then the expression will evaluate to false which is defined on the right-hand side of the vertical lines.
+  - To be exact, when the important property is false, then the body.important || false expression will in fact return the false from the right-hand side...
+*  Math.max returns the maximum value of the numbers that are passed to it. However, notes.map(n => n.id) is an array so it can't directly be given as a parameter to Math.max. The array can be transformed into individual numbers by using the "three dot" spread syntax ....
+   - Math.max(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max
+   - The spread syntax: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+* There can only be one response.send() statement in an Express app route. Once you send a response to the client using response.send(), the request-response cycle is complete and no further response can be sent.
+* Generate random IDs with Math.random(): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+  - Use a big enough range for your random values so that the likelihood of creating duplicate ids is small.
+* HTTP standard: https://www.rfc-editor.org/rfc/rfc9110.html#name-common-method-properties
+* GET requests: In particular, the convention has been established that the GET and HEAD methods SHOULD NOT have the significance of taking an action other than retrieval. These methods ought to be considered "safe".
+* Safety means that the executing request must not cause any side effects on the server. By side effects, we mean that the state of the database must not change as a result of the request, and the response must only return data that already exists on the server.
+* HEAD request: https://www.rfc-editor.org/rfc/rfc9110.html#name-head
+* In practice, HEAD should work exactly like GET but it does not return anything but the status code and response headers. The response body will not be returned when you make a HEAD request.
+* Methods can also have the property of "idempotence" in that (aside from error or expiration issues) the side-effects of N > 0 identical requests is the same as for a single request. The methods GET, HEAD, PUT and DELETE share this property.
+* This means that if a request does not generate side effects, then the result should be the same regardless of how many times the request is sent.
+* POST is the only HTTP request type that is neither safe nor idempotent. If we send 5 different HTTP POST requests to /api/notes with a body of {content: "many same", important: true}, the resulting 5 notes on the server will all have the same content.
+* Middleware: http://expressjs.com/en/guide/using-middleware.html
+* Middleware are functions that can be used for handling request and response objects.
+* In practice, you can use several middlewares at the same time. When you have more than one, they're executed one by one in the order that they were taken into use in express.
+  const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+  }
+* At the end of the function body, the next function that was passed as a parameter is called. The next function yields control to the next middleware.
+* Middleware is taken into use like this:
+  app.use(requestLogger)
+* Middleware functions are called in the order that they're taken into use with the express server object's use method. Notice that json-parser is taken into use before the requestLogger middleware, because otherwise request.body will not be initialized when the logger is executed!
+* Middleware functions have to be taken into use before routes if we want them to be executed before the route event handlers are called. There are also situations where we want to define middleware functions after routes. In practice, this means that we are defining middleware functions that are only called if no route handles the HTTP request.
+* Let's add the following middleware after our routes. This middleware will be used for catching requests made to non-existent routes. For these requests, the middleware will return an error message in the JSON format.
+  const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+
+  app.use(unknownEndpoint)
+* The morgan middleware to your application for logging: https://github.com/expressjs/morgan
+* Note that logging data even in the console can be dangerous since it can contain sensitive data and may violate local privacy law (e.g. GDPR in EU) or business-standard. In this exercise, you don't have to worry about privacy issues, but in practice, try not to log any sensitive data.
+* Creating new tokens: https://github.com/expressjs/morgan#creating-new-tokens
+* JSON stringify: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+* const baseUrl = 'http://localhost:3001/api/notes'
+* A URL's origin is defined by the combination of protocol (AKA scheme), hostname, and port.
+* If the resource is fetched using a URL that doesn't share the same origin(scheme, host, port) as the source HTML, the browser will have to check the Access-Control-Allow-origin response header. If it contains * or the URL of the source HTML, the browser will process the response, otherwise the browser will refuse to process it and throws an error.
+* The same-origin policy is a security mechanism implemented by browsers in order to prevent session hijacking among other security vulnerabilities.
+* Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g. fonts) on a web page to be requested from another domain outside the domain from which the first resource was served. A web page may freely embed cross-origin images, stylesheets, scripts, iframes, and videos. Certain "cross-domain" requests, notably Ajax requests, are forbidden by default by the same-origin security policy.
+* Same origin policy: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
+  - Because our server is in localhost port 3001, while our frontend is in localhost port 5173, they do not have the same origin.
+* We can allow requests from other origins by using Node's cors middleware: https://github.com/expressjs/cors
+* Install cors middleware:
+  npm install cors
+* Take cors middleware in use and allow for requests from all origins:
+  const cors = require('cors')
+  app.use(cors())
+* CORS: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+* The developer-friendly services like PaaS (i.e. Platform as a Service) take care of installing the execution environment (eg. Node.js) and could also provide various services such as databases.
+* Heroku (http://heroku.com/) free tier ended on November 27th 2022.
+* Fly.io (https://fly.io/) and Render (https://render.com/) offer free plans.
+* Fly.io is our "official" hosting service since it can be for sure used also on the parts 11 and 13 of the course. Render will be fine at least for the other parts of this course.
+* Render might be a bit easier to use since it does not require any software to be installed on your machine.
+* Alternative options for hosting Node.js applications:
+  - Cyclic: https://www.cyclic.sh/
+  - Replit: https://replit.com/
+  - CodeSandBox: https://codesandbox.io/
+* Read port from environment variables: https://en.wikipedia.org/wiki/Environment_variable
+  const PORT = process.env.PORT || 3001
+* Note that you may need to give your credit card number to Fly.io even if you are using only the free tier! At the moment Render can be used without a credit card.
+* Fly's flyctl installation guide: https://fly.io/docs/hands-on/install-flyctl/
+  - Authentication: fly auth login (or flyctl auth login)
+  - Initialization: fly launch
+  - Configuration: fly.toml
+  - Deployment (incl. redeployment): fly deploy
+  - Open the app: fly open
+  - Logging: fly logs
+  - Machines: fly scale show
+  - Enforce one machine: fly scale count 1
+  - Ping: fly ping -o personal
+* Getting started with Render:
+  - Sign in with GitHub: https://dashboard.render.com/
+  - Create new web service: New > Web Service
+  - Code repository: Public Git repository URL
+  - Configurations: name, region, branch (main), root directory, environment (Node), build command (npm install), start command (npm run start)
+  - App state: see the dashboard (incl. events, logs, disks, environment, shell, PRs, jobs, metrics, scaling, settings)
+* Render documentation: https://render.com/docs/deploys
+* According to the documentation every commit to GitHub should redeploy the app. Manual deployment is also possible.
+* When the application is deployed, we must create a production build or a version of the application which is optimized for production.
+  - Vite (frontend): https://vitejs.dev/guide/build.html
+  - npm run build (see https://vitejs.dev/guide/build.html)
+  - Creates a directory called "dist" with necessary files
+* Minification (one file, scrambled code): https://en.wikipedia.org/wiki/Minification_(programming)
+* One option for deploying the frontend is to copy the production build (the dist directory) to the root of the backend repository and configure the backend to show the frontend's main page (the file dist/index.html) as its main page.
+  cp -r dist ../backend
+* To make express show static content, the page index.html and the JavaScript, etc., it fetches, we need a built-in middleware from Express called static.
+  - http://expressjs.com/en/starter/static-files.html
+  - app.use(express.static('dist'))
+  - Whenever express gets an HTTP GET request it will first check if the dist directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
+* Because of our situation, both the frontend and the backend are at the same address, we can declare baseUrl as a relative URL. 
+  const baseUrl = '/api/notes'
+* After the change, we have to create a new production build of the frontend and copy it to the root of the backend repository.
+* If you are using Fly.io, there could be a .dockerignore file that specifies the exclusion of the "./build" directory during deployment. To ensure it gets deployed, consider renaming the ./build directory to ./static_build or an equivalent name.
+* Streamlining deploying of the frontend with scripts:
+  - Fly.io scripts:
+    "scripts": {
+      // ...
+      "build:ui": "rm -rf dist && cd ../notes-frontend/ && npm run build && cp -r dist ../notes-backend",
+      "deploy": "fly deploy",
+      "deploy:full": "npm run build:ui && npm run deploy",    
+      "logs:prod": "fly logs"
+    }
+  - Render scripts:
+    "scripts": {
+      //...
+      "build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend",
+      "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    }
+* Note that the standard shell commands in build:ui do not natively work in Windows. Powershell in Windows works differently.
+* Vite server proxy: https://vitejs.dev/config/server-options.html#server-proxy
+* Proxy in Vite (vite.config.js) to fix the relative backend URL reference:
+  // https://vitejs.dev/config/
+  export default defineConfig({
+    plugins: [react()],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+      }
+    },
+  })
+* If the React code does an HTTP request to a server address at http://localhost:5173 not managed by the React application itself (i.e. when requests are not about fetching the CSS or JavaScript of the application), the request will be redirected to the server at http://localhost:3001.
+* Note that with the vite-configuration shown above, only requests that are made to paths starting with /api-are redirected to the server.
+* A negative aspect of our approach is how complicated it is to deploy the frontend. Deploying a new version requires generating a new production build of the frontend and copying it to the backend repository.
+* Deployment pipeline: https://martinfowler.com/bliki/DeploymentPipeline.html
+* Deployment pipeline means an automated and controlled way to move the code from the computer of the developer through different tests and quality checks to the production environment.
+* When you deploy your application to Internet, it is worth it to at least in the beginning keep an eye on the logs of the application AT ALL TIMES.
+* Make sure the directory dist is not gitignored (.gitignore).
+* Debugging Node applications:
+  - Printing to the console: https://tenderlovemaking.com/2016/02/05/i-am-a-puts-debuggerer.html and https://swizec.com/blog/javascript-debugging-slightly-beyond-consolelog/
+  - Visual Studio Code debugger: Run > Start Debugging
+    - Configure launch.json, if needed (Add Configuration..., above VARIABLES menu)
+    - See https://code.visualstudio.com/docs/editor/debugging
+  - Chrome developer tools: 
+    - Pass the --inspect flag to nodemon (-> click the green Node logo in Chrome dev tools):
+      nodemon --inspect index.js
+  - The stop and fix principle: https://leanscape.io/principles-of-lean-13-jidoka/
+* MongoDB is a document (NoSQL) database: https://en.wikipedia.org/wiki/Document-oriented_database
+* NoSQL databases > document databases: https://en.wikipedia.org/wiki/NoSQL
+* Basics of Databases: https://tikape-s18.mooc.fi/
+  - Different types of databases: https://tikape-s18.mooc.fi/part7/
+* Collections in MongoDB: https://docs.mongodb.com/manual/core/databases-and-collections/
+* Documents in MongoDB: https://docs.mongodb.com/manual/core/document/
+* Preferred MongoDB provider (MongoDB Atlas): https://www.mongodb.com/atlas/database
+  - Deployment option: Shared (free)
+  - Cloud Provider & Region: AWS, Stockholm
+  - Security: Authentication: Username and Password
+  - IP Access: 0.0.0.0 (access from anywhere)
+  - Databases: Connect
+  - Driver and version: Node.js 4.0 or later
+  - Connection string: MongoDB URI (copy-paste the string shown on the screen)
+    - For example, mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/?retryWrites=true&w=majority
+  - View documents: Databases > Browse Collections
+* Use the database directly from the backend JavaScript code with the official MongoDB Node.js driver library: https://mongodb.github.io/node-mongodb-native/
+* Use the Mongoose library (Object-Document Library, ODM) instead (higher-elvel API): http://mongoosejs.com/index.html
+* Install Mongoose:
+  npm install mongoose
+* Import Mongoose:
+  const mongoose = require('mongoose')
+  mongoose.set('strictQuery',false)
+  mongoose.connect(url)
+* We can access the command line parameter like this:
+  const password = process.argv[2]  // node mongo.js yourPassword, Mongo will add a new document to the database.
+* URL encode MongoDB user password in the URI in case you used special characters, if needed: https://docs.atlas.mongodb.com/troubleshoot-connection/#special-characters-in-connection-string-password
+* MongoDB Atlas automatically creates a new database (noteApp) when an application tries to connect to a database that does not exist yet.
+  const url =
+  `mongodb+srv://fullstack:${password}@cluster0.o1opl.mongodb.net/noteApp?retryWrites=true&w=majority`
+* MongoDB Schema: http://mongoosejs.com/docs/guide.html
+  const noteSchema = new mongoose.Schema({
+    content: String,
+    important: Boolean,
+  })
+* MongoDB model: http://mongoosejs.com/docs/models.html
+  const Note = mongoose.model('Note', noteSchema)
+* The schema tells Mongoose how the note objects are to be stored in the database.
+* The name of the collection will be the lowercase plural notes, because the Mongoose convention is to automatically name collections as the plural (e.g. notes) when the schema refers to them in the singular (e.g. Note).
+* Document databases like Mongo are schemaless, meaning that the database itself does not care about the structure of the data that is stored in the database. It is possible to store documents with completely different fields in the same collection.
+* The idea behind Mongoose is that the data stored in the database is given a schema at the level of the application that defines the shape of the documents stored in any given collection.
+* Note object using the Note model:
+  const note = new Note({
+    content: 'HTML is Easy',
+    important: false,
+  })
+* Models are so-called constructor functions that create new JavaScript objects based on the provided parameters. Since the objects are created with the model's constructor function, they have all the properties of the model, which include methods for saving the object to the database.
+* Save the object to the database:
+  note.save().then(result => {
+    console.log('note saved!')
+    mongoose.connection.close()  // If the connection is not closed, the program will never finish its execution.
+  })
+* Mixing promises with old-school callbacks (present in MongoDB documentation) in the same code is not recommended.
+* Retrieve objects from the database using the find method: https://mongoosejs.com/docs/api/model.html#model_Model-find
+* The parameter of the method is an object expressing search conditions. Since the parameter is an empty object{}, we get all of the notes stored in the notes collection.
+* Mongo search query syntax: https://docs.mongodb.com/manual/reference/operator/
+* Do not include the password in the file that you commit and push to GitHub! Pass the password as a command-line argument:
+  node mongo.js yourpassword
+* Get the command-line parameters from the process.env variable:
+  https://nodejs.org/docs/latest-v8.x/api/process.html#process_process_argv
+* Do not close the connection in the wrong place! The correct place for closing the database connection is at the end of the callback function:
+  Person
+    .find({})
+    .then(persons=> {
+      // ...
+      mongoose.connection.close()
+    })
+* If you define a model with the name Person, mongoose will automatically name the associated collection as people.
+* Updated route handler:
+  app.get('/api/notes', (request, response) => {
+    Note.find({}).then(notes => {
+      response.json(notes)
+    })
+  })
+* Modify the toJSON method of the schema to return data in the desired format: https://stackoverflow.com/questions/7034848/mongodb-output-id-instead-of-id
+  - https://mongoosejs.com/docs/guide.html#options
+  - https://mongoosejs.com/docs/guide.html#toJSON
+  - https://mongoosejs.com/docs/api.html#document_Document-toObject
+  - https://mongoosejs.com/docs/api/document.html#transform
+  noteSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+      returnedObject.id = returnedObject._id.toString()
+      delete returnedObject._id
+      delete returnedObject.__v
+    }
+  })
+* Even though the _id property of Mongoose objects looks like a string, it is in fact an object.
+* Move/extract the Mongoose-specific code into its own module.
+* Put models in node.js in the models directory.
+* Defining Node modules: https://nodejs.org/docs/latest-v8.x/api/modules.html
+* The public interface of the module is defined by setting a value to the module.exports variable.
+  module.exports = mongoose.model('Note', noteSchema)
+* The other things defined inside of the module, like the variables mongoose and url will not be accessible or visible to users of the module.
+* Importing the module happens by adding the following line to index.js:
+  const Note = require('./models/note')
+* It's not a good idea to hardcode the address of the database into the code, so instead the address of the database is passed to the application via the MONGODB_URI environment variable.
+  const url = process.env.MONGODB_URI
+* Define the value of an environment variable:
+  MONGODB_URI=address_here npm run dev
+* A more sophisticated way is to use the dotenv (https://github.com/motdotla/dotenv#readme) library. You can install the library with the command:
+  npm install dotenv
+* To use the library, we create a .env file at the root of the project. The environment variables are defined inside of the file, and it can look like this:
+  MONGODB_URI=mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/noteApp?retryWrites=true&w=majority
+  PORT=3001
+* The .env file should be gitignored right away since we do not want to publish any confidential information publicly online!!!
+* The environment variables defined in the .env file can be taken into use with the expression require('dotenv').config() and you can reference them in your code just like you would reference normal environment variables, with the familiar process.env.MONGODB_URI syntax.
+* It's important that dotenv gets imported before the note model is imported. This ensures that the environment variables from the .env file are available globally before the code from the other modules is imported.
+* Because GitHub is not used with Fly.io, the file .env also gets to the Fly.io servers when the app is deployed. Because of this, the env variables defined in the file will be available there.
+* However, a better option is to prevent .env from being copied to Fly.io by creating in the project root the file .dockerignore, with the following contents ".env".
+  - Set the env value from the command line with the command:
+    fly secrets set MONGODB_URI="mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/noteApp?retryWrites=true&w=majority"
+* When using Render, the database url is given by defining the proper env in the dashboard:
+  Environment > MONGODB_URI key + Value
+* Updated route handler:
+  app.post('/api/notes', (request, response) => {
+    const body = request.body
+
+    if (body.content === undefined) {
+      return response.status(400).json({ error: 'content missing' })
+    }
+
+    const note = new Note({
+      content: body.content,
+      important: body.important || false,
+    })
+
+    note.save().then(savedNote => {
+      response.json(savedNote)
+    })
+  })
+* Updated route handler for retrieving a specific note:
+  app.get('/api/notes/:id', (request, response) => {
+    Note.findById(request.params.id).then(note => {
+      response.json(note)
+    })
+  })
+* When the backend gets expanded, it's a good idea to test the backend first with the browser, Postman or the VS Code REST client.
+* If a note with the given id doesn't exist, the server will respond to the request with the HTTP status code 404 not found. In addition let's implement a simple catch block to handle cases where the promise returned by the findById method is rejected:
+  app.get('/api/notes/:id', (request, response) => {
+    Note.findById(request.params.id)
+      .then(note => {
+
+        if (note) {
+          response.json(note)
+        } else {
+          response.status(404).end()
+        }
+      })
+
+      .catch(error => {
+        console.log(error)  // for logging and debugging purposes
+        response.status(400).send({ error: 'malformatted id' })
+      })
+  })
+* Return HTTP status code 400 when the request could not be understood by the server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.
+* When dealing with Promises, it's almost always a good idea to add error and exception handling. Otherwise, you will find yourself dealing with strange bugs.
+* Move error handling into a dedicated middleware.
+* We have written the code for the error handler among the rest of our code. This can be a reasonable solution at times, but there are cases where it is better to implement all error handling in a single place. This can be particularly useful if we want to report data related to errors to an external error-tracking system like Sentry (https://sentry.io/welcome/) later on.
+  app.get('/api/notes/:id', (request, response, next) => {
+    ...
+    .catch(error => next(error))
+  })
+* The error that is passed forward is given to the next function as a parameter. If next was called without a parameter, then the execution would simply move onto the next route or middleware. If the next function is called with a parameter, then the execution will continue to the error handler middleware.
+* Express error handlers are middleware that are defined with a function that accepts four parameters.
+* Error handling: https://expressjs.com/en/guide/error-handling.html
+  app.use(errorHandler) // this has to be the last loaded middleware
+* The execution order of middleware is the same as the order that they are loaded into express with the app.use function. For this reason, it is important to be careful when defining middleware.
+* The json-parser middleware should be among the very first middleware loaded into Express.
+  app.use(express.json())
+* It's also important that the middleware for handling unsupported routes is next to the last middleware that is loaded into Express, just before the error handler.
+  app.use(unknownEndpoint)
+* Since the unknown endpoint handler responds to all requests with 404 unknown endpoint, no routes or middleware will be called after the response has been sent by unknown endpoint middleware. The only exception to this is the error handler which needs to come at the very end, after the unknown endpoints handler.
+* Delete a note from the database is with the findByIdAndDelete method: https://mongoosejs.com/docs/api/model.html#Model.findByIdAndDelete()
+  app.delete('/api/notes/:id', (request, response, next) => {
+    Note.findByIdAndDelete(request.params.id)
+      .then(result => {
+        response.status(204).end()
+      })
+      .catch(error => next(error))
+  })
+* Update a note in the database is with the findByIdAndUpdate method: https://mongoosejs.com/docs/api/model.html#model_Model-findByIdAndUpdate
+  app.put('/api/notes/:id', (request, response, next) => {
+    const body = request.body
+
+    const note = {
+      content: body.content,
+      important: body.important,
+    }
+
+    Note.findByIdAndUpdate(request.params.id, note, { new: true })
+      .then(updatedNote => {
+        response.json(updatedNote)
+      })
+      .catch(error => next(error))
+  })
+* By default, the updatedNote parameter of the event handler receives the original document without the modifications: https://mongoosejs.com/docs/api/model.html#model_Model-findByIdAndUpdate
+  - The optional { new: true } parameter, which will cause our event handler to be called with the new modified document instead of the original.
+* A true full stack developer's oath:
+  - I will have my browser developer console open all the time
+  - I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+  - I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+  - I will keep an eye on the database: does the backend save data there in the right format
+  - I progress with small steps
+  - I will write lots of console.log statements to make sure I understand how the code behaves and to help pinpoint problems
+  - If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+* The validity of the note is checked in the route handler:
+  if (body.content === undefined) {
+    return response.status(400).json({ error: 'content missing' })
+  }
+* One smarter way of validating the format of the data before it is stored in the database is to use the validation functionality available in Mongoose.
+  - https://mongoosejs.com/docs/validation.html
+    const noteSchema = new mongoose.Schema({
+    content: {
+      type: String,
+      minLength: 5,
+      required: true
+    },
+    important: Boolean
+  })
+* Built-in validators: https://mongoosejs.com/docs/validation.html#built-in-validators
+* Custom validators: https://mongoosejs.com/docs/validation.html#custom-validators
+* If we try to store an object in the database that breaks one of the constraints, the operation will throw an exception. 
+* Pass any potential exceptions to the error handler middleware:
+  .catch(error => next(error))
+* Expand the error handler to deal with these validation errors:
+  else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+* Validations are not run by default when findOneAndUpdate and related methods are executed. Fix the issue:
+  app.put('/api/notes/:id', (request, response, next) => {
+
+    const { content, important } = request.body
+
+    Note.findByIdAndUpdate(
+      request.params.id, 
+
+      { content, important },
+      { new: true, runValidators: true, context: 'query' } // !!!
+    ) 
+      .then(updatedNote => {
+        response.json(updatedNote)
+      })
+      .catch(error => next(error))
+  })
+* For production, we have to set the database URL in the service that is hosting our app:
+  fly secrets set MONGODB_URI='mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/noteApp?retryWrites=true&w=majority'
+* Mongoose validation: https://mongoosejs.com/docs/validation.html
+* Code linting: https://en.wikipedia.org/wiki/Lint_(software)
+* Generically, lint or a linter is any tool that detects and flags errors in programming languages, including stylistic errors. The term lint-like behavior is sometimes applied to the process of flagging suspicious language usage. Lint-like tools generally perform static analysis of source code.
+* Statistic program analysis: https://en.wikipedia.org/wiki/Static_program_analysis
+  - Checkstyle: https://checkstyle.sourceforge.io/
+* The current leading tool for static analysis (aka "linting") in JavaScript is ESlint: https://eslint.org/
+* Install ESling as a development dependency:
+  npm install eslint --save-dev
+* Initialize a default ESlint configuration (the configuration will be saved in the .eslintrc.js file):
+  npx eslint --init
+* Some configurations:
+  'env': { 'node': true, ... }
+  'extends': 'eslint:recommended',
+* Change the rule regarding the indentation level to two spaces:
+  "indent": ["error", 2]
+* Inspect and validate files (not recommended):
+  npx eslint index.js
+* It is recommended to add a dedicated script for linting:
+  "lint": "eslint ."
+* Check (lint) all files:
+  npm run lint
+* Also the files in the dist directory get checked when the command is run. We do not want this to happen, and we can accomplish this by creating an .eslintignore file in the project's root with the following contents "dist".
+* A better alternative to executing the linter from the command line is to configure an eslint-plugin to the editor, that runs the linter continuously. By using the plugin you will see errors in your code immediately.
+* More information about the Visual Studio Code ESLint extension: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+  - Underlines style violation with a red line, which makes errors easy to spot and fix right away.
+* ESLint rules (take in use in .eslintrc.js): https://eslint.org/docs/rules/
+* Our default configuration takes a bunch of predetermined rules into use from eslint:recommended:
+  'extends': 'eslint:recommended'
+* Many companies define coding standards that are enforced throughout the organization through the ESlint configuration file. It is not recommended to keep reinventing the wheel over and over again, and it can be a good idea to adopt a ready-made configuration from someone else's project into yours. Recently many projects have adopted the Airbnb Javascript style guide by taking Airbnb's ESlint configuration into use.
+  - Airbnb JavaScript style guide and ESlint configuration: https://github.com/airbnb/javascript and https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb
+* Backend project structure:
+  - dist/
+    - assets/*.css, *.js
+    - index.html
+  - models/*.js (mongoose)
+  - requests/*.rest
+  - .env and .env.example
+  - .eslintignore
+  - .eslintrc.js
+  - .gitignore
+  - index.js
+  - package.json
+* Add headers immediately after the method and URL definition in *.rest files (no empty lines between them).
+* All backend scripts:
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ui": "rm -rf dist && cd ../phonebook-frontend && npm run build && cp -r dist ../phonebook-backend",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
+    "lint": "eslint ."
+  },
+* 200 success
+* 201 created
+* 204 no content
+* 400 bad client request
+* 404 not found
+* 409 conflict (already exists)
+* Frontend project structure:
+  - dist/
+    - assets/*.css, *.js
+    - index.html
+  - public/vite.svg
+  - src/
+    - components/*.jsx
+    - services/*.js (Axios)
+    - App.jsx
+    - index.css
+    - main.jsx
+  - .eslintrc.cjs
+  - .gitignore
+  - index.html
+  - package.json
+  - vite.config.js (proxy)
+* All frontend scripts:
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+* Frontend and backend have different ESLint configurations!
+* Show a notification on success/error for five seconds.
+
+
+Part 4: Testing Express servers, user administration
+----------------------------------------------------
+* Project structure (best practices):
+  ├── index.js
+  ├── app.js
+  ├── dist
+  │   └── ...
+  ├── controllers
+  │   └── notes.js
+  ├── models
+  │   └── note.js
+  ├── package-lock.json
+  ├── package.json
+  ├── utils
+  │   ├── config.js
+  │   ├── logger.js
+  │   └── middleware.js  
+* Separate all printing to the console to its own module utils/logger.js:
+  const info = (...params) => {
+    console.log(...params)
+  }
+
+  const error = (...params) => {
+    console.error(...params)
+  }
+
+  module.exports = {
+    info, error
+  }
+* Extracting logging into its own module is a good idea in more ways than one. If we wanted to start writing logs to a file or send them to an external logging service like graylog (https://www.graylog.org/) or papertrail (https://papertrailapp.com/) we would only have to make changes in one place.
+* Separate the handling of environment variables to its own module utils/config.js file:
+  require('dotenv').config()
+
+  const PORT = process.env.PORT
+  const MONGODB_URI = process.env.MONGODB_URI
+
+  module.exports = {
+    MONGODB_URI,
+    PORT
+  }
+* Access the environment variables in other modules:
+  const config = require('./utils/config')
+  logger.info(`Server running on port ${config.PORT}`)
+* Now the Express app and the code taking care of the web server are separated from each other following the best practices.
+  - https://dev.to/nermineslimane/always-separate-app-and-server-files--1nc7
+* One of the advantages of this method is that the application can now be tested at the level of HTTP API calls without actually making calls via HTTP over the network, this makes the execution of tests faster.
+* The route handlers have also been moved into a dedicated module. The event handlers of routes are commonly referred to as controllers, and for this reason we have created a new controllers directory. All of the routes related to notes are now in the notes.js module under the controllers directory.
+  const notesRouter = require('express').Router()
+  const Note = require('../models/note')
+
+  notesRouter.get('/', (request, response) => {
+    Note.find({}).then(notes => {
+      response.json(notes)
+    })
+  })
+  ...
+  module.exports = notesRouter
+* Express router: http://expressjs.com/en/api.html#router
+* A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router.
+* The router is in fact a middleware, that can be used for defining "related routes" in a single place, which is typically placed in its own module.
+* The app.js file that creates the actual application takes the router into use as shown below:
+  const notesRouter = require('./controllers/notes')
+  app.use('/api/notes', notesRouter)
+* The router we defined earlier is used if the URL of the request starts with /api/notes. For this reason, the notesRouter object must only define the relative parts of the routes, i.e. the empty path / or just the parameter /:id.
+* The custom middleware has been moved to a new utils/middleware.js module:
+  ...
+  module.exports = { requestLogger, unknownEndpoint, errorHandler }
+* The note.js file under the models directory only defines the Mongoose schema for notes.
+* The responsibility of establishing the connection to the database has been given to the app.js module.
+* The project structure simply follows some of the best practices you can come across on the internet.
+* In Visual Studio Code, if you right-click on a variable in the location it is exported from and select "Find All References", it will show you everywhere the variable is imported.
+  - However, if you assign an object directly to module.exports, it will not work. A workaround is to assign the object you want to export to a named variable and then export the named variable. It also will not work if you destructure where you are importing; you have to import the named variable and then destructure, or just use dot notation to use the functions contained in the named variable.
+* Install Mongoose 7.6.5:
+  npm install mongoose@7.6.5
+* If you're having issues with content.body being undefined for seemingly no reason, make sure you didn't forget to add app.use(express.json()) near the top of the file.
+* Unit tests are for testing separate functions.
+* Reduce method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+* Functional JavaScript on YouTube: https://www.youtube.com/watch?v=BMUiFMZr7vk&list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84
+* Jest testing library by Facebook: https://jestjs.io/
+  - Successor of Mocha: https://mochajs.org/
+* Jest is a natural choice for this course, as it works well for testing backends, and it shines when it comes to testing React applications.
+* Install Jest:
+  npm install --save-dev jest
+* Define a script for testing:
+  "test": "jest --verbose"
+* Jest configuration (package.json) for backend testing:
+  {
+    //...
+    "jest": {
+      "testEnvironment": "node"
+    }
+  }
+* Create test files *.test.js in a separate directory called "tests".
+* Let's get rid of the complaints by adding "jest": true to the env property in the .eslintrc.js file.
+* Individual test cases are defined with the test function. The first parameter of the function is the test description as a string. The second parameter is a function, that defines the functionality for the test case. 
+  test('reverse of a', () => {
+    const result = reverse('a')
+
+    expect(result).toBe('a')
+  })
+* Verify the results with the expect (https://jestjs.io/docs/expect#expectvalue) function. Expect wraps the resulting value into an object that offers a collection of matcher functions, that can be used for verifying the correctness of the result. Since in this test case we are comparing two strings, we can use the toBe matcher.
+* Jest expects by default that the names of test files contain .test. In this course, we will follow the convention of naming our tests files with the extension .test.js.
+* Describe blocks can be used for grouping tests into logical collections. 
+  describe('average', () => {
+    // tests
+  })
+* Describe blocks are necessary when we want to run some shared setup or teardown operations for a group of tests.
+* It's recommended to put the tests inside of a describe block so that the test report output gets grouped nicely.
+* Debugging tests: https://jestjs.io/docs/en/troubleshooting
+* You can run a single test with the only method: https://jestjs.io/docs/api#testonlyname-fn-timeout
+* Another way of running a single test (or describe block) is to specify the name of the test to be run with the -t flag:
+  npm run test -- -t 'when list has only one blog, equals the likes of that'
+* Run a single test file:
+  npm run test tests/blogs.test.js
+* Run all test files:
+  npm run test
+* When you are comparing objects, the toEqual method is probably what you want to use, since the toBe tries to verify that the two values are the same value, and not just that they contain the same properties.
+  - https://jestjs.io/docs/en/expect#toequalvalue (for objects)
+  - https://jestjs.io/docs/en/expect#tobevalue (for values)
+* Lodash helper library: https://lodash.com/
+* If the backend does not contain any complicated logic, it doesn't make sense to write unit tests for it.
+* Unit testing: https://en.wikipedia.org/wiki/Unit_testing
+* In some situations, it can be beneficial to implement some of the backend tests by mocking the database instead of using a real database. One library that could be used for this is mongodb-memory-server: https://github.com/nodkz/mongodb-memory-server
+* Integration testing encompasses multiple components of the system that are being tested a a group. For example, the backend and the database through a REST API.
+* The convention in Node is to define the execution mode of the application with the NODE_ENV environment variable. In our current application, we only load the environment variables defined in the .env file if the application is not in production mode.
+* It is common practice to define separate modes for development and testing.
+* We also added the runInBand (https://jestjs.io/docs/cli#--runinband) option to the npm script that executes the tests to prevent Jest from running tests in parallel.
+* cross-env (https://www.npmjs.com/package/cross-env) makes the script cross-platform compatible, including Windows.
+* Install cross-env as an application-level dependency (needed in production):
+  npm install cross-env
+* Updated scripts in package.json:
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    // ...
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
+  },
+* Define the application (utils/config.js) to use, e.g., a separate test database, when it is running tests.
+  const MONGODB_URI = process.env.NODE_ENV === 'test' 
+    ? process.env.TEST_MONGODB_URI
+    : process.env.MONGODB_URI
+* We can create our separate test database in MongoDB Atlas. This is not an optimal solution in situations where many people are developing the same application. Test execution in particular typically requires a single database instance that is not used by tests that are running concurrently.
+  - It would be better to run our tests using a database that is installed and running on the developer's local machine. 
+  - MongoDB in memory: https://docs.mongodb.com/manual/core/inmemory/
+  - Docker containers: https://www.docker.com/
+* The .env file has separate variables for the database addresses of the development and test databases:
+  MONGODB_URI=mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/noteApp?retryWrites=true&w=majority
+  PORT=3001
+  TEST_MONGODB_URI=mongodb+srv://fullstack:<password>@cluster0.o1opl.mongodb.net/testNoteApp?retryWrites=true&w=majority
+* Our own config module could be replace with node-config (https://github.com/lorenwest/node-config) in larger applications/in the future.
+* Install supertest to help in writing tests for testing the API:
+  npm install --save-dev supertest
+* Tests are placed in *.test.js files in the "tests" directory. For example, tests/note_api.test.js
+  const mongoose = require('mongoose')
+  const supertest = require('supertest')
+  const app = require('../app')
+
+  const api = supertest(app)
+
+  test('notes are returned as json', async () => {
+    await api
+      .get('/api/notes')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  afterAll(async () => {
+    await mongoose.connection.close()
+  })
+* The desired value is now defined as regular expression or in short regex. The regex starts and ends with a slash /, because the desired string application/json also contains the same slash, it is preceded by a \ so that it is not interpreted as a regex termination character.
+  .expect('Content-Type', /application\/json/)
+* In principle, the test could also have been defined as a string, but the value of the header must be exactly the same. The actual value of the header is application/json; charset=utf-8, and it would not match that.
+* The async/await syntax is related to the fact that making a request to the API is an asynchronous operation. The async/await syntax can be used for writing asynchronous code with the appearance of synchronous code.
+  - https://jestjs.io/docs/asynchronous
+* Once all the tests (there is currently only one) have finished running we have to close the database connection used by Mongoose. 
+  - afterAll method: https://jestjs.io/docs/api#afterallfn-timeout
+  afterAll(async () => {
+    await mongoose.connection.close()
+  })
+* Extend the default Jest test timeout of 5000 ms, if needed:
+  test('notes are returned as json', async () => {
+    ...
+  }, 10000)
+* Another way to extend timeouts is using bufferTimeoutMS at the top, right after the require statements:
+  mongoose.set("bufferTimeoutMS", 30000)
+* The tests only use the Express application defined in the app.js file (thanks to the separation between app.js and index.js), which does not listen to any ports.
+* Supertest takes care that the application being tested is started at the port that it uses internally.
+* Expact value: https://jestjs.io/docs/expect#expectvalue
+* Let us modify the logger so that it does not print to the console in test mode:
+  const info = (...params) => {
+    if (process.env.NODE_ENV !== 'test') { 
+      console.log(...params)
+    }
+  }
+  ...
+* To make our tests more robust, we have to reset the database and generate the needed test data in a controlled manner before we run the tests.
+* Jest offers many other functions (https://jestjs.io/docs/setup-teardown) that can be used for executing operations once before any test is run or every time before a test is run.
+* Initialize the database before every test with the beforeEach function (https://jestjs.io/docs/en/api.html#beforeeachfn-timeout). By doing this, we ensure that the database is in the same state before every test is run.
+  beforeEach(async () => {
+    await Note.deleteMany({})
+    let noteObject = new Note(initialNotes[0])
+    await noteObject.save()
+    noteObject = new Note(initialNotes[1])
+    await noteObject.save()
+  })
+* The toContain method (https://jestjs.io/docs/expect#tocontainitem) is used for checking that the note given to it as a parameter is in the list of notes returned by the API.
+* When we are writing tests, it is usually wise to only execute one or two tests. Jest offers a few different ways of accomplishing this, one of which is the only metho (https://jestjs.io/docs/en/api#testonlyname-fn-timeout). If tests are written across many files, this method is not great.
+* A better option is to specify the tests that need to be run as parameters of the npm test command:
+  npm test -- tests/note_api.test.js
+* The -t option can be used for running tests with a specific name. The provided parameter can refer to the name of the test or the describe block. The parameter can also contain just a part of the name:
+  npm test -- -t "a specific note is within the returned notes"
+* The async/await syntax that was introduced in ES7 makes it possible to use asynchronous functions that return a promise in a way that makes the code look synchronous.
+* Callback hell: http://callbackhell.com/
+* By chaining promises (https://javascript.info/promise-chaining) we could keep the situation somewhat under control, and avoid callback hell by creating a fairly clean chain of then method calls.
+  Note.find({})
+    .then(notes => {
+      return notes[0].deleteOne()
+    })
+    .then(response => {
+      console.log('the first note is removed')
+      // more code here
+    })
+* Generator functions (ES6): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
+* The async and await keywords introduced in ES7 bring the same functionality as the generators (https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/async%20%26%20performance/ch4.md#iterating-generators-asynchronously), but in an understandable and syntactically cleaner way to the hands of all citizens of the JavaScript world.
+  const notes = await Note.find({})
+  const response = await notes[0].deleteOne()
+  console.log('the first note is removed')
+* Await operator: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await
+* To use the await operator with asynchronous operations, they have to return a promise. This is not a problem as such, as regular asynchronous functions using callbacks are easy to wrap around promises.
+* The await keyword can't be used just anywhere in JavaScript code. Using await is possible only inside of an async function (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+  const main = async () => {
+    const notes = await Note.find({})
+    console.log('operation returned the following notes', notes)
+
+    const response = await notes[0].deleteOne()
+    console.log('the first note is removed')
+  }
+* As all of the asynchronous operations are currently done inside of a function, it is enough to change the route handler functions into async functions:
+  notesRouter.get('/', async (request, response) => { 
+    const notes = await Note.find({})
+    response.json(notes)
+  })
+* When code gets refactored, there is always the risk of regression (https://en.wikipedia.org/wiki/Regression_testing), meaning that existing functionality may break.
+* Add common test functions to a dedicated file called tests/test_helper.js
+* With async/await the recommended way of dealing with exceptions is the old and familiar try/catch mechanism:
+  try {
+    const savedNote = await note.save()
+    response.status(201).json(savedNote)
+  } catch(exception) {
+    next(exception)
+  }
+* The catch block simply calls the next function, which passes the request handling to the error handling middleware.
+* Async/await unclutters the code a bit, but the 'price' is the try/catch structure required for catching exceptions. 
+* The express-async-errors library (https://github.com/davidbanham/express-async-errors) allows to eliminate the catch from methods.
+* Install express-async-errors:
+  npm install express-async-errors
+* Use express-async-errors:
+  require('express-async-errors')
+* The 'magic' of the library allows us to eliminate the try-catch blocks completely. Also, because of the library, we do not need the next(exception) call anymore.
+  notesRouter.delete('/:id', async (request, response) => {
+    await Note.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  })
+* If an exception occurs in an async route, the execution is automatically passed to the error handling middleware.
+* Every iteration of the forEach loop generates an asynchronous operation, and beforeEach won't wait for them to finish executing. In other words, the await commands defined inside of the forEach loop are not in the beforeEach function, but in separate functions that beforeEach will not wait for.
+* One way of fixing this is to wait for all of the asynchronous operations to finish executing with the Promise.all method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
+* The Promise.all method can be used for transforming an array of promises into a single promise, that will be fulfilled once every promise in the array passed to it as a parameter is resolved. The last line of code await Promise.all(promiseArray) waits until every promise for saving a note is finished, meaning that the database has been initialized.
+* The returned values of each promise in the array can still be accessed when using the Promise.all method. If we wait for the promises to be resolved with the await syntax const results = await Promise.all(promiseArray), the operation will return an array that contains the resolved values for each promise in the promiseArray, and they appear in the same order as the promises in the array.
+* Promise.all executes the promises it receives in parallel.
+* The for...of block, that guarantees a specific execution order:
+  beforeEach(async () => {
+    await Note.deleteMany({})
+
+    for (let note of helper.initialNotes) {
+      let noteObject = new Note(note)
+      await noteObject.save()
+    }
+  })
+* The asynchronous nature of JavaScript can lead to surprising behavior, and for this reason, it is important to pay careful attention when using the async/await syntax. Even though the syntax makes it easier to deal with promises, it is still necessary to understand how promises work!
+* A true full stack developer's oath:
+  - I will have my browser developer console open all the time
+  - I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+  - I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+  - I will keep an eye on the database: does the backend save data there in the right format
+  - I will progress in small steps
+  - I will write lots of console.log statements to make sure I understand how the code and the tests behave and to help pinpoint problems
+  - If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+  - If a test does not pass, I make sure that the tested functionality for sure works in the application
+* It's worth noting that the toContain (https://jestjs.io/docs/expect#tocontainitem) method uses the === operator for comparing and matching elements, which means that it is often not well-suited for matching objects. In most cases, the appropriate method for verifying objects in arrays is the toContainEqual (https://jestjs.io/docs/expect#tocontainequalitem) matcher.
+* If you find yourself using async/await and then methods in the same code, it is almost guaranteed that you are doing something wrong. Use one or the other and don't mix the two.
+* It is often better to not execute all of your tests, only execute the ones you are working on.
+* Verifying the existence of a property is easily done with Jest's toBeDefined matcher: https://jestjs.io/docs/en/expect#tobedefined
+* The grouping and organization of tests using describe() improves readability and maintainability.
+  describe('addition of a new note', () => {
+    test('succeeds with valid data', async () => { ... })
+  })
+* This way of testing the API, by making HTTP requests and inspecting the database with Mongoose, is by no means the only nor the best way of conducting API-level integration tests for server applications. There is no universal best way of writing tests, as it all depends on the application being tested and available resources.
+* Like with all document databases, we can use object IDs in Mongo to reference documents in other collections. This is similar to using foreign keys in relational databases.
+* Traditionally document databases like Mongo do not support join queries that are available in relational databases, used for aggregating data from multiple tables. However, starting from version 3.2. Mongo has supported lookup aggregation queries: https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/
+* If we need functionality similar to join queries, we will implement it in our application code by making multiple queries. In certain situations, Mongoose can take care of joining and aggregating data, which gives the appearance of a join query. However, even in these situations, Mongoose makes multiple queries to the database in the background.
+* If we were using a relational database the note would contain a reference key to the user who created it. In document databases, we can do the same thing.
+* Document databases do not demand the foreign key to be stored in the note resources, it could also be stored in the users collection, or even both.
+* Since users can have many notes, the related ids are stored in an array in the notes field.
+* Document databases also offer a radically different way of organizing the data: In some situations, it might be beneficial to nest the entire notes array as a part of the documents in the users collection.
+  - In this schema, notes would be tightly nested under users and the database would not generate ids for them.
+  - The chosen schema must support the use cases of the application the best.
+* Paradoxically, schema-less databases like Mongo require developers to make far more radical design decisions about data organization at the beginning of the project than relational databases with schemas. On average, relational databases offer a more or less suitable way of organizing data for many applications.
+* The ids of the notes are stored within the user document as an array of Mongo ids:
+  notes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Note'
+    }
+  ],
+* The type of the field is ObjectId that references note-style documents. Mongo does not inherently know that this is a field that references notes, the syntax is purely related to and defined by Mongoose.
+* In stark contrast to the conventions of relational databases, references are now stored in both documents: the note references the user who created it, and the user has an array of references to all of the notes created by them.
+* Users have a unique username, a name and something called a passwordHash. The password hash is the output of a one-way hash function applied to the user's password. It is never wise to store unencrypted plain text passwords in the database!
+  - https://en.wikipedia.org/wiki/Cryptographic_hash_function
+* Install bcrypt for generating the password hashes:
+  npm install bcrypt
+* The password sent in the request is not stored in the database. We store the hash of the password that is generated with the bcrypt.hash function:
+  const saltRounds = 10
+  const passwordHash = await bcrypt.hash(password, saltRounds)
+* The fundamentals of storing passwords: https://codahale.com/how-to-safely-store-a-password/
+* The magic number of salt rounds: https://github.com/kelektiv/node.bcrypt.js/#a-note-on-rounds
+* In test-driven development (TDD), tests for new functionality are written before the functionality is implemented.
+  - https://en.wikipedia.org/wiki/Test-driven_development
+* Mongoose does not have a built-in validator for checking the uniqueness of a field. Fortunately there is a ready-made solution for this, the mongoose-unique-validator library: https://www.npmjs.com/package/mongoose-unique-validator
+* Install mongoose-unique-validator:
+  npm install mongoose-unique-validator
+* Use mongoose-unique-validator:
+  const uniqueValidator = require('mongoose-unique-validator')
+  ...
+  const userSchema = mongoose.Schema({
+    username: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    ...
+  })
+  userSchema.plugin(uniqueValidator)
+* The user password should be never returned by any request!
+* We would like our API to work in such a way, that when an HTTP GET request is made to the /api/users route, the user objects would also contain the contents of the user's notes and not just their id. In a relational database, this functionality would be implemented with a join query.
+* Mongoose accomplishes the join by doing multiple queries, which is different from join queries in relational databases which are transactional, meaning that the state of the database does not change during the time that the query is made. With join queries in Mongoose, nothing can guarantee that the state between the collections being joined is consistent, meaning that if we make a query that joins the user and notes collections, the state of the collections may change during the query.
+* Mongoose populate method: http://mongoosejs.com/docs/populate.html
+  usersRouter.get('/', async (request, response) => {
+    const users = await User.find({}).populate('notes')
+    response.json(users)
+  })
+* The parameter given to the populate method defines that the ids referencing note objects in the notes field of the user document will be replaced by the referenced note documents.
+* We can use the populate parameter for choosing the fields we want to include from the documents. In addition to the field id we are now only interested in content and important:
+  usersRouter.get('/', async (request, response) => {
+    const users = await User.find({}).populate('notes', { content: 1, important: 1 })
+    response.json(users)
+  })
+* It's important to understand that the MongoDB database does not know that the ids stored in the user field of the notes collection reference documents in the user collection.
+  - The functionality of the populate method of Mongoose is based on the fact that we have defined "types" to the references in the Mongoose schema with the ref option.
+* Token-based authentication: https://www.digitalocean.com/community/tutorials/the-ins-and-outs-of-token-based-authentication#how-token-based-works
+  1. User fills in login form with username and password
+  2. Login button pressed
+  3. HTTP POST /api/login {username, password}
+  4. Backend generates a TOEK Nthat identifies the user
+  5. TOKEN returned as message body
+  6. Browser saves the TOKEN
+  7. User creates a note
+  8. Create note button pressed
+  9. HTTP POST /api/notes {content} TOKEN in header
+  10. Backend identifies the user from the TOKEN
+  11. 201 created
+* Install the jsonwebtoken library:
+  npm install jsonwebtoken
+* The code for login functionality goes to the file controllers/login.js.
+* Check the user's password:
+  const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
+* If the user is not found, or the password is incorrect, the request is responded with the status code 401 unauthorized. The reason for the failure is explained in the response body:
+  if (!(user && passwordCorrect)) {
+    return response.status(401).json({
+      error: 'invalid username or password'
+    })
+  }
+* If the password is correct, a token is created with the method jwt.sign. The token contains the username and the user id in a digitally signed form:
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+  const token = jwt.sign(userForToken, process.env.SECRET)
+* The token has been digitally signed using a string from the environment variable SECRET as the secret. The digital signature ensures that only parties who know the secret can generate a valid token. The value for the environment variable must be set in the .env file.
+* A successful request is responded to with the status code 200 OK. The generated token and the username of the user are sent back in the response body:
+  response
+    .status(200)
+    .send({ token, username: user.username, name: user.name })
+* Limit the creation of new notes to logged-in users only.
+* There are several ways of sending the token from the browser to the server. We will use the Authorization header. The header also tells which authentication scheme is used. This can be necessary if the server offers multiple ways to authenticate. Identifying the scheme tells the server how the attached credentials should be interpreted.
+* The Bearer scheme: https://swagger.io/docs/specification/authentication/bearer-authentication/
+* In practice, this means that if the token is, for example, the string eyJhbGciOiJIUzI1NiIsInR5c2VybmFtZSI6Im1sdXVra2FpIiwiaW, the Authorization header will have the value:
+  Bearer eyJhbGciOiJIUzI1NiIsInR5c2VybmFtZSI6Im1sdXVra2FpIiwiaW
+* Usage:
+  const jwt = require('jsonwebtoken')
+  const getTokenFrom = request => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+      return authorization.replace('Bearer ', '')
+    }
+    return null
+  }
+  ...
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+* If the token is missing or it is invalid, the exception JsonWebTokenError is raised. We need to extend the error handling middleware to take care of this particular case:
+  else if (error.name ===  'JsonWebTokenError') {
+    return response.status(401).json({ error: error.message })
+  }
+* If the object decoded from the token does not contain the user's identity (decodedToken.id is undefined), error status code 401 unauthorized is returned and the reason for the failure is explained in the response body.
+* If the application has multiple interfaces requiring identification, JWT's validation should be separated into its own middleware. An existing library like express-jwt (https://www.npmjs.com/package/express-jwt) could also be used.
+* Token authentication is pretty easy to implement, but it contains one problem. Once the API user, eg. a React app gets a token, the API has a blind trust to the token holder. What if the access rights of the token holder should be revoked?
+  - The easier one is to limit the validity period of a token:
+    // token expires in 60*60 seconds, that is, in one hour
+    const token = jwt.sign(
+      userForToken, 
+      process.env.SECRET,
+      { expiresIn: 60*60 }
+    )
+* The error handling middleware should be extended to give a proper error in the case of an expired token:
+  else if (error.name === 'TokenExpiredError') {
+    return response.status(401).json({
+      error: 'token expired'
+    })
+  }
+* The shorter the expiration time, the more safe the solution is. So if the token gets into the wrong hands or user access to the system needs to be revoked, the token is only usable for a limited amount of time. On the other hand, a short expiration time forces a potential pain to a user, one must login to the system more frequently.
+* The other solution is to save info about each token to the backend database and to check for each API request if the access rights corresponding to the tokens are still valid. With this scheme, access rights can be revoked at any time. This kind of solution is often called a server-side session.
+  - The negative aspect of server-side sessions is the increased complexity in the backend and also the effect on performance since the token validity needs to be checked for each API request to the database. Database access is considerably slower compared to checking the validity of the token itself. That is why it is quite common to save the session corresponding to a token to a key-value database such as Redis (https://redis.io/) that is limited in functionality compared to eg. MongoDB or relational database but extremely fast in some usage scenarios.
+* When server-side sessions are used, the token is quite often just a random string, that does not include any information about the user as it is quite often the case when jwt-tokens are used. For each API request, the server fetches the relevant information about the identity of the user from the database. It is also quite usual that instead of using Authorization-header, cookies are used as the mechanism for transferring the token between the client and the server.
+* Usernames, passwords and applications using token authentication must always be used over HTTPS: https://en.wikipedia.org/wiki/HTTPS
+* Node HTTPS server: https://nodejs.org/api/https.html
+* Node HTTP server: https://nodejs.org/docs/latest-v8.x/api/http.html
+* Fly.io routes all traffic between a browser and the Fly.io server over HTTPS.
+* Do not save passwords to the database as clear text, but use the bcrypt library.
+* In case of problems with bcrypt on Windows, use bcryptjs instead: https://www.npmjs.com/package/bcryptjs
+* If you used the same solution, refactor taking the token to a middleware. The middleware should take the token from the Authorization header and place it into the token field of the request object.
+* In other words, if you register this middleware in the app.js file before all routes:
+  app.use(middleware.tokenExtractor)
+* A normal middleware function is a function with three parameters, that at the end calls the last parameter next to move the control to the next middleware:
+  const tokenExtractor = (request, response, next) => {
+    // code that extracts the token
+    next()
+  }
+* If you want to compare the id of the object fetched from the database and a string id, a normal comparison operation does not work. The id fetched from the database must be parsed into a string first.
+  if ( blog.user.toString() === userid.toString() ) ...
+* It is possible to register a middleware only for a specific set of routes:
+  1. All routes: app.use(middleware.userExtractor)
+  2. Specific route: app.use('/api/blogs', middleware.userExtractor, blogsRouter)
+  3. Specific operation: router.post('/', middleware.userExtractor, async (request, response) => { ... })
+* How to set Authorization header to post request: https://github.com/ladjs/supertest/issues/398
+
+
+Part 5: Testing React apps
+--------------------------
+* Install application dependencies from package.json:
+  npm install
+* Start the backend in development mode using a script in package.json:
+  npm run dev
+* Start the frontend in development mode using a script in package.json:
+  npm run dev
+* The event handlers are simple: An object is given to them as a parameter, and they destructure the field target from the object and save its value to the state.
+  (event) => setUsername(event.target.value)
+  ({ target }) => setUsername(target.value)
+* Logical AND operator in React (https://react.dev/learn/conditional-rendering#logical-and-operator-). If user is null, then (&&) render the login form, otherwise, render nothing:
+  { user === null && loginForm() }
+* Truthy: https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+* Falsy: https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+* Conditional operator in React (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator). If user is null, then render the login form, otherwise, render the note form:
+  { user === null ? loginForm() : noteForm() }
+* Embed a JavaScript variable into a string using the `...` quotemarks:
+  token = `Bearer ${newToken}`
+* Create a new note:
+  const create = async newObject => {
+    const config = {
+      headers: { Authorization: token },
+    }
+    const response = await axios.post(baseUrl, newObject, config)
+    return response.data
+  }
+* async/await syntax (ES7)
+* .then()/.error() (Promises) syntax (ES6)
+* Use either async/await or .then()/.error() (Promises) syntax, never both mixed
+* Save the token to the browser's local storage.
+* Local Storage is a key-value database (https://en.wikipedia.org/wiki/Key-value_database) in the browser.
+* Using the browser's local storage:
+  window.localStorage.setItem('name', 'juha tauriainen')
+  window.localStorage.getItem('name')
+  window.localStorage.removeItem('name')
+  window.localStorage.clear()  // clear local storage completely!
+* Values in the local storage are persisted even when the page is re-rendered. The storage is origin-specific (https://developer.mozilla.org/en-US/docs/Glossary/Origin) so each web application has its own storage.
+* Values saved to the storage are DOMstrings (https://docs.w3cub.com/dom/domstring), so we cannot save a JavaScript object as it is.
+* The object has to be parsed to JSON first, with the method JSON.stringify. Correspondingly, when a JSON object is read from the local storage, it has to be parsed back to JavaScript with JSON.parse.
+* Stringify a JavaScript object:
+  JSON.stringify(userObject)
+* Parse a JavaScript object:
+  JSON.parse(userString)
+* View localStorage on Chrome: https://developers.google.com/web/tools/chrome-devtools/storage/localstorage
+* React API Reference: https://react.dev/reference/react
+* An empty array as the parameter of the UseEffect() React hook ensures that the effect is executed only when the component is rendered for the first time:
+  useEffect(() => { ... }, [])
+  https://react.dev/reference/react/useEffect#parameters
+* There are two solutions to cope with the situation when the API access of the token holder to the API needs to be revoked. The first one is to limit the validity period of a token. This forces the user to re-login to the app once the token has expired. The other approach is to save the validity information of each token to the backend database. This solution is often called a server-side session.
+* Cross Site Scripting (XSS): https://owasp.org/www-community/attacks/xss/
+* An XSS attack is possible if the application would allow a user to inject arbitrary JavaScript code (e.g. using a form) that the app would then execute. When using React sensibly it should not be possible since React sanitizes all text that it renders, meaning that it is not executing the rendered content as JavaScript.
+  - https://legacy.reactjs.org/docs/introducing-jsx.html#jsx-prevents-injection-attacks
+* If one wants to play safe, the best option is to not store a token in local storage. This might be an option in situations where leaking a token might have tragic consequences.
+* It has been suggested that the identity of a signed-in user should be saved as httpOnly cookies, so that JavaScript code could not have any access to the token. The drawback of this solution is that it would make implementing SPA applications a bit more complex. One would need at least to implement a separate page for logging in.
+  - https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#restrict_access_to_cookies
+* However, it is good to notice that even the use of httpOnly cookies does not guarantee anything. It has even been suggested that httpOnly cookies are not any safer than the use of local storage.
+  - https://academind.com/tutorials/localstorage-vs-cookies-xss/
+* Minimize the rist of XSS: https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html
+* Visibility of the login form in App.jsx:
+  const [loginVisible, setLoginVisible] = useState(false)
+  ...
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm ...
+          ...
+    )
+  }
+* CSS display property: https://developer.mozilla.org/en-US/docs/Web/CSS/display
+* The "question mark" ternary operator: const hideWhenVisible = { display: loginVisible ? 'none' : '' }
+* The code related to managing the visibility of the login form could be considered to be its own logical entity, and for this reason, it would be good to extract it from the App component into a separate component -> a new Togglable component.
+  <Togglable buttonLabel="reveal">
+    <p>this line is at start hidden</p>
+    <p>also this is hidden</p>
+  </Togglable>
+* The contents above are children of Togglable.
+  import { useState } from 'react'
+
+  const Togglable = (props) => {
+    const [visible, setVisible] = useState(false)
+
+    const hideWhenVisible = { display: visible ? 'none' : '' }
+    const showWhenVisible = { display: visible ? '' : 'none' }
+
+    const toggleVisibility = () => {
+      setVisible(!visible)
+    }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        </div>
+        <div style={showWhenVisible}>
+          {props.children}
+          <button onClick={toggleVisibility}>cancel</button>
+        </div>
+      </div>
+    )
+  }
+
+  export default Togglable
+* props.children: https://react.dev/learn/passing-props-to-a-component#passing-jsx-as-children
+  - Refers to the child components of the component
+  - Unlike the "normal" props we've seen before, children is automatically added by React and always exists.
+* Sometimes, you want the state of two components to always change together. To do it, remove state from both of them, move it to their closest common parent, and then pass it down to them via props. This is known as lifting state up, and it’s one of the most common things you will do writing React code.
+* Sharing state between components: https://react.dev/learn/sharing-state-between-components
+* Event handling can be done within the component, but the function to perform the task is given through props.
+* The ref mechanism of React: https://react.dev/learn/referencing-values-with-refs
+  import { useState, useEffect, useRef } from 'react'
+  const App = () => {
+    // ...
+    const noteFormRef = useRef()
+    const noteForm = () => (
+      <Togglable buttonLabel='new note' ref={noteFormRef}>
+        <NoteForm createNote={addNote} />
+      </Togglable>
+    )
+    // ...
+  }
+* The useRef hook: https://react.dev/reference/react/useRef
+* Togglable component:
+  import { useState, forwardRef, useImperativeHandle } from 'react'
+  const Togglable = forwardRef((props, refs) => {
+    ...
+    useImperativeHandle(refs, () => {
+      return {
+        toggleVisibility
+      }
+    })
+    ...
+* The function that creates the component is wrapped inside of a forwardRef (https://react.dev/reference/react/forwardRef) function call. This way the component can access the ref that is assigned to it.
+* The useImperativeHandle hook: https://react.dev/reference/react/useImperativeHandle
+* The useImperativeHandle function is a React hook, that is used for defining functions in a component, which can be invoked from outside of the component.
+  - We could have accomplished the same functionality with slightly cleaner code using "old React" class-based components.
+* Manipulating the DOM with refs: https://react.dev/learn/manipulating-the-dom-with-refs
+* The updated full stack developer's oath:
+  - I will have my browser developer console open all the time
+  - I will use the network tab of the browser dev tools to ensure that frontend and backend are communicating as I expect
+  - I will constantly keep an eye on the state of the server to make sure that the data sent there by the frontend is saved there as I expect
+  - I will keep an eye on the database: does the backend save data there in the right format
+  - I progress with small steps
+  - When I suspect that there is a bug in the frontend, I make sure that the backend works for sure
+  - When I suspect that there is a bug in the backend, I make sure that the frontend works for sure
+  - I will write lots of console.log statements to make sure I understand how the code and the tests behave and to help pinpoint problems
+  - If my code does not work, I will not write more code. Instead, I start deleting the code until it works or just return to a state when everything was still working
+  - If a test does not pass, I make sure that the tested functionality for sure works in the application
+* The sort method: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+* The window.confirm function: https://developer.mozilla.org/en-US/docs/Web/API/Window/confirm
+* Enforce that when the Togglable component is used, the button label text prop must be given a value.
+* The expected and required props of a component can be defined with the prop-types package: https://github.com/facebook/prop-types
+* Install prop-types:
+  npm install prop-types
+* We can define the buttonLabel prop as a mandatory or required string-type prop as shown below:
+  import PropTypes from 'prop-types'
+  const Togglable = React.forwardRef((props, ref) => {
+    // ..
+  })
+  Togglable.propTypes = {
+    buttonLabel: PropTypes.string.isRequired
+  }
+* It is extremely unprofessional to leave any red output in the browser console.
+* the ESlint code style tool can be used both in the backend and the frontend.
+* Vite has installed ESlint to the project by default, so all that's left for us to do is define our desired configuration in the .eslintrc.cjs file.
+* Install eslint-plugin-jest for testing the frontnend: https://www.npmjs.com/package/eslint-plugin-jest
+  npm install --save-dev eslint-plugin-jest
+* Update .eslintrc.cjs with appropriate configurations.
+* If you are using Visual Studio Code together with ESLint plugin, you might need to add a workspace setting for it to work. If you are seeing Failed to load plugin react: Cannot find module 'eslint-plugin-react' additional configuration is needed. Adding the line "eslint.workingDirectories": [{ "mode": "auto" }] to settings.json in the workspace seems to work. See here for more information: https://github.com/microsoft/vscode-eslint/issues/880#issuecomment-578052807
+* Create .eslintignore (https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) with the following content to skip certain files and directories:
+  node_modules
+  dist
+  .eslintrc.cjs
+* Perform linting in the frontend:
+  npm run Lint
+* Add a display name to the Togglable component to get rid of an error:
+  Togglable.displayName = 'Togglable'
+* In addition to Jes (http://jestjs.io/), we also need another testing library that will help us render components for testing purposes. The current best option for this is react-testing-library which has seen rapid growth in popularity in recent times.
+* Install development dependencies:
+  npm install --save-dev @testing-library/react @testing-library/jest-dom jest jest-environment-jsdom @babel/preset-env @babel/preset-react
+* Update package.json as follows:
+  {
+    "scripts": {
+      // ...
+      "test": "jest"
+    }
+    // ...
+    "jest": {
+      "testEnvironment": "jsdom"
+    }
+  }
+* Update .babelrc as follows:
+  {
+    "presets": [
+      "@babel/preset-env",
+      ["@babel/preset-react", { "runtime": "automatic" }]
+    ]
+  }
+* Tests (e.g., Note.test.js) are written in the same directory as the component itself.
+* Render the component using the render function: https://testing-library.com/docs/react-testing-library/api#render
+  render(<Note note={note} />)
+* Normally React components are rendered to the DOM. The render method we used renders the components in a format that is suitable for tests without rendering them to the DOM.
+* We can use the object screen (https://testing-library.com/docs/queries/about#screen) to access the rendered component. 
+* The getByText method: https://testing-library.com/docs/queries/bytext
+  const element = screen.getByText('Component testing is done with react-testing-library')
+  expect(element).toBeDefined()
+* Run all frontend tests:
+  npm run test
+* The console may issue a warning if you have not installed Watchman. Watchman is an application developed by Facebook that watches for changes that are made to files. The program speeds up the execution of tests and at least starting from macOS Sierra, running tests in watch mode issues some warnings to the console, that can be removed by installing Watchman.
+  - https://facebook.github.io/watchman/
+* Two different conventions for the test file's location: https://medium.com/@JeffLombardJr/organizing-tests-in-jest-17fc431ff850
+  - The current standard places them in the same directory as the component being tested. (configured by default in applications created by create-react-app)
+  - The other convention is to store the test files "normally" in a separate test directory.
+* Searching for content in a component:
+  - using getByText: https://testing-library.com/docs/queries/bytext
+  - using querySelector with CSS selectors: https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector and https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
+    const div = container.querySelector('.note')
+  - using getByTestId with data attributes: https://testing-library.com/docs/queries/bytestid/ and https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*
+* Screen debugging: https://testing-library.com/docs/dom-testing-library/api-debugging#screendebug
+  screen.debug()
+  screen.debug(element)
+* The user-event library allows to simulate user input: https://testing-library.com/docs/user-event/intro
+* Install user-event:
+  npm install --save-dev @testing-library/user-event
+* Example of using user-event:
+  import userEvent from '@testing-library/user-event'
+  ...
+  const mockHandler = jest.fn()
+  render(
+    <Note note={note} toggleImportance={mockHandler} />
+  )
+  const user = userEvent.setup()
+  const button = screen.getByText('make not important')
+  await user.click(button)
+  expect(mockHandler.mock.calls).toHaveLength(1)
+* Mock event handler function: https://facebook.github.io/jest/docs/en/mock-functions.html
+* A session (https://testing-library.com/docs/user-event/setup/) is started to interact with the rendered component:
+  const user = userEvent.setup()
+* The click method: https://testing-library.com/docs/user-event/convenience/#click
+* Mock objects and functions are commonly used stub components in testing that are used for replacing dependencies of the components being tested. Mocks make it possible to return hardcoded responses, and to verify the number of times the mock functions are called and with what parameters.
+* Mock objects and functions: https://en.wikipedia.org/wiki/Mock_object
+* The beforeEach function gets called before each test, which then renders the Togglable component and saves the field container of the return value.
+* The toHaveStyle method for checking present CSS styles: https://www.npmjs.com/package/@testing-library/jest-dom#tohavestyle
+* We can also simulate text input with the type method of the userEvent: https://testing-library.com/docs/user-event/utility#type
+  await user.type(input, 'testing a form...')
+* Get access to the input field using the function getByRole: https://testing-library.com/docs/queries/byrole
+  const input = screen.getByRole('textbox')
+  const inputs = screen.getAllByRole('textbox')
+* Don't rely on the order of the input fields, but rather access them by their ID, placeholder text, or class name.
+  const input = container.querySelector('#note-input')
+* The getByPlaceHolderText method: https://testing-library.com/docs/queries/byplaceholdertext
+  const input = screen.getByPlaceholderText('write note content here')
+* The most flexible way of finding elements in tests is the method querySelector of the container object, which is returned by render.
+* Command getByText looks for an element that has the same text that it has as a parameter, and nothing more. If we want to look for an element that contains the text, we could use an extra option:
+  const element = screen.getByText('Does not work anymore :', { exact: false })
+  const element = await screen.findByText('Does not work anymore :')
+* It is important to notice that, unlike the other ByText commands, findByText returns a promise!
+* There are situations where yet another form of the command queryByText is useful. The command returns the element but it does not cause an exception if the element is not found.
+* We could eg. use the command to ensure that something is not rendered to the component:
+  const element = screen.queryByText('do not want this thing to be rendered')
+  expect(element).toBeNull()
+* Test coverage: https://jestjs.io/blog/2020/01/21/jest-25#v8-code-coverage
+  npm test -- --coverage --collectCoverageFrom='src/**/*.{jsx,js}'
+* A quite primitive HTML report will be generated to the coverage/lcov-report directory. The report will tell us the lines of untested code in each component.
+* Add CSS classes to the component to help the testing as necessary.
+* Unit testing is useful at times, but even a comprehensive suite of unit tests is not enough to validate that the application works as a whole.
+* Integration testing tests the collaboration of multiple components.
+  - Backend + database
+  - Frontend + API: Difficult as we would have to for example mock data from the server
+* Types of testing:
+  - Unit testing (one component, frontend or backend)
+  - Integration testing (multiple components)
+  - e2e/system testing (all components)
+* Snapshot testing with Jest: https://facebook.github.io/jest/docs/en/snapshot-testing.html
+* The interesting feature of snapshot testing is that developers do not need to define any tests themselves, it is simple enough to adopt snapshot testing.
+  - The fundamental principle is to compare the HTML code defined by the component after it has changed to the HTML code that existed before it was changed.
+* Snapshot tests notify the developer if the HTML code of the component changes. The developer has to tell Jest if the change was desired or undesired. If the change to the HTML code is unexpected, it strongly implies a bug, and the developer can become aware of these potential issues easily thanks to snapshot testing.
+* System testing: https://en.wikipedia.org/wiki/System_testing
+  - Selenium: http://www.seleniumhq.org/
+  - Headless browsers (e.g. Chrome in headless mode): https://en.wikipedia.org/wiki/Headless_browser
+* E2E tests are potentially the most useful category of tests because they test the system through the same interface as real users use.
+* Configuring E2E tests is more challenging than unit or integration tests. They also tend to be quite slow, and with a large system, their execution time can be minutes or even hours. This is bad for development because during coding it is beneficial to be able to run tests as often as possible in case of code regressions (https://en.wikipedia.org/wiki/Regression_testing).
+* Flaky (unreliable) e2e tests: https://hackernoon.com/flaky-tests-a-war-that-never-ends-9aa32fdef359
+* End to end testing with Cypress: https://www.cypress.io/
+* Cypress tests are run completely within the browser. Other libraries run the tests in a Node process, which is connected to the browser through an API.
+* Install Cypress in the frontend:
+  npm install --save-dev cypress
+* Configure Cypress in package.json:
+  {
+    // ...
+    "scripts": {
+      "dev": "vite --host",
+      // ...
+      "cypress:open": "cypress open"
+    },
+    // ...
+  }
+* Without '--host', Cypress can not access the app.
+* Unlike the frontend's unit tests, Cypress tests can be in the frontend or the backend repository, or even in their separate repository.
+* The tests require the tested system to be running. Unlike our backend integration tests, Cypress tests do not start the system when they are run!!!
+  - Terminal 1: Start frontend
+  - Terminal 2: Start backend
+  - Terminal 3: Start tests
+* Add an npm script to the backend package.json, which starts it in test mode, or so that NODE_ENV is test:
+  "start:test": "NODE_ENV=test node index.js"
+* Start Cypress:
+  npm run cypress:open
+  > E2E Testing > Create new spec > test file cypress/e2e/note_app.cy.js
+* Running a test shows how the application behaves in real-time as the test is run.
+* The structure of the test should look familiar. They use describe blocks to group different test cases, just like Jest. The test cases have been defined with the it method. Cypress borrowed these parts from the Mocha (https://mochajs.org/) testing library it uses under the hood.
+* cy.visit command: https://docs.cypress.io/api/commands/visit
+* cy.contains command: https://docs.cypress.io/api/commands/contains
+* cy.click command: https://docs.cypress.io/api/commands/click
+* cy.get command: https://docs.cypress.io/api/commands/get
+* cy.type command: https://docs.cypress.io/api/commands/type
+* cy.request command: https://docs.cypress.io/api/commands/request
+* cy.should command: https://docs.cypress.io/api/commands/should
+* cy.parent command: https://docs.cypress.io/api/commands/parent
+* cy.find command: https://docs.cypress.io/api/commands/find
+* cy.as command: https://docs.cypress.io/api/commands/as
+* cy.then command: https://docs.cypress.io/api/commands/then
+* cy.eq command: https://docs.cypress.io/api/commands/eq
+* Do not use arrow functions with Cypress as Mocha warns they might cause some issues in certain situations: https://mochajs.org/#arrow-functions
+* Install eslint-plugin-cypress to get rid of Visual Studio Code linting errors:
+  npm install eslint-plugin-cypress --save-dev
+* Update .eslintrc.cjs:
+  "env": {
+    "cypress/globals": true,
+    ...
+  },
+  "plugins": ["react", "jest", "cypress"],
+* Example test:
+  describe('Note app', function() {
+    beforeEach(function() {
+      cy.visit('http://localhost:5173')
+    })
+    it('user can login', function () {
+      cy.contains('log in').click()
+      cy.get('input:first').type('mluukkai')
+      cy.get('input:last').type('salainen')
+    })
+  })
+* Give our inputs unique ids and use those to find them.
+  cy.get('#login-button').click()
+* Cypress runs the tests in the order they are in the code.
+* If the tests need to be able to modify the server's database, the situation immediately becomes more complicated. Ideally, the server's database should be the same each time we run the tests, so our tests can be reliably and easily repeatable.
+* As with unit and integration tests, with E2E tests it is best to empty the database and possibly format it before the tests are run. The challenge with E2E tests is that they do not have access to the database.
+* The solution is to create API endpoints for the backend tests. We can empty the database using these endpoints. Let's create a new router for the tests inside the controllers folder, in the testing.js file
+  const testingRouter = require('express').Router()
+  const Note = require('../models/note')
+  const User = require('../models/user')
+
+  testingRouter.post('/reset', async (request, response) => {
+    await Note.deleteMany({})
+    await User.deleteMany({})
+
+    response.status(204).end()
+  })
+
+  module.exports = testingRouter
+* Add it to the backend App.jsx *only if* the application is run in test-mode:
+  if (process.env.NODE_ENV === 'test') {
+    const testingRouter = require('./controllers/testing')
+    app.use('/api/testing', testingRouter)
+  }
+* After the changes, an HTTP POST request to the /api/testing/reset endpoint empties the database. Make sure your backend is running in test mode by starting it with this command (previously configured in the package.json file):
+  npm run start:test
+* Reset the database in a Cypress test:
+  cy.request('POST', 'http://localhost:3001/api/testing/reset')
+* When developing a new test or when debugging a broken test, we can define the test with it.only instead of it, so that Cypress will only run the required test. When the test is working, we can remove .only:
+  it.only('login fails with wrong password', function() {
+    // ...
+  })
+* A list of most common assertions: https://docs.cypress.io/guides/references/assertions.html#Common-Assertions
+* Examples of using should:
+  cy.get('.error').should('contain', 'wrong credentials') 
+  cy.get('.error').should('have.css', 'color', 'rgb(255, 0, 0)')
+  cy.get('.error').should('have.css', 'border-style', 'solid')
+* Cypress requires the colors to be given as rgb: https://rgbcolorcode.com/color/red
+* Chaining with and: https://docs.cypress.io/api/commands/and.html
+  cy.get('.error')
+    .should('contain', 'wrong credentials')
+    .and('have.css', 'color', 'rgb(255, 0, 0)')
+    .and('have.css', 'border-style', 'solid')
+* The command should is most often used by chaining it after the command get (or another similar command that can be chained).
+  cy.get('html').should('not.contain', 'Matti Luukkainen logged in')
+  cy.contains('Matti Luukkainen logged in').should('not.exist')
+* The cy.get('html') used in the test practically means the visible content of the entire application.
+* Note: Some CSS properties behave differently on Firefox: https://github.com/cypress-io/cypress/issues/9349
+* Each test starts from zero! Tests do not start from the state where the previous tests ended.
+* Fully test the login flow – but only once. So instead of logging in a user using the form in the beforeEach block, Cypress recommends that we bypass the UI and do an HTTP request to the backend to log in. The reason for this is that logging in with an HTTP request is much faster than filling out a form.
+  - https://docs.cypress.io/guides/end-to-end-testing/testing-your-app#Fully-test-the-login-flow-but-only-once
+  - https://docs.cypress.io/guides/getting-started/testing-your-app.html#Bypassing-your-UI
+* Under the hood cy.request, like all Cypress commands, are promises.
+  cy.request('POST', 'http://localhost:3001/api/login', {
+      username: 'mluukkai', password: 'salainen'
+    }).then(response => {
+      localStorage.setItem('loggedNoteappUser', JSON.stringify(response.body))
+      cy.visit('http://localhost:5173')
+    })
+* Custom Cypress commands: https://docs.cypress.io/api/cypress-api/custom-commands.html
+* Define custom commands in cypress/support/commands.js. For example:
+  Cypress.Commands.add('login', ({ username, password }) => {
+    cy.request('POST', 'http://localhost:3001/api/login', {
+      username, password
+    }).then(({ body }) => {
+      localStorage.setItem('loggedNoteappUser', JSON.stringify(body))
+      cy.visit('http://localhost:5173')
+    })
+  })
+* Using the above custom command:
+  cy.login({ username: 'mluukkai', password: 'salainen' })
+* Define the baseUrl for the application in the Cypress pre-generated configuration file cypress.config.js: https://docs.cypress.io/guides/references/configuration
+  const { defineConfig } = require("cypress")
+  module.exports = defineConfig({
+    e2e: {
+      setupNodeEvents(on, config) {...},
+      baseUrl: 'http://localhost:5173',
+      env: {
+        BACKEND: 'http://localhost:3001/api'
+      }
+    },
+  })
+* All the commands in the tests use the address of the application can be transformed as follows:
+  - From: cy.visit('http://localhost:5173' )
+  - To: cy.visit('')
+* Environment variables in Cypress: https://docs.cypress.io/guides/guides/environment-variables
+* Cypress documentation recommends defining other addresses such as backend URL used by the tests as environment variables.
+* Examples of use of the environment variables in Cypress:
+  cy.request('POST', `${Cypress.env('BACKEND')}/testing/reset`)
+  cy.request('POST', `${Cypress.env('BACKEND')}/users`, user)
+* Cypress Test Runner: https://docs.cypress.io/guides/core-concepts/test-runner.html
+  - Interactive, i.e., allow to select specific test phases and see how the UI looks like at the point of time.
+* When coding tests, you should visually check in the test runner that the tests use the right components!
+* cy.get here always searches from the whole page, but cy.find starts from the given element:
+  cy.contains('second note').parent().find('button').click()
+* Use the as command to create reusable, named elements:
+  cy.contains('second note').parent().find('button').as('theButton')
+  cy.get('@theButton').click()
+  cy.get('@theButton').should('contain', 'make not important')
+* When Cypress runs a test, it adds each cy command to an execution queue. When the code of the test method has been executed, Cypress will execute each command in the queue one by one.
+* Cypress commands always return undefined.
+* An attempt to start the debugger would not stop the code between executing the commands, but before any commands have been executed.
+* Cypress commands are like promises, so if we want to access their return values, we have to do it using the then command.
+  it('then example', function() {
+    cy.get('button').then( buttons => {
+      console.log('number of buttons', buttons.length)
+      cy.wrap(buttons[0]).click()
+    })
+  })
+* Stopping the test execution with the debugger is possible. The debugger starts only if Cypress test runner's developer console is open.
+  - https://docs.cypress.io/api/commands/debug.html
+* Cypress command line: https://docs.cypress.io/guides/guides/command-line.html
+* Update scripts to include Cypress command line:
+  "test:e2e": "cypress run"
+* Videos of the test execution will be saved to cypress/videos/, so you should probably git ignore this directory. It is also possible to turn off the making of videos: https://docs.cypress.io/guides/guides/screenshots-and-videos#Videos
+* Cypress documentation: https://docs.cypress.io/guides/overview/why-cypress.html#In-a-nutshell
+  - Introduction to Cypress: https://docs.cypress.io/guides/core-concepts/introduction-to-cypress.html#Cypress-Can-Be-Simple-Sometimes
+* Note that you might end up having problems if you click a like button many times in a row. It might be that cypress does the clicking so fast that it does not have time to update the app state in between the clicks. One remedy for this is to wait for the number of likes to update in between all clicks.
+* Manipulate likes:
+  cy.get('.blog').contains(lastBlog.title).parent().as('lastBlog')
+  const nClicks = 4
+  for (let i = 1; i <= nClicks; i++) {
+    cy.get('@lastBlog').contains('like').click().then(response => {
+      cy.get('@lastBlog').contains(`likes ${_.last(expectedInitialLikes) + i}`)
+    })
+  }
+* Check each blog:
+  cy.get('.blog').each(($el, index) => {
+    cy.wrap($el).as('blog')
+    cy.get('@blog').contains('view').click()
+    cy.get('@blog').contains(`likes ${expectedInitialLikes[index]}`)
+  })
