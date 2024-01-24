@@ -7,39 +7,49 @@ const anecdoteSlice = createSlice({
   name: 'anecdotes',
   initialState,
   reducers: {
-    incrementVote(state, action) {
-      const id = action.payload
-      const voteToChange = state.find(v => v.id === id)
-      const changedVote = {
-        ...voteToChange,
-        votes: voteToChange.votes + 1
-      }
-      return state.map(vote =>
-        vote.id !== id ? vote : changedVote
-      )
-    },
     appendAnecdote(state, action) {
-      state.push(action.payload);
+      state.push(action.payload)
     },
     setAnecdotes(state, action) {
       return action.payload
     },
+    replaceAnecdote(state, action) {
+      const updatedAnecdote = action.payload
+      return state.map(a => a.id !== updatedAnecdote.id ? a : updatedAnecdote)
+    },
   }
 })
 
-export const { incrementVote, appendAnecdote, setAnecdotes } = anecdoteSlice.actions
+export const { appendAnecdote, setAnecdotes, replaceAnecdote } = anecdoteSlice.actions
 
 export const initializeAnecdotes = () => {
   return async dispatch => {
-    const anecdotes = await anecdoteService.getAll()
-    dispatch(setAnecdotes(anecdotes))
+    const retrievedAnecdotes = await anecdoteService.getAnecdotes()
+    dispatch(setAnecdotes(retrievedAnecdotes))
+  }
+}
+
+export const voteAnecdote = id => {
+  return async (dispatch, getState) => {
+    const anecdotes = getState().anecdotes
+    const anecdoteToUpdate = anecdotes.find(a => a.id === id)
+    const anecdote = {
+      ...anecdoteToUpdate,
+      votes: anecdoteToUpdate.votes + 1,
+    }
+    const updatedAnecdote = await anecdoteService.updateAnecdote(id, anecdote)
+    dispatch(replaceAnecdote(updatedAnecdote))
   }
 }
 
 export const createAnecdote = content => {
   return async dispatch => {
-    const newAnecdote = await anecdoteService.createNew(content)
-    dispatch(appendAnecdote(newAnecdote))
+    const anecdote = {
+      content,
+      votes: 0,
+    }
+    const createdAnecdote = await anecdoteService.createAnecdote(anecdote)
+    dispatch(appendAnecdote(createdAnecdote))
   }
 }
 
