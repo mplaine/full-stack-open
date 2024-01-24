@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux'
 import { updateFilter } from '../reducers/filterReducer'
 
-const AnecdoteFilter = () => {
+const Filter = () => {
   const dispatch = useDispatch()
 
   const handleChange = (event) => {
@@ -19,4 +19,4 @@ const AnecdoteFilter = () => {
   )
 }
 
-export default AnecdoteFilter
+export default Filter
