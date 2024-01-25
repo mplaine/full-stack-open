@@ -15,6 +15,10 @@ const App = () => {
       // queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
       const anecdotes = queryClient.getQueryData(['anecdotes'])
       queryClient.setQueryData(['anecdotes'], anecdotes.map(anecdote => (anecdote.id !== updatedAnecdote.id) ? anecdote : updatedAnecdote))
+      notificationDispatch({ type: "SHOW", payload: `anecdote '${updatedAnecdote.content}' voted` })
+      setTimeout(() => {
+        notificationDispatch({ type: "HIDE" })
+      }, 5000)
     },
   })
 
@@ -24,10 +28,6 @@ const App = () => {
       votes: anecdoteToUpdate.votes + 1,
     }
     updateAnecdoteMutation.mutate(anecdote)
-    notificationDispatch({ type: "SHOW", payload: `anecdote '${anecdote.content}' voted` })
-    setTimeout(() => {
-      notificationDispatch({ type: "HIDE" })
-    }, 5000)
   }
 
   const result = useQuery({
