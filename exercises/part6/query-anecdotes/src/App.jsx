@@ -5,7 +5,6 @@ import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 
 const App = () => {
-
   const handleVote = (anecdote) => {
     console.log('vote')
   }
@@ -13,6 +12,7 @@ const App = () => {
   const result = useQuery({
     queryKey: ['anecdotes'],
     queryFn: () => getAnecdotes(),
+    refetchOnWindowFocus: false,
     retry: 1,
   })
   console.log(JSON.parse(JSON.stringify(result)))
