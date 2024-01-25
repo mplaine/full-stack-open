@@ -2284,3 +2284,572 @@ Part 5: Testing React apps
     cy.get('@blog').contains('view').click()
     cy.get('@blog').contains(`likes ${expectedInitialLikes[index]}`)
   })
+
+
+Part 6: Advanced state management
+---------------------------------
+* When applications grow larger, state management should be moved outside React components using for instance the Redux library.
+* Redux is the most popular solution for managing the state of React applications.
+* React state management conventions recommend to place the state and the functions for handling it in higher level of the component structure of the application.
+  https://react.dev/learn/sharing-state-between-components
+* Quite often most of the app state and state altering functions reside directly in the root component. The state and its handler methods have then been passed to other components with props. This works up to a certain point, but when applications grow larger, state management becomes challenging.
+* Facebook's Flux-architecture makes state management of React apps easier.
+  https://facebookarchive.github.io/flux/docs/in-depth-overview
+* In Flux, the state is separated from the React components and into its own stores. State in the store is not changed directly, but with different actions.
+* When an action changes the state of the store, the views are rerendered:
+  Action -> Dispatcher -> Store -> View
+* If some action on the application, for example pushing a button, causes the need to change the state, the change is made with an action. This causes re-rendering the view again:
+  Action 1 -> Dispatcher -> Store -> View -> Action 2 -> Dispatcher -> ...
+* Flux offers a standard way for how and where the application's state is kept and how it is modified.
+* The Redux library replaces Flux, also at Facebook: https://redux.js.org/
+* Install Redux:
+  npm install redux
+* As in Flux, in Redux the state is also stored in a store:
+  https://redux.js.org/basics/store
+* The whole state of the application is stored in one JavaScript object in the store.
+  - If the state is complicated, different things in the state would be saved as separate fields of the object.
+* The state of the store is changed with actions (https://redux.js.org/basics/actions). Actions are objects, which have at least a field determining the type of the action. If there is data involved with the action, other fields can be declared as needed.
+  {
+    type: 'INCREMENT'
+  }
+* The impact of the action to the state of the application is defined using a reducer. In practice, a reducer is a function that is given the current state and an action as parameters. It returns a new state.
+  const counterReducer = (state = 0, action) => {
+    switch (action.type) {
+      case 'INCREMENT':
+        return state + 1
+      case 'DECREMENT':
+        return state - 1
+      case 'ZERO':
+        return 0
+      default: // if none of the above matches, code comes here
+        return state
+    }
+  }
+* The first parameter is the state in the store. The reducer returns a new state based on the action type. So, e.g. when the type of Action is INCREMENT, the state gets the old value plus one. If the type of Action is ZERO the new value of state is zero.
+* The switch statement (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) is the most common approach to writing a reducer.
+* Reducer is never supposed to be called directly from the application's code. Reducer is only given as a parameter to the createStore-function which creates the store:
+  import { createStore } from 'redux'
+  const counterReducer = (state = 0, action) => {
+    // ...
+  }
+  const store = createStore(counterReducer)
+* The store now uses the reducer to handle actions, which are dispatched or 'sent' to the store with its dispatch method (https://redux.js.org/api/store#dispatchaction).
+  store.dispatch({ type: 'INCREMENT' })
+* You can find out the state of the store using the method getState: https://redux.js.org/api/store#getstate
+  console.log(store.getState())
+* The third important method the store has is subscribe (https://redux.js.org/api/store#subscribelistener), which is used to create callback functions the store calls whenever an action is dispatched to the store.
+* Print every change in the store to the console:
+  store.subscribe(() => {
+    const storeNow = store.getState()
+    console.log(storeNow)
+  })
+* When the state in the store is changed, React is not able to automatically rerender the application. Thus we have registered a function renderApp, which renders the whole app, to listen for changes in the store with the store.subscribe method.
+  const renderApp = () => {
+    root.render(<App />)
+  }
+  renderApp()
+  store.subscribe(renderApp)
+* We have to immediately call the renderApp method. Without the call, the first rendering of the app would never happen.
+* Instead of the function createStore, it is recommended to use the slightly more "advanced" function configureStore, and we will also use it when we have achieved the basic functionality of Redux.
+  https://redux.js.org/introduction/why-rtk-is-redux-today
+* "deprecated" createStore() vs. recommended configureStore() in Redux: https://stackoverflow.com/questions/71944111/redux-createstore-is-deprecated-cannot-get-state-from-getstate-in-redux-ac
+* The general convention is that actions have exactly two fields, type telling the type and payload containing the data included with the Action.
+* The following reducer breaks the basic assumption of Redux reducer that reducers must be pure functions: https://en.wikipedia.org/wiki/Pure_function
+  const noteReducer = (state = [], action) => {
+    if (action.type === 'NEW_NOTE') {
+      state.push(action.payload)  // BAD!!!
+      return state
+    }
+    return state
+  }
+* Pure functions are such, that they do not cause any side effects and they must always return the same response when called with the same parameters.
+* We added a new note to the state with the method state.push(action.payload) which changes the state of the state-object. This is not allowed. The problem is easily solved by using the concat method, which creates a new array, which contains all the elements of the old array and the new element:
+  const noteReducer = (state = [], action) => {
+    if (action.type === 'NEW_NOTE') {
+      return state.concat(action.payload)
+    }
+    return state
+  }
+* A reducer state must be composed of immutable (https://en.wikipedia.org/wiki/Immutable_object) objects. If there is a change in the state, the old object is not changed, but it is replaced with a new, changed, object. This is exactly what we did with the new reducer: the old array is replaced with the new one.
+* Install Jest (+ edit .babelrc, package.json, and .eslintrc.cjs):
+  npm install --save-dev jest @babel/preset-env @babel/preset-react eslint-plugin-jest
+* The "rc" part in for example .babelrc stands for "runcom", which I believe can be expanded to "run commands". In fact, this is exactly what the file contains, commands that bash should run.
+* Difference between .js, .cjs, and .mjs: https://dev.to/nipu/js-cjs-and-mjs-defference-5f21#:~:text=CommonJS%20is%20a%20module%20system,exports%20syntax.
+  - .js (JavaScript)
+  - .cjs (CommonJS, require and module.exports)
+  - .mjs (ECMAScript Modules, import and export)
+* The deep-freeze library (https://www.npmjs.com/package/deep-freeze) can be used to ensure that the reducer has been correctly defined as an immutable function.
+* Install deep-freeze:
+  npm install --save-dev deep-freeze
+* Move each reducer's code to its own module file. For example, src/reducers/noteReducer.js
+* The deepFreeze(state) command ensures that the reducer does not change the state of the store given to it as a parameter. If the reducer uses the push command to manipulate the state, the test will not pass.
+* The JavaScript array spread syntax: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_operator
+  - The same result as using the Array's conat function.
+  - Example:
+    const numbers = [1, 2, 3]
+    [...numbers, 4, 5] // [1, 2, 3, 4, 5]
+    [numbers, 4, 5]    // [[1, 2, 3], 4, 5]
+* The JavaScript array destructing syntax: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+  const numbers = [1, 2, 3, 4, 5, 6]
+  const [first, second, ...rest] = numbers
+  console.log(first)  // prints 1
+  console.log(second) // prints 2
+  console.log(rest)   // prints [3, 4, 5, 6]
+* It is noteworthy that we have not bound the state of the form fields to the state of the App component like we have previously done. React calls this kind of form uncontrolled.
+  https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable
+  https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/
+* Uncontrolled forms have certain limitations (for example, dynamic error messages or disabling the submit button based on input are not possible).
+* Because the field has a name, we can access the content via the event object event.target.note.value.
+  <form onSubmit={addNote}>
+        <input name="note" />
+* React components don't need to know the Redux action types and forms. Let's separate creating actions into separate functions.
+* Functions that create actions are called action creators:
+  https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns#action-creators
+* The App component does not have to know anything about the inner representation of the actions anymore, it just gets the right action by calling the creator function:
+  const App = () => {
+    const toggleImportance = (id) => {
+     store.dispatch(toggleImportanceOf(id))
+    }
+* There are multiple ways to share the Redux store with components. First, we will look into the newest, and possibly the easiest way is using the hooks API of the react-redux library.
+  - The hooks API: https://react-redux.js.org/api/hooks
+  - React Redux library: https://react-redux.js.org/
+* Install react-redux:
+  npm install react-redux
+* Usage of react-redux:
+  import { Provider } from 'react-redux'
+  // ...
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
+* The application is now defined as a child of a Provider (https://react-redux.js.org/api/provider) component provided by the react-redux library. The application's store is given to the Provider as its attribute store.
+* Defining the action creators has been moved to the file reducers/noteReducer.js where the reducer is defined.
+  // ...
+  export const toggleImportanceOf = (id) => {
+    return {
+      type: 'TOGGLE_IMPORTANCE',
+      payload: { id }
+    }
+  }
+  export default noteReducer
+* The module now has multiple export commands:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+* If the application has many components which need the store, the App component must pass store as props to all of those components.
+* A module can have only one default export, but multiple "normal" exports:
+  export const createNote = (content) => {
+    // ...
+  }
+
+  export const toggleImportanceOf = (id) => { 
+    // ...
+  }
+* Normally (not as defaults) exported functions can be imported with the curly brace syntax:
+  import { createNote } from './../reducers/noteReducer'
+* Previously the code dispatched actions by calling the dispatch method of the Redux store. Now it does it with the dispatch function from the useDispatch hook:
+  import { useSelector, useDispatch } from 'react-redux'
+  const App = () => {
+    const dispatch = useDispatch()
+    // ...
+    const toggleImportance = (id) => {
+      dispatch(toggleImportanceOf(id))
+    }
+    // ...
+  }
+* The useDispatch hook provides any React component access to the dispatch function of the Redux store defined in main.jsx. This allows all components to make changes to the state of the Redux store.
+* The component can access the notes stored in the store with the useSelector-hook (https://react-redux.js.org/api/hooks#useselector) of the react-redux library.
+  import { useSelector, useDispatch } from 'react-redux'
+  const App = () => {
+    // ...
+    const notes = useSelector(state => state) // return the whole state
+    // ...
+  }
+* useSelector receives a function as a parameter. The function either searches for or selects data from the Redux store.
+  (state) => { return state }
+* Usually, selector functions are a bit more interesting and return only selected parts of the contents of the Redux store. We could for example return only notes marked as important:
+  const importantNotes = useSelector(state => state.filter(note => note.important))
+* Unlike in the React code we did without Redux, the event handler for changing the state of the app (which now lives in Redux) has been moved away from the App to a child component.
+* The logic for changing the state in Redux is still neatly separated from the whole React part of the application.
+* Note, responsible for rendering a single note, is very simple and is not aware that the event handler it gets as props dispatches an action. These kinds of components are called presentational in React terminology.
+  https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0
+  const Note = ({ note, handleClick }) => {
+    return(
+      // ...
+    )
+  }
+* Notes, on the other hand, is a container component, as it contains some application logic: it defines what the event handlers of the Note components do and coordinates the configuration of presentational components, that is, the Notes.
+  https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0
+  const Notes = () => {
+    const dispatch = useDispatch()
+    const notes = useSelector(state => state)
+    return(
+      // ...
+    )
+  }
+* Presentational components: Are concerned with how things look.
+* Container components: Are concerned with how things work.
+* In the case of the state object having many properties (e.g., {notes: [...], filter: 'IMPORTANT'}), it is good to define separate reducers for the state of different properties.
+* const filterReducer = (state = 'ALL', action) => {
+    switch (action.type) {
+      case 'SET_FILTER':
+        return action.payload
+      default:
+        return state
+    }
+  }
+* The data structure of a reducer's return value needs to match the given initial state.
+* We can create the actual reducer for our application by combining the two existing reducers with the combineReducers function: https://redux.js.org/api/combinereducers
+  import { createStore, combineReducers } from 'redux'
+  import { Provider } from 'react-redux' 
+  import App from './App'
+  import noteReducer from './reducers/noteReducer'
+  import filterReducer from './reducers/filterReducer'
+  const reducer = combineReducers({
+    notes: noteReducer,
+    filter: filterReducer
+  })
+  const store = createStore(reducer)
+* By simulating the creation of a note and changing the state of the filter in this fashion, the state of the store gets logged to the console after every change that is made to the store:
+  store.subscribe(() => console.log(store.getState()))
+* Important: The combined reducer works in such a way that every action gets handled in every part of the combined reducer. Typically only one reducer is interested in any given action, but there are situations where multiple reducers change their respective parts of the state based on the same action.
+* Return notes from a specific property of the combined state object:
+  const notes = useSelector(state => state.notes)
+* Return filtered notes:
+  const notes = useSelector(({ filter, notes }) => {
+    if ( filter === 'ALL' ) {
+      return notes
+    }
+    return filter  === 'IMPORTANT' 
+      ? notes.filter(note => note.important)
+      : notes.filter(note => !note.important)
+  })
+* Redux's configuration and state management implementation requires quite a lot of effort. This is manifested for example in the reducer and action creator-related code which has somewhat repetitive boilerplate code.
+* Redux Toolkit (https://redux-toolkit.js.org/) is a library that solves these common Redux-related problems. The library for example greatly simplifies the configuration of the Redux store and offers a large variety of tools to ease state management.
+* Install Redux Toolkit:
+  npm install @reduxjs/toolkit
+* Instead of Redux's createStore function, let's create the store using Redux Toolkit's configureStore function: https://redux-toolkit.js.org/api/configureStore
+  import { configureStore } from '@reduxjs/toolkit'
+  const store = configureStore({
+    reducer: {
+      notes: noteReducer,
+      filter: filterReducer
+    }
+  })
+* With the Redux Toolkit, we don't need the combineReducers function to create the reducer for the store. We will soon see that the configureStore function has many additional benefits such as the effortless integration of development tools and many commonly used libraries without the need for additional configuration.
+* With Redux Toolkit, we can easily create reducer and related action creators using the createSlice function. We can use the createSlice function to refactor the reducer and action creators in the reducers/noteReducer.js file in the following manner:
+  import { createSlice } from '@reduxjs/toolkit'
+  const noteSlice = createSlice({
+    name: 'notes',
+    initialState,
+    reducers: {
+      createNote(state, action) {
+        const content = action.payload
+        state.push({
+          content,
+          important: false,
+          id: generateId(),
+        })
+      },
+      toggleImportanceOf(state, action) {
+        const id = action.payload
+        const noteToChange = state.find(n => n.id === id)
+        const changedNote = { 
+          ...noteToChange, 
+          important: !noteToChange.important 
+        }
+        return state.map(note =>
+          note.id !== id ? note : changedNote 
+        )     
+      }
+    },
+  })
+* The createSlice function's name parameter defines the prefix which is used in the action's type values. For example, the createNote action defined later will have the type value of notes/createNote. It is a good practice to give the parameter a value which is unique among the reducers. This way there won't be unexpected collisions between the application's action type values. The initialState parameter defines the reducer's initial state. The reducers parameter takes the reducer itself as an object, of which functions handle state changes caused by certain actions. Note that the action.payload in the function contains the argument provided by calling the action creator:
+  dispatch(createNote('Redux Toolkit is awesome!'))
+* This dispatch call responds to dispatching the following object:
+  dispatch({ type: 'notes/createNote', payload: 'Redux Toolkit is awesome!' })
+* Redux Toolkit utilizes the Immer library with reducers created by createSlice function, which makes it possible to mutate the state argument inside the reducer. Immer uses the mutated state to produce a new, immutable state and thus the state changes remain immutable. Note that state can be changed without "mutating" it, as we have done with the toggleImportanceOf action. In this case, the function returns the new state. Nevertheless mutating the state will often come in handy especially when a complex state needs to be updated.
+  createNote(state, action) {
+    const content = action.payload
+    state.push({ // normally this would violate the reducers' immutability principle, but here it is ok as we are using Redux Toolkit
+      content,
+      important: false,
+      id: generateId(),
+    })
+  }
+* The createSlice function returns an object containing the reducer as well as the action creators defined by the reducers parameter. The reducer can be accessed by the noteSlice.reducer property, whereas the action creators by the noteSlice.actions property. We can produce the file's exports in the following way:
+  const noteSlice = createSlice(/* ... */)
+  export const { createNote, toggleImportanceOf } = noteSlice.actions
+  export default noteSlice.reducer
+* We need to alter the action type names in the tests due to the conventions of ReduxToolkit:
+  type: 'NEW_NOTE' -> type: 'notes/createNote'
+* Print Redux Toolkit state to the console within reducers:
+  console.log(JSON.parse(JSON.stringify(state)))
+* Redux DevTools (https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd) is a Chrome addon that offers useful development tools for Redux. It can be used for example to inspect the Redux store's state and dispatch actions through the browser's console.
+* When the store is created using Redux Toolkit's configureStore function, no additional configuration is needed for Redux DevTools to work.
+* Install json-server:
+  npm install json-server --save-dev
+* Run the json-server:
+  npm run server
+* Install Axios:
+  npm install axios
+* Dispatching multiple actions seems a bit impractical. Let's add an action creator setNotes which can be used to directly replace the notes array.
+  const noteSlice = createSlice({
+    name: 'notes',
+    initialState: [],
+    reducers: {
+      setNotes(state, action) {
+        return action.payload
+      }
+      // ...
+* Initialize the notes state based on the data received from the server (main.jsx):
+  import noteReducer, { setNotes } from './reducers/noteReducer'
+  // ...
+  noteService.getAll().then(notes =>
+    store.dispatch(setNotes(notes))
+  )
+* Await only works inside async functions, and the code in main.jsx is not inside a function, so due to the simple nature of the operation, we'll abstain from using async this time.
+* Move the initialization of the notes into the App component, and, as usual, when fetching data from a server, we'll use the effect hook:
+  import { useEffect } from 'react'
+  // ...
+  import noteService from './services/notes'
+  import { setNotes } from './reducers/noteReducer'
+  import { useDispatch } from 'react-redux'
+
+  const App = () => {
+
+    const dispatch = useDispatch()
+    useEffect(() => {
+      noteService
+        .getAll().then(notes => dispatch(setNotes(notes)))
+    }, [dispatch]) // note the added dispatch!!!
+    // ...
+* Abstract away the communication with the server from the components so that they don't have to do anything else but call the appropriate action creator. 
+  const NewNote = () => {
+    const dispatch = useDispatch()    
+    const addNote = async (event) => {
+      event.preventDefault()
+      const content = event.target.note.value
+      event.target.note.value = ''
+      dispatch(createNote(content)) // !!!
+    }
+    // ...
+  }
+* In this implementation, both components would dispatch an action without the need to know about the communication between the server that happens behind the scenes.
+* These kinds of async actions can be implemented using the Redux Thunk librar (https://github.com/reduxjs/redux-thunk). The use of the library doesn't need any additional configuration or even installation when the Redux store is created using the Redux Toolkit's configureStore function.
+* With Redux Thunk it is possible to implement action creators which return a function instead of an object. The function receives Redux store's dispatch and getState methods as parameters. This allows for example implementations of asynchronous action creators, which first wait for the completion of a certain asynchronous operation and after that dispatch some action, which changes the store's state.
+* The solution is elegant. The initialization logic for the notes has been completely separated from the React component.
+  export const createNote = content => {
+    return async dispatch => {
+      const newNote = await noteService.createNew(content)
+      dispatch(appendNote(newNote))
+    }
+  }
+* First, an asynchronous operation is executed, after which the action changing the state of the store (appendNote) is dispatched.
+* Redux Toolkit offers a multitude of tools to simplify asynchronous state management. Suitable tools for this use case are for example the createAsyncThunk function and the RTK Query API.
+  - createAsyncThunk: https://redux-toolkit.js.org/api/createAsyncThunk
+  - RTK Query API: https://redux-toolkit.js.org/rtk-query/overview
+* The React Query library is an alternative way to store and manage data retrieved from the server. The latest version of the library is also called TanStack Query, but we stick to the familiar name.
+* Install React Query:
+  npm install @tanstack/react-query
+* Usage React Query in main.jsx:
+  import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+  import App from './App'
+  const queryClient = new QueryClient()
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  )
+* Data retrieval example:
+  import { useQuery } from '@tanstack/react-query'
+  import axios from 'axios'
+  const App = () => {
+    // ...
+    const result = useQuery({
+      queryKey: ['notes'],
+      queryFn: () => axios.get('http://localhost:3001/notes').then(res => res.data)
+    })
+    console.log(JSON.parse(JSON.stringify(result)))
+    if ( result.isLoading ) {
+      return <div>loading data...</div>
+    }
+    const notes = result.data
+    return (
+      // ...
+    )
+  }
+* The Axios method call is now wrapped in a query (https://tanstack.com/query/latest/docs/react/guides/queries) formed with the useQuery function (https://tanstack.com/query/latest/docs/react/reference/useQuery). The first parameter of the function call is a string notes which acts as a key (https://tanstack.com/query/latest/docs/react/guides/query-keys) to the query defined, i.e. the list of notes.
+* The return value of the useQuery function is an object that indicates the status of the query.
+* The first time the component is rendered, the query is still in loading state, i.e. the associated HTTP request is pending.
+* When the request is completed, the component is rendered again. The query is in the state success on the second rendering, and the field data of the query object contains the data returned by the request, i.e. the list of notes that is rendered on the screen.
+* So the application retrieves data from the server and renders it on the screen without using the React hooks useState and useEffect used in chapters 2-5 at all. The data on the server is now entirely under the administration of the React Query library, and the application does not need the state defined with React's useState hook at all!
+* To create a new note, a mutation (https://tanstack.com/query/latest/docs/react/guides/mutations) is defined using the function useMutation (https://tanstack.com/query/latest/docs/react/reference/useMutation):
+  const newNoteMutation = useMutation({ mutationFn: createNote })
+* The parameter is the function we added to the file requests.js, which uses Axios to send a new note to the server.
+* The event handler addNote performs the mutation by calling the mutation object's function mutate and passing the new note as a parameter:
+  newNoteMutation.mutate({ content, important: true })
+* In order to render a new note as well, we need to tell React Query that the old result of the query whose key is the string notes should be invalidated (https://tanstack.com/query/latest/docs/react/guides/invalidations-from-mutations).
+  import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+  import { getNotes, createNote } from './requests'
+  const App = () => {
+    const queryClient = useQueryClient()
+    const newNoteMutation = useMutation({
+      mutationFn: createNote, 
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['notes'] })
+      },
+    })
+    // ...
+  }
+* When we change the importance of a note, invalidating the query notes is enough for the application data to be updated:
+  onSuccess: () => {
+    queryClient.invalidateQueries('notes')
+  },
+* The consequence of this, of course, is that after the PUT request that causes the note change, the application makes a new GET request to retrieve the query data from the server:
+* If necessary, it is also possible to optimize performance by manually updating the query state maintained by React Query.
+  https://tanstack.com/query/latest/docs/react/guides/updates-from-mutation-responses
+  onSuccess: (newNote) => {
+    const notes = queryClient.getQueryData(['notes'])
+    queryClient.setQueryData(['notes'], notes.concat(newNote))
+  }
+* That is, in the onSuccess callback, the queryClient object first reads the existing notes state of the query and updates it by adding a new note, which is obtained as a parameter of the callback function.
+* By reading the documentation, we notice that the default functionality of React Query's queries is that the queries (whose status is stale) are updated when window focus, i.e. the active element of the application's user interface, changes. If we want, we can turn off the functionality by creating a query as follows:
+  const App = () => {
+    // ...
+    const result = useQuery({
+      queryKey: ['notes'],
+      queryFn: getNotes,
+      refetchOnWindowFocus: false
+    })
+    // ...
+  }
+* The rule of thumb is that rerendering happens at least whenever there is a need for it, i.e. when the state of the query changes. You can read more about it e.g. here.
+  https://tkdodo.eu/blog/react-query-render-optimizations
+* React Query is a versatile library that, based on what we have already seen, simplifies the application. Does React Query make more complex state management solutions such as Redux unnecessary? No. React Query can partially replace the state of the application in some cases, but as the documentation states:
+  - React Query is a server-state library, responsible for managing asynchronous operations between your server and client
+  - Redux, etc. are client-state libraries that can be used to store asynchronous data, albeit inefficiently when compared to a tool like React Query
+* So React Query is a library that maintains the server state in the frontend, i.e. acts as a cache for what is stored on the server. React Query simplifies the processing of data on the server, and can in some cases eliminate the need for data on the server to be saved in the frontend state.
+* Most React applications need not only a way to temporarily store the served data, but also some solution for how the rest of the frontend state (e.g. the state of forms or notifications) is handled.
+* So even if the application uses React Query, some kind of solution is usually needed to manage the rest of the frontend state (for example, the state of forms). Quite often, the state created with useState is a sufficient solution. Using Redux is of course possible, but there are other alternatives.
+* React's built-in useReducer (https://react.dev/reference/react/useReducer) hook provides a Redux-like state management mechanism.
+* The hook useReducer provides a mechanism to create a state for an application. The parameter for creating a state is the reducer function that handles state changes, and the initial value of the state:
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+* The reducer function that handles state changes is similar to Redux's reducers, i.e. the function gets as parameters the current state and the action that changes the state. The function returns the new state updated based on the type and possible contents of the action:
+  const counterReducer = (state, action) => {
+    switch (action.type) {
+      case "INC":
+          return state + 1
+      case "DEC":
+          return state - 1
+      case "ZERO":
+          return 0
+      default:
+          return state
+    }
+  }
+* In our example, actions have nothing but a type. If the action's type is INC, it increases the value of the counter by one, etc. Like Redux's reducers, actions can also contain arbitrary data, which is usually put in the action's payload field.
+* The function useReducer returns an array that contains an element to access the current value of the state (first element of the array), and a dispatch function (second element of the array) to change the state:
+  const [counter, counterDispatch] = useReducer(counterReducer, 0)
+  // ...
+  <button onClick={() => counterDispatch({ type: "INC" })}>+</button>
+* If we want to split the application into several components, the value of the counter and the dispatch function used to manage it must also be passed to the other components. One solution would be to pass these as props in the usual way.
+* The solution works, but is not optimal. If the component structure gets complicated, e.g. the dispatcher should be forwarded using props through many components to the components that need it, even though the components in between in the component tree do not need the dispatcher. This phenomenon is called prop drilling.
+* React's built-in Context API: https://react.dev/learn/passing-data-deeply-with-context
+* React's context is a kind of global state of the application, to which it is possible to give direct access to any component app.
+* The context is created with React's hook createContext (https://react.dev/reference/react/createContext). Let's create a context in the file CounterContext.jsx:
+  import { createContext } from 'react'
+  const CounterContext = createContext()
+  export default CounterContext
+* The App component can now provide a context to its child components as follows:
+  import CounterContext from './CounterContext'
+  const App = () => {
+    const [counter, counterDispatch] = useReducer(counterReducer, 0)
+    return (
+      <CounterContext.Provider value={[counter, counterDispatch]}>
+        <Display />
+        <div>
+          <Button type='INC' label='+' />
+          <Button type='DEC' label='-' />
+          <Button type='ZERO' label='0' />
+        </div>
+      </CounterContext.Provider>
+    )
+  }
+* As can be seen, providing the context is done by wrapping the child components inside the CounterContext.Provider component and setting a suitable value for the context.
+* Other components now access the context using the useContext hook:
+  import { useContext } from 'react'
+  import CounterContext from './CounterContext'
+
+  const Display = () => {
+    const [counter, dispatch] = useContext(CounterContext)
+    return <div>
+      {counter}
+    </div>
+  }
+
+  const Button = ({ type, label }) => {
+    const [counter, dispatch] = useContext(CounterContext)
+    return (
+      <button onClick={() => dispatch({ type })}>
+        {label}
+      </button>
+    )
+  }
+* Move everything related to the counter from App.jsx to CounterContext.jsx:
+  import { createContext, useReducer } from 'react'
+
+  const counterReducer = (state, action) => {
+    switch (action.type) {
+      case "INC":
+          return state + 1
+      case "DEC":
+          return state - 1
+      case "ZERO":
+          return 0
+      default:
+          return state
+    }
+  }
+
+  const CounterContext = createContext()
+
+  export const CounterContextProvider = (props) => {
+    const [counter, counterDispatch] = useReducer(counterReducer, 0)
+    return (
+      <CounterContext.Provider value={[counter, counterDispatch] }>
+        {props.children}
+      </CounterContext.Provider>
+    )
+  }
+
+  export default CounterContext
+* The file now exports, in addition to the CounterContext object corresponding to the context, the CounterContextProvider component, which is practically a context provider whose value is a counter and a dispatcher used for its state management.
+* Updated main.jsx:
+  import ReactDOM from 'react-dom/client'
+  import App from './App'
+  import { CounterContextProvider } from './CounterContext'
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <CounterContextProvider>
+      <App />
+    </CounterContextProvider>
+  )
+* Now the context defining the value and functionality of the counter is available to all components of the application.
+* The entire state of the application, i.e. the value of the counter and the code for managing it, is now isolated in the file CounterContext, which provides components with well-named and easy-to-use auxiliary functions for managing the state.
+* The helper functions useCounterValue and useCounterDispatch are defined as custom hooks (https://react.dev/learn/reusing-logic-with-custom-hooks), because calling the hook function useContext is possible (https://legacy.reactjs.org/docs/hooks-rules.html) only from React components or custom hooks. Custom hooks are JavaScript functions whose name must start with the string use.
+  import { createContext, useReducer, useContext } from 'react'
+  const CounterContext = createContext()
+  // ...
+  export const useCounterValue = () => {
+    const counterAndDispatch = useContext(CounterContext)
+    return counterAndDispatch[0]
+  }
+* Redux does not have to be used in its entirety in an application. It may make sense, for example, to manage the form state outside of Redux, especially in situations where the state of a form does not affect the rest of the application. It is also perfectly possible to use Redux and React Query together in the same application.
+* State management solutions:
+  - React hooks (useState and useEffect)
+    - Pros: simple
+    - Cons: prop drilling
+  - React Query with React context
+    - Pros: server-state library, solves prop drilling
+    - Cons: unintuitive syntax
+  - React Toolkit (Redux)
+    - Pros: client-state library, solves prop drilling, most popular, robust

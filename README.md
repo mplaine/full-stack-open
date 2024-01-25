@@ -30,3 +30,7 @@ My solutions to the Part 4 exercises can be found [here](./exercises/part4/).
 ### Part 5: Testing React apps
 
 My solutions to the Part 5 exercises can be found [here](./exercises/part5/).
+
+### Part 6: Advanced state management
+
+My solutions to the Part 6 exercises can be found [here](./exercises/part6/).
