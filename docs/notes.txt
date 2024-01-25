@@ -2853,3 +2853,21 @@ Part 6: Advanced state management
     - Cons: unintuitive syntax
   - React Toolkit (Redux)
     - Pros: client-state library, solves prop drilling, most popular, robust
+* A better solution for notifications:
+  - App.jsx:
+    import { useNotification } from './NotificationContext'
+    // ... (within App)
+    const setNotification = useNotification()
+    // ... (within onSuccess)
+    setNotification(`anecdote '${updatedAnecdote.content}' voted`, 5)
+  - NotificationContext.js:
+      export const useNotification = () => {
+        const notificationValueAndDispatch = useContext(NotificationContext)
+        const notificationDispatch = notificationValueAndDispatch[1]
+        return (message, duration) => {
+          notificationDispatch({ type: "SHOW", payload: message })
+          setTimeout(() => {
+            notificationDispatch({ type: "HIDE" })
+          }, duration)
+        }
+      }
