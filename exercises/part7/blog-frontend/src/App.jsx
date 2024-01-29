@@ -1,19 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch } from 'react-redux'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Button from './components/Button'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import { setNotification } from './reducers/notificationReducer'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import compareByLikes from './utils'
 
-
 const App = () => {
+  const dispatch = useDispatch()
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [notification, setNotification] = useState(null)
 
   const blogFormRef = useRef()
 
@@ -26,23 +27,12 @@ const App = () => {
         window.localStorage.setItem('loggedInBlogAppUser', JSON.stringify(user))
         blogService.setToken(user.token)
         setUser(user)
-        setNotification({
-          message: `${user.name} logged in successfully`,
-          type: 'success'
-        })
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000)
+        dispatch(setNotification('success', `${user.name} logged in successfully`, 5))
         isSuccess = true
       }
     } catch (exception) {
-      setNotification({
-        message: exception.response.data.error,
-        type: 'error'
-      })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      const message = exception.response.data === '' ? exception.message : exception.response.data.error
+      dispatch(setNotification('error', message, 5))
     }
 
     return isSuccess
@@ -59,26 +49,15 @@ const App = () => {
         createdBlog.user = {
           username: user.username,
           name: user.name,
-          id: userId,
+          id: userId
         }
         setBlogs(blogs.concat(createdBlog).sort(compareByLikes))
-        setNotification({
-          message: `A new blog "${createdBlog.title}" was successfully created`,
-          type: 'success'
-        })
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000)
+        dispatch(setNotification('success', `A new blog "${createdBlog.title}" was successfully created`, 5))
         isSuccess = true
       }
     } catch (exception) {
-      setNotification({
-        message: exception.response.data.error,
-        type: 'error'
-      })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      const message = exception.response.data === '' ? exception.message : exception.response.data.error
+      dispatch(setNotification('error', message, 5))
     }
 
     return isSuccess
@@ -92,54 +71,32 @@ const App = () => {
         updatedBlog.user = {
           username: user.username,
           name: user.name,
-          id: userId,
+          id: userId
         }
-        setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog).sort(compareByLikes))
-        setNotification({
-          message: `An existing blog "${updatedBlog.title}" was successfully updated`,
-          type: 'success'
-        })
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000)
+        setBlogs(blogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog)).sort(compareByLikes))
+        dispatch(setNotification('success', `An existing blog "${updatedBlog.title}" was successfully updated`, 5))
       }
     } catch (exception) {
-      setNotification({
-        message: exception.response.data.error,
-        type: 'error'
-      })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      const message = exception.response.data === '' ? exception.message : exception.response.data.error
+      dispatch(setNotification('error', message, 5))
     }
   }
 
   const deleteBlog = async (blogToBeDeleted) => {
     try {
       await blogService.deleteBlog(blogToBeDeleted.id)
-      setBlogs(blogs.filter(blog => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
-      setNotification({
-        message: `An existing blog "${blogToBeDeleted.title}" was successfully removed`,
-        type: 'success'
-      })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      setBlogs(blogs.filter((blog) => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
+      dispatch(setNotification('success', `An existing blog "${blogToBeDeleted.title}" was successfully removed`, 5))
     } catch (exception) {
-      setNotification({
-        message: exception.response.data.error,
-        type: 'error'
-      })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      const message = exception.response.data === '' ? exception.message : exception.response.data.error
+      dispatch(setNotification('error', message, 5))
     }
   }
 
   const loginView = () => (
     <div>
       <h2>log in to application</h2>
-      <Notification notification={notification} />
+      <Notification />
       <LoginForm login={login} />
     </div>
   )
@@ -147,33 +104,27 @@ const App = () => {
   const blogsView = () => (
     <div>
       <h2>blogs</h2>
-      <Notification notification={notification} />
-      <p>{user.name} logged in <Button handleClick={handleLogout} text="logout" /></p>
+      <Notification />
+      <p>
+        {user.name} logged in <Button handleClick={handleLogout} text="logout" />
+      </p>
       <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm createBlog={createBlog} />
       </Togglable>
-      {blogs.map(blog =>
+      {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />
-      )}
+      ))}
     </div>
   )
 
   const handleLogout = (event) => {
-    setNotification({
-      message: `${user.name} logged out successfully`,
-      type: 'success'
-    })
-    setTimeout(() => {
-      setNotification(null)
-    }, 5000)
+    dispatch(setNotification('success', `${user.name} logged out successfully`, 5))
     window.localStorage.removeItem('loggedInBlogAppUser')
     setUser(null)
   }
 
   useEffect(() => {
-    blogService.getBlogs().then(blogs =>
-      setBlogs(blogs.sort(compareByLikes))
-    )
+    blogService.getBlogs().then((blogs) => setBlogs(blogs.sort(compareByLikes)))
   }, [])
 
   useEffect(() => {
@@ -185,14 +136,7 @@ const App = () => {
     }
   }, [])
 
-  return (
-    <>
-      {user === null
-        ? loginView()
-        : blogsView()
-      }
-    </>
-  )
+  return <>{user === null ? loginView() : blogsView()}</>
 }
 
 export default App
