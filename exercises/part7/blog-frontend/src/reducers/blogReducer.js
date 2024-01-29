@@ -56,7 +56,7 @@ export const deleteBlog = (id) => {
 }
 
 export const updateBlog = (blogToBeUpdated, user) => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     const updatedBlog = await blogService.updateBlog(blogToBeUpdated.id, blogToBeUpdated)
     if (updatedBlog) {
       const userId = updatedBlog.user
