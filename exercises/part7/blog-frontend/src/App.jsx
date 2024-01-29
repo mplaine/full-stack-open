@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Button from './components/Button'
@@ -7,13 +7,15 @@ import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import { setNotification } from './reducers/notificationReducer'
+import { initializeBlogs } from './reducers/blogReducer'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import compareByLikes from './utils'
 
 const App = () => {
   const dispatch = useDispatch()
-  const [blogs, setBlogs] = useState([])
+  const blogs = useSelector((state) => state.blogs)
+  const blogsToShow = [...blogs].sort(compareByLikes)
   const [user, setUser] = useState(null)
 
   const blogFormRef = useRef()
@@ -38,31 +40,6 @@ const App = () => {
     return isSuccess
   }
 
-  const createBlog = async (newBlogObject) => {
-    let isSuccess = false
-    blogFormRef.current.toggleVisibility()
-
-    try {
-      const createdBlog = await blogService.createBlog(newBlogObject)
-      if (createdBlog) {
-        const userId = createdBlog.user
-        createdBlog.user = {
-          username: user.username,
-          name: user.name,
-          id: userId
-        }
-        setBlogs(blogs.concat(createdBlog).sort(compareByLikes))
-        dispatch(setNotification('success', `A new blog "${createdBlog.title}" was successfully created`, 5))
-        isSuccess = true
-      }
-    } catch (exception) {
-      const message = exception.response.data === '' ? exception.message : exception.response.data.error
-      dispatch(setNotification('error', message, 5))
-    }
-
-    return isSuccess
-  }
-
   const updateBlog = async (updatedBlogObject) => {
     try {
       const updatedBlog = await blogService.updateBlog(updatedBlogObject.id, updatedBlogObject)
@@ -73,7 +50,7 @@ const App = () => {
           name: user.name,
           id: userId
         }
-        setBlogs(blogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog)).sort(compareByLikes))
+        // setBlogs(blogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog)).sort(compareByLikes))
         dispatch(setNotification('success', `An existing blog "${updatedBlog.title}" was successfully updated`, 5))
       }
     } catch (exception) {
@@ -85,7 +62,7 @@ const App = () => {
   const deleteBlog = async (blogToBeDeleted) => {
     try {
       await blogService.deleteBlog(blogToBeDeleted.id)
-      setBlogs(blogs.filter((blog) => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
+      // setBlogs(blogs.filter((blog) => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
       dispatch(setNotification('success', `An existing blog "${blogToBeDeleted.title}" was successfully removed`, 5))
     } catch (exception) {
       const message = exception.response.data === '' ? exception.message : exception.response.data.error
@@ -109,9 +86,9 @@ const App = () => {
         {user.name} logged in <Button handleClick={handleLogout} text="logout" />
       </p>
       <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <BlogForm createBlog={createBlog} />
+        <BlogForm blogFormRef={blogFormRef} user={user} />
       </Togglable>
-      {blogs.map((blog) => (
+      {blogsToShow.map((blog) => (
         <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />
       ))}
     </div>
@@ -124,8 +101,8 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getBlogs().then((blogs) => setBlogs(blogs.sort(compareByLikes)))
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
 
   useEffect(() => {
     const loggedInBlogAppUserJSON = window.localStorage.getItem('loggedInBlogAppUser')
