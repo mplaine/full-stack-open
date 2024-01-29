@@ -7,16 +7,24 @@ const blogSlice = createSlice({
   name: 'blogs',
   initialState,
   reducers: {
+    setBlogs(state, action) {
+      return action.payload
+    },
     appendBlog(state, action) {
       state.push(action.payload)
     },
-    setBlogs(state, action) {
-      return action.payload
+    removeBlog(state, action) {
+      const id = action.payload
+      return state.filter((blog) => blog.id !== id)
+    },
+    replaceBlog(state, action) {
+      const updatedBlog = action.payload
+      return state.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog))
     }
   }
 })
 
-export const { appendBlog, setBlogs } = blogSlice.actions
+export const { setBlogs, appendBlog, removeBlog, replaceBlog } = blogSlice.actions
 
 export const initializeBlogs = () => {
   return async (dispatch) => {
@@ -25,9 +33,9 @@ export const initializeBlogs = () => {
   }
 }
 
-export const addBlog = (blog, user) => {
+export const createBlog = (blogToBeCreated, user) => {
   return async (dispatch) => {
-    const createdBlog = await blogService.createBlog(blog)
+    const createdBlog = await blogService.createBlog(blogToBeCreated)
     if (createdBlog) {
       const userId = createdBlog.user
       createdBlog.user = {
@@ -36,6 +44,28 @@ export const addBlog = (blog, user) => {
         id: userId
       }
       dispatch(appendBlog(createdBlog))
+    }
+  }
+}
+
+export const deleteBlog = (id) => {
+  return async (dispatch) => {
+    await blogService.deleteBlog(id)
+    dispatch(removeBlog(id))
+  }
+}
+
+export const updateBlog = (blogToBeUpdated, user) => {
+  return async (dispatch, getState) => {
+    const updatedBlog = await blogService.updateBlog(blogToBeUpdated.id, blogToBeUpdated)
+    if (updatedBlog) {
+      const userId = updatedBlog.user
+      updatedBlog.user = {
+        username: user.username,
+        name: user.name,
+        id: userId
+      }
+      dispatch(replaceBlog(updatedBlog))
     }
   }
 }

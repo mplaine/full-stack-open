@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { deleteBlog, updateBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
 import Button from './Button'
 
-
-const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
+const Blog = ({ blog, user }) => {
+  const dispatch = useDispatch()
   const [visible, setVisible] = useState(false)
 
   const toggleVisibility = () => {
@@ -25,15 +28,17 @@ const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
     const updatedBlogObject = {
       ...blog,
       likes: blog.likes + 1,
-      user: blog.user.id,
+      user: blog.user.id
     }
 
-    updateBlog(updatedBlogObject)
+    dispatch(updateBlog(updatedBlogObject, user))
+    dispatch(setNotification('success', `An existing blog "${updatedBlogObject.title}" was successfully updated`, 5))
   }
 
   const handleDelete = (event) => {
     if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
-      deleteBlog(blog)
+      dispatch(deleteBlog(blog.id))
+      dispatch(setNotification('success', `An existing blog "${blog.title}" was successfully removed`, 5))
     }
   }
 
@@ -42,24 +47,20 @@ const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
       <div>
         {blog.title} {blog.author} <Button handleClick={handleToggle} text={visible ? 'hide' : 'view'} />
       </div>
-      {visible &&
+      {visible && (
         <>
-          <div>
-            {blog.url}
-          </div>
+          <div>{blog.url}</div>
           <div>
             likes {blog.likes} <Button handleClick={handleLike} text="like" />
           </div>
-          <div>
-            {blog.user.name}
-          </div>
-          {user.username === blog.user.username &&
+          <div>{blog.user.name}</div>
+          {user.username === blog.user.username && (
             <div>
               <Button handleClick={handleDelete} text="remove" />
             </div>
-          }
+          )}
         </>
-      }
+      )}
     </div>
   )
 }

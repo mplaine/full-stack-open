@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { addBlog } from '../reducers/blogReducer'
+import { createBlog } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 
 const BlogForm = ({ blogFormRef, user }) => {
@@ -23,7 +23,7 @@ const BlogForm = ({ blogFormRef, user }) => {
       url: newUrl
     }
 
-    dispatch(addBlog(newBlogObject, user))
+    dispatch(createBlog(newBlogObject, user))
     dispatch(setNotification('success', `A new blog "${newBlogObject.title}" was successfully created`, 5))
     blogFormRef.current.toggleVisibility()
     resetForm()

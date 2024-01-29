@@ -40,36 +40,6 @@ const App = () => {
     return isSuccess
   }
 
-  const updateBlog = async (updatedBlogObject) => {
-    try {
-      const updatedBlog = await blogService.updateBlog(updatedBlogObject.id, updatedBlogObject)
-      if (updatedBlog) {
-        const userId = updatedBlog.user
-        updatedBlog.user = {
-          username: user.username,
-          name: user.name,
-          id: userId
-        }
-        // setBlogs(blogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog)).sort(compareByLikes))
-        dispatch(setNotification('success', `An existing blog "${updatedBlog.title}" was successfully updated`, 5))
-      }
-    } catch (exception) {
-      const message = exception.response.data === '' ? exception.message : exception.response.data.error
-      dispatch(setNotification('error', message, 5))
-    }
-  }
-
-  const deleteBlog = async (blogToBeDeleted) => {
-    try {
-      await blogService.deleteBlog(blogToBeDeleted.id)
-      // setBlogs(blogs.filter((blog) => blog.id !== blogToBeDeleted.id).sort(compareByLikes))
-      dispatch(setNotification('success', `An existing blog "${blogToBeDeleted.title}" was successfully removed`, 5))
-    } catch (exception) {
-      const message = exception.response.data === '' ? exception.message : exception.response.data.error
-      dispatch(setNotification('error', message, 5))
-    }
-  }
-
   const loginView = () => (
     <div>
       <h2>log in to application</h2>
@@ -89,7 +59,7 @@ const App = () => {
         <BlogForm blogFormRef={blogFormRef} user={user} />
       </Togglable>
       {blogsToShow.map((blog) => (
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user} />
+        <Blog key={blog.id} blog={blog} user={user} />
       ))}
     </div>
   )
