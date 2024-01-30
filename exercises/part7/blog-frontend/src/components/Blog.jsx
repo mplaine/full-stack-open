@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { deleteBlog, updateBlog } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import Button from './Button'
+import CommentForm from './CommentForm'
 import CommentList from './CommentList'
 import Header from './Header'
 
@@ -53,6 +54,7 @@ const Blog = () => {
         </div>
       )}
       <Header name="comments" size="3" />
+      <CommentForm />
       <CommentList />
     </div>
   )
