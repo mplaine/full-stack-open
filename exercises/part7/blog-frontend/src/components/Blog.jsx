@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { deleteBlog, updateBlog } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import Button from './Button'
+import CommentList from './CommentList'
 import Header from './Header'
 
 const Blog = () => {
@@ -51,6 +52,8 @@ const Blog = () => {
           <Button handleClick={handleDelete} text="remove" />
         </div>
       )}
+      <Header name="comments" size="3" />
+      <CommentList />
     </div>
   )
 }
