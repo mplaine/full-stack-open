@@ -6,24 +6,18 @@ const BlogList = () => {
   const blogs = useSelector((state) => state.blogs)
   const blogsToShow = [...blogs].sort(utils.compareByLikes)
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
-
   return (
-    <>
-      {blogsToShow.map((blog) => (
-        <div key={blog.id} style={blogStyle} className="blog">
-          <Link to={`/blogs/${blog.id}`}>
-            {blog.title} {blog.author}
-          </Link>
-        </div>
-      ))}
-    </>
+    <div id="blog-list">
+      <ul>
+        {blogsToShow.map((blog) => (
+          <li key={blog.id}>
+            <Link to={`/blogs/${blog.id}`}>
+              {blog.title} {blog.author}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

@@ -7,11 +7,13 @@ const UserBlogList = () => {
   const userBlogs = blogs.filter((blog) => blog.user.id === id)
 
   return (
-    <ul>
-      {userBlogs.map((blog) => (
-        <li key={blog.id}>{blog.title}</li>
-      ))}
-    </ul>
+    <div id="user-blog-list">
+      <ul>
+        {userBlogs.map((blog) => (
+          <li key={blog.id}>{blog.title}</li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

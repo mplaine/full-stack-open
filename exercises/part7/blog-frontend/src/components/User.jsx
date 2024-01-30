@@ -1,8 +1,6 @@
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import Header from './Header'
-import LoginStatus from './LoginStatus'
-import Notification from './Notification'
 import UserBlogList from './UserBlogList'
 
 const User = () => {
@@ -16,9 +14,6 @@ const User = () => {
 
   return (
     <div>
-      <Header name="blogs" />
-      <Notification />
-      <LoginStatus />
       <Header name={user.name} />
       <Header name="added blogs" size="3" />
       <UserBlogList />

@@ -4,8 +4,6 @@ import { deleteBlog, updateBlog } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import Button from './Button'
 import Header from './Header'
-import LoginStatus from './LoginStatus'
-import Notification from './Notification'
 
 const Blog = () => {
   const dispatch = useDispatch()
@@ -38,9 +36,6 @@ const Blog = () => {
 
   return (
     <div>
-      <Header name="blogs" />
-      <Notification />
-      <LoginStatus />
       <Header name={`${blog.title} ${blog.author}`} />
       <div>
         <a href={blog.url} target="_blank" rel="noreferrer">

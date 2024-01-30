@@ -15,9 +15,9 @@ const LoginStatus = () => {
   }
 
   return (
-    <p>
+    <div>
       {user.name} logged in <Button handleClick={handleLogout} text="logout" />
-    </p>
+    </div>
   )
 }
 

@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Routes, Route } from 'react-router-dom'
 import Blog from './components/Blog'
 import Blogs from './components/Blogs'
+import Header from './components/Header'
 import Login from './components/Login'
+import Menu from './components/Menu'
+import Notification from './components/Notification'
 import User from './components/User'
 import Users from './components/Users'
 import { initializeBlogs } from './reducers/blogReducer'
@@ -25,12 +28,18 @@ const App = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Blogs />} />
-      <Route path="/blogs/:id" element={<Blog />} />
-      <Route path="/users/:id" element={<User />} />
-      <Route path="/users" element={<Users />} />
-    </Routes>
+    <div>
+      <Menu />
+      <Header name="blog app" />
+      <Notification />
+      <Routes>
+        <Route path="/" element={<Blogs />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blogs/:id" element={<Blog />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<User />} />
+      </Routes>
+    </div>
   )
 }
 
