@@ -33,12 +33,16 @@ export const initializeUser = () => {
 
 export const login = (username, password) => {
   return async (dispatch) => {
-    const user = await loginService.login({ username, password })
-    if (user) {
-      window.localStorage.setItem('loggedInBlogAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      dispatch(setUser(user))
-      dispatch(setNotification('success', `${user.name} logged in successfully`, 5))
+    try {
+      const user = await loginService.login({ username, password })
+      if (user) {
+        window.localStorage.setItem('loggedInBlogAppUser', JSON.stringify(user))
+        blogService.setToken(user.token)
+        dispatch(setUser(user))
+        dispatch(setNotification('success', `${user.name} logged in successfully`, 5))
+      }
+    } catch (exception) {
+      dispatch(setNotification('danger', exception.response.data.error, 5))
     }
   }
 }

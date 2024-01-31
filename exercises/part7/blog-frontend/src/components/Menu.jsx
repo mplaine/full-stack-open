@@ -1,24 +1,23 @@
-import { Link } from 'react-router-dom'
 import LoginStatus from './LoginStatus'
+import Container from 'react-bootstrap/Container'
+import Nav from 'react-bootstrap/Nav'
+import Navbar from 'react-bootstrap/Navbar'
 
 const Menu = () => {
   return (
-    <nav id="menu">
-      <ul>
-        <li>
-          <Link to="/">home</Link>
-        </li>
-        <li>
-          <Link to="/blogs">blogs</Link>
-        </li>
-        <li>
-          <Link to="/users">users</Link>
-        </li>
-        <li>
+    <Navbar expand="lg" fixed="top" bg="primary" data-bs-theme="dark">
+      <Container>
+        <Navbar.Brand href="/">Home</Navbar.Brand>
+        <Navbar.Toggle aria-controls="navbar-nav" />
+        <Navbar.Collapse id="navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="/blogs">Blogs</Nav.Link>
+            <Nav.Link href="/users">Users</Nav.Link>
+          </Nav>
           <LoginStatus />
-        </li>
-      </ul>
-    </nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   )
 }
 

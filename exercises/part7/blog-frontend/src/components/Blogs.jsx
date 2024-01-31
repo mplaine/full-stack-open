@@ -10,7 +10,8 @@ const Blogs = () => {
 
   return (
     <div>
-      <Togglable buttonLabel="create new" ref={blogFormRef}>
+      <h2 className="pb-3">Blogs</h2>
+      <Togglable buttonLabel="Create new" ref={blogFormRef}>
         <BlogForm blogFormRef={blogFormRef} user={user} />
       </Togglable>
       <BlogList />

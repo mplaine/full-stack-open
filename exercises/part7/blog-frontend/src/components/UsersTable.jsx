@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import Table from 'react-bootstrap/Table'
 import utils from '../utils'
 
 const UsersTable = () => {
@@ -7,11 +8,11 @@ const UsersTable = () => {
   const usersToShow = [...users].sort(utils.compareByBlogs)
 
   return (
-    <table>
+    <Table hover>
       <thead>
         <tr>
-          <th></th>
-          <th>blogs created</th>
+          <th>Author</th>
+          <th>Blogs created</th>
         </tr>
       </thead>
       <tbody>
@@ -24,7 +25,7 @@ const UsersTable = () => {
           </tr>
         ))}
       </tbody>
-    </table>
+    </Table>
   )
 }
 

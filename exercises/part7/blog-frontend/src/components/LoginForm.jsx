@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
+
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+
 import { login } from '../reducers/loginReducer'
 
 const LoginForm = () => {
@@ -15,24 +19,39 @@ const LoginForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    dispatch(login(username, password))
-    resetForm()
+    try {
+      dispatch(login(username, password))
+      resetForm()
+    } catch (error) {
+      console.log('vakava virhe')
+      console.error(error)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        username:
-        <input type="text" value={username} name="Username" onChange={(event) => setUsername(event.target.value)} />
-      </div>
-      <div>
-        password:
-        <input type="password" value={password} name="Password" onChange={(event) => setPassword(event.target.value)} />
-      </div>
-      <button id="login-button" type="submit">
-        login
-      </button>
-    </form>
+    <Form onSubmit={handleSubmit}>
+      <Form.Group controlId="formUsername" className="pb-3">
+        <Form.Label>Username:</Form.Label>
+        <Form.Control
+          type="text"
+          name="username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+        />
+      </Form.Group>
+      <Form.Group controlId="formPassword" className="pb-3">
+        <Form.Label>Password:</Form.Label>
+        <Form.Control
+          type="password"
+          name="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+      </Form.Group>
+      <Button id="login-button" size="sm" type="submit">
+        Login
+      </Button>
+    </Form>
   )
 }
 
