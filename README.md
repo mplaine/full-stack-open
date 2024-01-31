@@ -34,3 +34,7 @@ My solutions to the Part 5 exercises can be found [here](./exercises/part5/).
 ### Part 6: Advanced state management
 
 My solutions to the Part 6 exercises can be found [here](./exercises/part6/).
+
+### Part 7: React router, custom hooks, styling app with CSS and webpack
+
+My solutions to the Part 7 exercises can be found [here](./exercises/part7/).

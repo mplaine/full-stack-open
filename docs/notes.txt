@@ -2635,7 +2635,7 @@ Part 6: Advanced state management
     // ...
   }
 * In this implementation, both components would dispatch an action without the need to know about the communication between the server that happens behind the scenes.
-* These kinds of async actions can be implemented using the Redux Thunk librar (https://github.com/reduxjs/redux-thunk). The use of the library doesn't need any additional configuration or even installation when the Redux store is created using the Redux Toolkit's configureStore function.
+* These kinds of async actions can be implemented using the Redux Thunk library (https://github.com/reduxjs/redux-thunk). The use of the library doesn't need any additional configuration or even installation when the Redux store is created using the Redux Toolkit's configureStore function.
 * With Redux Thunk it is possible to implement action creators which return a function instead of an object. The function receives Redux store's dispatch and getState methods as parameters. This allows for example implementations of asynchronous action creators, which first wait for the completion of a certain asynchronous operation and after that dispatch some action, which changes the store's state.
 * The solution is elegant. The initialization logic for the notes has been completely separated from the React component.
   export const createNote = content => {
@@ -2853,6 +2853,7 @@ Part 6: Advanced state management
     - Cons: unintuitive syntax
   - React Toolkit (Redux)
     - Pros: client-state library, solves prop drilling, most popular, robust
+    - Notes: uses redux for statement management and react-redux for sharing the state between React components
 * A better solution for notifications:
   - App.jsx:
     import { useNotification } from './NotificationContext'
@@ -2871,3 +2872,814 @@ Part 6: Advanced state management
           }, duration)
         }
       }
+
+
+Part 7: React router, custom hooks, styling app with CSS and webpack
+--------------------------------------------------------------------
+* In single-page apps, we are always on the same page. The Javascript code run by the browser creates an illusion of different "pages". If HTTP requests are made when switching views, they are only for fetching JSON-formatted data, which the new view might require for it to be shown.
+* Each view should preferably have its own address, e.g. to make bookmarking possible. The back button doesn't work as expected for our application either, meaning that back doesn't move you to the previously displayed view of the application, but somewhere completely different.
+* React has the React Router (https://reactrouter.com/) library which provides an excellent solution for managing navigation in a React application.
+* Install React Router:
+  npm install react-router-dom
+* Example use of React Router:
+  import {
+    BrowserRouter as Router,
+    Routes, Route, Link
+  } from 'react-router-dom'
+  const App = () => {
+    const padding = {
+      padding: 5
+    }
+    return (
+      <Router>
+        <div>
+          <Link style={padding} to="/">home</Link>
+          <Link style={padding} to="/notes">notes</Link>
+          <Link style={padding} to="/users">users</Link>
+        </div>
+        <Routes>
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+        <div>
+          <i>Note app, Department of Computer Science 2023</i>
+        </div>
+      </Router>
+    )
+  }
+* Routing, or the conditional rendering of components based on the URL in the browser, is used by placing components as children of the Router component, meaning inside Router tags.
+* Notice that, even though the component is referred to by the name Router, we are talking about BrowserRouter:
+  https://reactrouter.com/en/main/router-components/browser-router
+* BrowserRouter is a Router that uses the HTML5 history API (pushState, replaceState and the popState event) to keep your UI in sync with the URL.
+* Normally the browser loads a new page when the URL in the address bar changes. However, with the help of the HTML5 history API, BrowserRouter enables us to use the URL in the address bar of the browser for internal "routing" in a React application. So, even if the URL in the address bar changes, the content of the page is only manipulated using Javascript, and the browser will not load new content from the server. Using the back and forward actions, as well as making bookmarks, is still logical like on a traditional web page.
+* Inside the router, we define links that modify the address bar with the help of the Link (https://reactrouter.com/en/main/components/link) component. For example:
+  <Link to="/notes">notes</Link>
+* Components rendered based on the URL of the browser are defined with the help of the component Route (https://reactrouter.com/en/main/route/route). For example:
+  <Route path="/notes" element={<Notes />} />
+* Wrap the components to be rendered based on the URL with a Routes (https://reactrouter.com/en/main/components/routes) component:
+  <Routes>
+    <Route path="/notes" element={<Notes />} />
+    <Route path="/users" element={<Users />} />
+    <Route path="/" element={<Home />} />
+  </Routes>
+* The Routes works by rendering the first component whose path matches the URL in the browser's address bar.
+* Define the route rendering a specific note "express style" by marking the parameter with a colon - :id
+  <Route path="/notes/:id" element={<Note notes={notes} />} />
+* Definition of the Note component:
+  import {
+    // ...
+    useParams
+  } from 'react-router-dom'
+  const Note = ({ notes }) => {
+    const id = useParams().id
+    // ...
+* The Note component can access the URL parameter (the id of the note to be displayed) with the useParams function of the React Router.
+* The option to navigate to the Login view is rendered conditionally in the menu:
+  {user
+    ? <em>{user} logged in</em>
+    : <Link style={padding} to="/login">login</Link>
+  }
+* With the useNavigate (https://reactrouter.com/en/main/hooks/use-navigate) function of the React Router, the browser's URL can be changed programmatically.
+  import {
+    // ...
+    useNavigate
+  } from 'react-router-dom'
+  const Login = (props) => {
+    const navigate = useNavigate()
+    const onSubmit = (event) => {
+      event.preventDefault()
+      props.onLogin('mluukkai')
+      navigate('/')
+    }
+    // ...
+* With user login, we call navigate('/') which causes the browser's URL to change to / and the application renders the corresponding component Home.
+* Both useParams and useNavigate are hook functions, just like useState and useEffect which we have used many times now. 
+* Hook functions must not be called from inside of a loop, a conditional expression, or any place that is not a function defining a component. This must be done to ensure that the hooks are always called in the same order, and if this isn't the case the application will behave erratically.
+  - Create-react-app has been configured to warn you if you break these rules, for example, by calling a hook function from a conditional statement.
+* If a user isn't logged in, the Users component is not rendered. Instead, the user is redirected using the component Navigate to the login view:
+  <Route path="/users" element={user ? <Users /> : <Navigate replace to="/login" />} />
+* In reality, it would perhaps be better to not even show links in the navigation bar requiring login if the user is not logged into the application.
+* One way to modify the application so that the Note component receives only the note that it should display would be to use React Router's useMatch hook to figure out the id of the note to be displayed in the App component.
+* It is not possible to use the useMatch hook in the component which defines the routed part of the application. Let's move the use of the Router components from App:
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <Router>
+      <App />
+    </Router>
+  )
+* Updated App component:
+  import {
+    // ...
+    useMatch
+  } from 'react-router-dom'
+  const App = () => {
+    // ...
+    const match = useMatch('/notes/:id')
+    const note = match
+      ? notes.find(note => note.id === Number(match.params.id))
+      : null
+    return (
+      <div>
+        <div>
+          <Link style={padding} to="/">home</Link>
+          // ...
+        </div>
+        <Routes>
+          <Route path="/notes/:id" element={<Note note={note} />} />
+* Every time the component is rendered, so practically every time the browser's URL changes, the following command is executed:
+  const match = useMatch('/notes/:id')
+* If the URL matches /notes/:id, the match variable will contain an object from which we can access the parameterized part of the path, the id of the note to be displayed, and we can then fetch the correct note to display.
+  const note = match
+    ? notes.find(note => note.id === Number(match.params.id))
+    : null
+* React offers 15 different built-in hooks (https://react.dev/reference/react), of which the most popular ones are the useState and useEffect hooks that we have already been using extensively.
+  - State Hooks:
+    - useState
+    - useReducer
+  - Context Hooks:
+    - useContext
+  - Ref Hooks:
+    - useRef
+    - useImperativeHandle
+  - Effect Hooks:
+    - useEffect
+    - useLayoutEffect
+    - useIntertionEffect
+  - Performance Hooks:
+    - useTransition
+    - useDeferredValue
+  - Resource Hooks:
+    - use
+  - Other Hooks:
+    - useDebugValue
+    - useId
+    - useSyncExternalStore
+* Within the last couple of years, many React libraries have begun to offer hook-based APIs.
+* Custom Hooks by React libraries:
+  - react-redux:
+    - useSelector
+    - useDispatch
+  - react-router-dom
+    - useMatch
+    - useNavigate
+    - useParams
+* Hooks are not normal functions, and when using those we have to adhere to certain rules or limitations (https://legacy.reactjs.org/docs/hooks-rules.html). Let's recap the rules of using hooks, copied verbatim from the official React documentation:
+  - Don’t call Hooks inside loops, conditions, or nested functions.
+    - Instead, always use Hooks at the top level of your React function.
+  - Don’t call Hooks from regular JavaScript functions. Instead, you can:
+    - Call Hooks from React function components.
+    - Call Hooks from custom Hooks
+* There's an existing ESlint plugin that can be used to verify that the application uses hooks correctly:
+  https://www.npmjs.com/package/eslint-plugin-react-hooks
+* Install ESLint plugin to enforce the Rules of Hooks:
+  npm install eslint-plugin-react-hooks --save-dev
+* Basic configuration:
+  {
+    "extends": [
+      // ...
+      "plugin:react-hooks/recommended"
+    ]
+  }
+* Building your own Hooks lets you extract component logic into reusable functions.
+  https://react.dev/learn/reusing-logic-with-custom-hooks
+* Custom hooks are regular JavaScript functions that can use any other hooks, as long as they adhere to the rules of hooks (https://fullstackopen.com/en/part1/a_more_complex_state_debugging_react_apps#rules-of-hooks). Additionally, the name of custom hooks must start with the word use.
+* Custom counter hook:
+  import { useState } from 'react'
+  const App = () => {
+    const [counter, setCounter] = useState(0)
+
+    return (
+      <div>
+        <div>{counter}</div>
+        <button onClick={() => setCounter(counter + 1)}>
+          plus
+        </button>
+        <button onClick={() => setCounter(counter - 1)}>
+          minus
+        </button>      
+        <button onClick={() => setCounter(0)}>
+          zero
+        </button>
+      </div>
+    )
+  }
+
+  // from the above to the below --->
+
+  const useCounter = () => {
+    const [value, setValue] = useState(0)
+    const increase = () => {
+      setValue(value + 1)
+    }
+    const decrease = () => {
+      setValue(value - 1)
+    }
+    const zero = () => {
+      setValue(0)
+    }
+    return {
+      value, 
+      increase,
+      decrease,
+      zero
+    }
+  }
+* Our custom hook uses the useState hook internally to create its state. The hook returns an object, the properties of which include the value of the counter as well as functions for manipulating the value.
+* Usage of the custom hook:
+  const App = () => {
+    const counter = useCounter()
+    return (
+      <div>
+        <div>{counter.value}</div>
+        <button onClick={counter.increase}>
+          plus
+        </button>
+        <button onClick={counter.decrease}>
+          minus
+        </button>      
+        <button onClick={counter.zero}>
+          zero
+        </button>
+      </div>
+    )
+  }
+* The same hook could be reused in the application that was keeping track of the number of clicks made to the left and right buttons:
+  const App = () => {
+    const left = useCounter()
+    const right = useCounter()
+    return (
+      <div>
+        {left.value}
+        <button onClick={left.increase}>left</button>
+        <button onClick={right.increase}>right</button>
+        {right.value}
+      </div>
+    )
+  }
+* Custom useField hook that simplifies the state management of the form:
+  const useField = (type) => {
+    const [value, setValue] = useState('')
+    const onChange = (event) => {
+      setValue(event.target.value)
+    }
+    return {
+      type,
+      value,
+      onChange
+    }
+  }
+* The hook function receives the type of the input field as a parameter. The function returns all of the attributes required by the input: its type, value and the onChange handler.
+* Example usage of the useField custom hook:
+  const App = () => {
+    const name = useField('text')
+    // ...
+    return (
+      <div>
+        <form>
+          <input type={name.type} value={name.value} onChange={name.onChange} /> 
+          // ...
+        </form>
+      </div>
+    )
+  }
+* Spread attributes can be used to simplify things a bit further. Since the name object has exactly all of the attributes that the input element expects to receive as props, we can pass the props to the element using the spread syntax in the following way:
+  <input {...name} /> 
+* The following two ways of passing props to a component achieve the exact same result:
+  <Greeting firstName='Arto' lastName='Hellas' />
+  // vs.
+  const person = {
+    firstName: 'Arto',
+    lastName: 'Hellas'
+  }
+  <Greeting {...person} />
+* Final, and simplified, form format:
+  const App = () => {
+    const name = useField('text')
+    const born = useField('date')
+    const height = useField('number')
+    return (
+      <div>
+        <form>
+          name: <input  {...name} /><br/>
+          birthdate: <input {...born} /><br />
+          height: <input {...height} />
+        </form>
+        <div>{name.value} {born.value} {height.value}</div>
+      </div>
+    )
+  }
+* Custom hooks are not only a tool for reuse; they also provide a better way for dividing our code into smaller modular parts.
+* More about hooks:
+  - Awesome React Hooks Resources: https://github.com/rehooks/awesome-react-hooks
+  - Easy to understand React Hook recipes by Gabe Ragland: https://usehooks.com/
+  - Why Do React Hooks Rely on Call Order?: https://overreacted.io/why-do-hooks-rely-on-call-order/
+* The spread syntax:
+  const originalObject = { enabled: true, darkMode: false }
+  const secondObject = { ...originalObject }
+* Rest parameters and the spread syntax:
+  const originalObject = { enabled: true, darkMode: false }
+  const { darkMode, ...rest } = originalObject
+  console.log(rest) // excludes darkMode
+  const newObject = (({ darkMode, ...rest }) => rest)(originalObject) // alternative: oneliner
+* Adding styles to React applications:
+  - Old-school single CSS file
+  - Inline styles
+  - Ready-made UI libraries
+* One of the first widely popular UI frameworks was the Bootstrap toolkit (https://getbootstrap.com/) created by Twitter which may still be the most popular framework.
+* Usually, UI frameworks are used by including the CSS stylesheets and JavaScript code of the framework in the application.
+* Many UI frameworks have React-friendly versions where the framework's "components" have been transformed into React components. There are a few different React versions of Bootstrap like reactstrap (http://reactstrap.github.io/) and react-bootstrap (https://react-bootstrap.github.io/).
+* MaterialUI: https://mui.com/
+* React Bootstrap: https://react-bootstrap.github.io/
+* Install react-bootstrap:
+  npm install react-bootstrap
+* Add a link for loading the CSS stylesheet for Bootstrap (https://react-bootstrap.github.io/docs/getting-started/introduction#stylesheets) inside of the head tag in the public/index.html file of the application:
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    // ...
+  </head>
+* In Bootstrap, all of the contents of the application are typically rendered inside a container. In practice this is accomplished by giving the root div element of the application the container class attribute:
+  <div className="container">
+* Import React Bootstrap components:
+  import { Table, Form, Button } from 'react-bootstrap'
+* React Bootstrap provides a built-in Table component, so there is no need to define CSS classes separately:
+  <Table striped>
+    ...
+  </Table>
+* Bootstrap forms: https://getbootstrap.com/docs/4.1/components/forms/
+* React Bootstrap provides built-in components for creating forms (although the documentation for them is slightly lacking):
+  let Login = (props) => {
+    // ...
+    return (
+      <div>
+        <h2>login</h2>
+        <Form onSubmit={onSubmit}>
+          <Form.Group>
+            <Form.Label>username:</Form.Label>
+            <Form.Control
+              type="text"
+              name="username"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>password:</Form.Label>
+            <Form.Control
+              type="password"
+            />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            login
+          </Button>
+        </Form>
+      </div>
+    )
+  }
+* Render the notification message as a Bootstrap Alert component (https://getbootstrap.com/docs/4.1/components/alerts/). Once again, the React Bootstrap library provides us with a matching React component (https://react-bootstrap.github.io/docs/components/alerts/):
+  <div className="container">
+    {(message &&
+      <Alert variant="success">
+        {message}
+      </Alert>
+    )}
+    // ...
+  </div>
+* Alter the application's navigation menu to use Bootstrap's Navbar component. The React Bootstrap library provides us with matching built-in components.
+* Bootstrap and a large majority of existing UI frameworks produce responsive designs (https://en.wikipedia.org/wiki/Responsive_web_design), meaning that the resulting applications render well on a variety of different screen sizes.
+* The MaterialUI (https://mui.com/) React library, which implements the Material Design (https://material.io/) visual language developed by Google.
+* Install MaterialUI React library:
+  npm install @mui/material @emotion/react @emotion/styled
+* Render the contents of the whole application within a Container:
+  import { Container } from '@mui/material'
+  const App = () => {
+    // ...
+    return (
+      <Container>
+        // ...
+      </Container>
+    )
+  }
+* Render the list of notes as a table (https://mui.com/material-ui/react-table/#simple-table):
+  <TableContainer component={Paper}>
+    <Table>
+      <TableBody>
+        // ...
+      </TableBody>
+    </Table>
+  </TableContainer>
+* With Material UI, each component has to be imported separately:
+  import {
+    Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Paper,
+  } from '@mui/material'
+* Make the login form in the Login view better using the TextField (https://mui.com/material-ui/react-text-field/) and Button (https://mui.com/material-ui/api/button/) components:
+  <form onSubmit={onSubmit}>
+    <div>
+      <TextField label="username" />
+    </div>
+    <div>
+      <TextField label="password" type='password' />
+    </div>
+    <div>
+      <Button variant="contained" color="primary" type="submit">
+        login
+      </Button>
+    </div>
+  </form>
+* The notification displayed on login can be done using the Alert (https://mui.com/material-ui/react-alert/) component, which is quite similar to Bootstrap's equivalent component:
+  <div>
+    {(message &&
+      <Alert severity="success">
+        {message}
+      </Alert>
+    )}
+  </div>
+* Implement navigation using the AppBar component:
+  <AppBar position="static">
+    <Toolbar>
+      <IconButton edge="start" color="inherit" aria-label="menu">
+      </IconButton>
+      <Button color="inherit">
+        <Link to="/">home</Link>
+      </Button>
+      // ...
+    </Toolbar>
+  </AppBar>copy
+* Use component props to define how the root element of a MaterialUI component is rendered. For example:
+  <Button color="inherit" component={Link} to="/">
+    home
+  </Button>
+* https://www.npmtrends.com/ tracks the popularity of different npm-libraries.
+* Instead of using the React Bootstrap library, we could have just as well used Bootstrap directly by defining CSS classes for our application's HTML elements. Instead of defining the table with the Table component:
+  <Table striped>
+    // ...
+  </Table>
+* We could have used a regular HTML table and added the required CSS class:
+  <table className="table striped">
+    // ...
+  </table>
+* In addition to making the frontend code more compact and readable, another benefit of using React UI framework libraries is that they include the JavaScript that is needed to make specific components work. Some Bootstrap components require a few unpleasant JavaScript dependencies (https://getbootstrap.com/docs/4.1/getting-started/introduction/#js) that we would prefer not to include in our React applications.
+* Some potential downsides to using UI frameworks through integration libraries instead of using them "directly" are that integration libraries may have unstable APIs and poor documentation.
+* Here are some other UI frameworks for your consideration:
+  - https://bulma.io/
+  - https://ant.design/
+  - https://get.foundation/
+  - https://chakra-ui.com/
+  - https://tailwindcss.com/
+  - https://semantic-ui.com/
+  - https://mantine.dev/
+  - https://react.fluentui.dev/
+  - https://storybook.js.org
+  - https://www.primefaces.org/primereact/
+  - https://v2.grommet.io
+  - https://blueprintjs.com
+  - https://evergreen.segment.com
+  - https://www.radix-ui.com/
+  - https://react-spectrum.adobe.com/react-aria/index.html
+  - https://master.co/
+  - https://www.radix-ui.com/
+  - https://nextui.org/
+  - https://daisyui.com/
+  - https://ui.shadcn.com/
+  - https://www.tremor.so/
+  - https://headlessui.com/
+* 5 ways to style React components: https://blog.bitsrc.io/5-ways-to-style-react-components-in-2019-30f1ccc2b5b
+* The styled components library (https://www.styled-components.com/) offers an interesting approach for defining styles through tagged template literals (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) that were introduced in ES6.
+* Install styled-components:
+  npm install styled-components
+* import styled from 'styled-components'
+  const Button = styled.button`
+    background: Bisque;
+    font-size: 1em;
+    margin: 1em;
+    padding: 0.25em 1em;
+    border: 2px solid Chocolate;
+    border-radius: 3px;
+  `
+  const Input = styled.input`
+    margin: 0.25em;
+  `
+* The syntax for defining the styles is quite interesting, as the CSS rules are defined inside of backticks.
+* Usage of styled components:
+  <Button type="submit" primary=''>login</Button>
+  <Input type='password' />
+* Styled components have seen consistent growth in popularity in recent times, and quite a lot of people consider it to be the best way of defining styles in React applications.
+* Create React App (https://github.com/facebookincubator/create-react-app) was developed, which eliminated configuration-related problems.
+* Vite (https://vitejs.dev/), which is also used in the course, has recently replaced Create React App in new applications.
+* Both Vite and Create React App use bundlers to do the actual work. We will now familiarize ourselves with the bundler called Webpack (https://webpack.js.org/) used by Create React App.
+* Webpack was by far the most popular bundler for years. Recently, however, there have been several new generation bundlers such as esbuild used by Vite, which are significantly faster and easier to use than Webpack. However, e.g. esbuild (https://esbuild.github.io/) still lacks some useful features (such as hot reload of the code in the browser).
+* Even though ES6 modules are defined in the ECMAScript standard, the older browsers do not know how to handle code that is divided into modules.
+* For this reason, code that is divided into modules must be bundled for browsers, meaning that all of the source code files are transformed into a single file that contains all of the application code.
+* Bundling of an application is performed with the "npm run build" command.
+* Under the hood, the npm script bundles the source, and this produces the following collection of files in the dist directory:
+  ├── assets
+  │   ├── index-d526a0c5.css
+  │   ├── index-e92ae01e.js
+  │   └── react-35ef61ed.svg
+  ├── index.html
+  └── vite.svg
+* In practice, bundling is done so that we define an entry point for the application, which typically is the index.js file. When webpack bundles the code, it includes not only the code from the entry point but also the code that is imported by the entry point, as well as the code imported by its import statements, and so on.
+* Webpack project structure (used by Create React App, the precessor of Vite):
+  ├── build
+  ├── package.json
+  ├── src
+  │   └── index.js
+  └── webpack.config.js
+* Install webpack:
+  npm install --save-dev webpack webpack-cli
+* Define the functionality of webpack in the webpack.config.js file.
+  - An object for config will suffice in many situations, but we will later need certain features that require the definition to be done as a function.
+  - Define a new npm script called build that will execute the bundling with webpack:
+    "build": "webpack --mode=development"
+  - The entry (https://webpack.js.org/concepts/#entry) property of the configuration object specifies the file that will serve as the entry point for bundling the application.
+  - The output (https://webpack.js.org/concepts/#output) property defines the location where the bundled code will be stored. The target directory must be defined as an absolute path, which is easy to create with the path.resolve method. We also use __dirname which is a variable in Node that stores the path to the current directory.
+* When we execute the npm run build command, our application code will be bundled by webpack. The operation will produce a new main.js file that is added under the build directory.
+* Transform the application into a minimal React application by installing the required libraries:
+  npm install react react-dom
+* By default, webpack only knows how to deal with plain JavaScript. Although we may have become unaware of it, we are using JSX (https://facebook.github.io/jsx/) for rendering our views in React.
+* Use loaders (https://webpack.js.org/concepts/loaders/) to inform webpack of the files that need to be processed before they are bundled.
+* Configure a loader to our application that transforms the JSX code into regular JavaScript:
+  const config = () => {
+    return {
+      // ...
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-react'],
+            },
+          },
+        ],
+      },
+    }
+  }
+* Loaders are defined under the module property in the rules array.
+* The definition of a single loader consists of three parts:
+  - The test property specifies that the loader is for files that have names ending with .js.
+  - The loader property specifies that the processing for those files will be done with babel-loader.
+  - The options property is used for specifying parameters for the loader, which configure its functionality.
+* Install the loader and its required packages as a development dependency:
+  npm install @babel/core babel-loader @babel/preset-react --save-dev
+* It's worth noting that if the bundled application's source code uses async/await, the browser will not render anything on some browsers. Googling the error message in the console (https://stackoverflow.com/questions/33527653/babel-6-regeneratorruntime-is-not-defined) will shed some light on the issue. With the previous solution (https://babeljs.io/docs/en/babel-polyfill/) being deprecated we now have to install two more missing dependencies, that is core-js (https://www.npmjs.com/package/core-js) and regenerator-runtime (https://www.npmjs.com/package/regenerator-runtime):
+  npm install core-js regenerator-runtime
+* You need to import those dependencies at the top of the index.js file:
+  import 'core-js/stable/index.js'
+  import 'regenerator-runtime/runtime.js'
+* The process of transforming code from one form of JavaScript to another is called transpiling (https://en.wiktionary.org/wiki/transpile). The general definition of the term is to compile source code by transforming it from one language to another.
+* We are transpiling the code containing JSX into regular JavaScript with the help of babel (https://babeljs.io/), which is currently the most popular tool for the job.
+* Most browsers do not support the latest features that were introduced in ES6 and ES7, and for this reason, the code is usually transpiled to a version of JavaScript that implements the ES5 standard.
+* The transpilation process that is executed by Babel is defined with plugins. In practice, most developers use ready-made presets (https://babeljs.io/docs/plugins/) that are groups of pre-configured plugins.
+* Transpile source code to regular JavaScript: https://babeljs.io/docs/plugins/preset-react/
+* Add the @babel/preset-env (https://babeljs.io/docs/plugins/preset-env/) plugin that contains everything needed to take code using all of the latest features and transpile it to code that is compatible with the ES5 standard:
+  presets: ['@babel/preset-env', '@babel/preset-react']
+* Install @babel/preset-react:
+  npm install @babel/preset-env --save-dev
+* As we can see, variables are declared with the var keyword as ES5 JavaScript does not understand the const keyword. Arrow functions are also not used, which is why the function definition used the function keyword.
+* Import an external CSS style from the index.js file:
+  import './index.css'
+* When using CSS, we have to use css (https://webpack.js.org/loaders/css-loader/) and style (https://webpack.js.org/loaders/style-loader/) loaders:
+  rules: [
+    // ...
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    },
+  ],
+* The job of the css loader (https://webpack.js.org/loaders/css-loader/) is to load the CSS files and the job of the style loader (https://webpack.js.org/loaders/style-loader/) is to generate and inject a style element that contains all of the styles of the application.
+* With this configuration, the CSS definitions are included in the main.js file of the application. For this reason, there is no need to separately import the CSS styles in the main index.html file of the application.
+* If needed, the application's CSS can also be generated into its own separate file by using the mini-css-extract-plugin (https://github.com/webpack-contrib/mini-css-extract-plugin).
+* Install style-loader css-loader:
+  npm install style-loader css-loader --save-dev
+* Install webpack-dev-server for a better development experience:
+  npm install --save-dev webpack-dev-server
+* Include a new script:
+  "start": "webpack serve --mode=development"
+* Add a new devServer property to the configuration object in the webpack.config.js file:
+  const config = {
+    // ...
+    devServer: {
+      static: path.resolve(__dirname, 'build'),
+      compress: true,
+      port: 3000,
+    },
+  }
+* The npm start command will now start the dev-server at port 3000, meaning that our application will be available by visiting http://localhost:3000 in the browser. When we make changes to the code, the browser will automatically refresh the page.
+* Webpack can generate a so-called source map (https://webpack.js.org/configuration/devtool/) for the bundle, which makes it possible to map errors that occur during the execution of the bundle to the corresponding part in the original source code.
+* The source map can be generated by adding a new devtool property to the configuration object with the value 'source-map':
+  const config = {
+    // ...
+    devtool: 'source-map',
+  }
+* Webpack has to be restarted when we make changes to its configuration. It is also possible to make webpack watch for changes made to itself but we will not do that this time.
+* Generating the source map also makes it possible to use the Chrome debugger.
+* If we inspect the contents of the bundle file, we notice that it could be greatly optimized in terms of file size by removing all of the comments. There's no point in manually optimizing these files, as there are many existing tools for the job.
+* The optimization process for JavaScript files is called minification. One of the leading tools intended for this purpose is UglifyJS (http://lisperator.net/uglifyjs/).
+* Starting from version 4 of webpack, the minification plugin does not require additional configuration to be used. It is enough to modify the npm script in the package.json file to specify that webpack will execute the bundling of the code in production mode:
+  "build": "webpack --mode=production"
+* When we bundle the application again, the size of the resulting main.js decreases substantially. All of the comments and even unnecessary whitespace and newline characters have been removed, and variable names have been replaced with a single character.
+* Webpack's configuration function has two parameters, env and argv. We can use the latter to find out the mode defined in the npm script:
+  const config = (env, argv) => {
+      // ...
+    }
+  }
+* Now, if we want, we can set Webpack to work differently depending on whether the application's operating environment, or mode, is set to production or development.
+* We can also use webpack's DefinePlugin (https://webpack.js.org/plugins/define-plugin/) for defining global default constants that can be used in the bundled code. Let's define a new global constant BACKEND_URL that gets a different value depending on the environment that the code is being bundled for:
+  const path = require('path')
+  const webpack = require('webpack')
+  const config = (env, argv) => {
+    console.log('argv', argv.mode)
+    const backend_url = argv.mode === 'production'
+      ? 'https://notes2023.fly.dev/api/notes'
+      : 'http://localhost:3001/notes'
+    return {
+      // ...
+      plugins: [
+        new webpack.DefinePlugin({
+          BACKEND_URL: JSON.stringify(backend_url)
+        })
+      ]
+    }
+  }
+
+  module.exports = config
+* The global constant is used in the following way in the code:
+  const notes = useNotes(BACKEND_URL)
+* If the configuration for development and production differs a lot, it may be a good idea to separate the configuration (https://webpack.js.org/guides/production/) of the two into their own files.
+* We can inspect the bundled production version of the application locally by executing the following command in the build directory:
+  npx static-server
+* By default, the bundled application will be available at http://localhost:9080
+* Internet Explorer does not support Promises used by axios. There are many other things in the standard that IE does not support, including the find (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) method.
+* In these situations, it is not enough to transpile the code, as transpilation simply transforms the code from a newer version of JavaScript to an older one with wider browser support. 
+* IE understands Promises syntactically but it simply has not implemented their functionality. The find property of arrays in IE is simply undefined.
+* If we want the application to be IE-compatible, we need to add a polyfill (https://remysharp.com/2010/10/08/what-is-a-polyfill), which is code that adds the missing functionality to older browsers.
+* Polyfills can be added with the help of webpack and Babel (https://babeljs.io/docs/usage/polyfill/) or by installing one of many existing polyfill libraries.
+* The polyfill provided by the promise-polyfill library is easy to use. We simply have to add the following to our existing application code:
+  import PromisePolyfill from 'promise-polyfill'
+  if (!window.Promise) {
+    window.Promise = PromisePolyfill
+  }
+* If the global Promise object does not exist, meaning that the browser does not support Promises, the polyfilled Promise is stored in the global variable. If the polyfilled Promise is implemented well enough, the rest of the code should work without issues.
+* One exhaustive list of existing polyfills can be found here: https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills
+* The browser compatibility of different APIs can be checked by visiting https://caniuse.com or Mozilla's website (https://developer.mozilla.org/en-US/).
+* Before React version 16.8, when defining a component that uses state, one had to define it using Javascript's Class syntax (https://reactjs.org/docs/state-and-lifecycle.html#converting-a-function-to-a-class).
+* Stub for the class component:
+  import React from 'react'
+  class App extends React.Component {
+    constructor(props) {
+      super(props)
+    }
+    render() {
+      return (
+        <div>
+          <h1>anecdote of the day</h1>
+        </div>
+      )
+    }
+  }
+  export default App
+* The component now has a constructor (https://react.dev/reference/react/Component#constructor), in which nothing happens at the moment, and contains the method render (https://react.dev/reference/react/Component#render). As one might guess, render defines how and what is rendered to the screen.
+* Class Components only contain one state. So if the state is made up of multiple "parts", they should be stored as properties of the state. The state is initialized in the constructor:
+  this.state = {
+    anecdotes: [],
+    current: 0
+  }
+* Accessing the state:
+  render() {
+    if (this.state.anecdotes.length === 0) {
+      return <div>no anecdotes...</div>
+    }
+    // ...
+* In Functional components (https://react.dev/reference/react/Component#adding-lifecycle-methods-to-a-class-component), the right place for fetching data from a server is inside an effect hook (https://react.dev/reference/react/useEffect), which is executed when a component renders or less frequently if necessary, e.g. only in combination with the first render.
+* The lifecycle methods of Class Components offer corresponding functionality. The correct place to trigger the fetching of data from a server is inside the lifecycle method componentDidMount (https://react.dev/reference/react/Component#componentdidmount), which is executed once right after the first time a component renders:
+  componentDidMount = () => {
+    axios.get('http://localhost:3001/anecdotes').then(response => {
+      this.setState({ anecdotes: response.data })
+    })
+  }
+* The callback function of the HTTP request updates the component state using the method setState (https://react.dev/reference/react/Component#setstate). The method only touches the keys that have been defined in the object passed to the method as an argument. The value for the key current remains unchanged.
+* Calling the method setState always triggers the rerender of the Class Component, i.e. calling the method render.
+* React component types:
+  - Class components: pre React 16.8, constructor and render, one state, lifecycle events, super and this
+  - Functional components: React 16.8+, more concise syntax, no constructor or render, multiple states, no super or this
+* The biggest difference between Functional components and Class components is mainly that the state of a Class component is a single object, and that the state is updated using the method setState, while in Functional components the state can consist of multiple different variables, with all of them having their own update function.
+* In some more advanced use cases, the effect hook offers a considerably better mechanism for controlling side effects compared to the lifecycle methods of Class Components.
+* A notable benefit of using Functional components is not having to deal with the self-referencing this reference of the Javascript class.
+* Class components offer error boundary (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary), which is not yet available in functional components.
+* When writing fresh code, there is no rational reason to use Class Components (https://reactjs.org/docs/hooks-faq.html#should-i-use-hooks-classes-or-a-mix-of-both) if the project is using React with a version number 16.8 or greater.
+* On the other hand, there is currently no need to rewrite all old React code (https://reactjs.org/docs/hooks-faq.html#do-i-need-to-rewrite-all-my-class-components) as Functional components.
+* In most applications, we followed the principle by which components were placed in the directory components, reducers were placed in the directory reducers, and the code responsible for communicating with the server was placed in the directory services. This way of organizing fits a smaller application just fine, but as the amount of components increases, better solutions are needed.
+* There is no one correct way to organize a project. The article The 100% correct way to structure a React app (or why there’s no such thing) provides some perspective on the issue.
+  - https://medium.com/hackernoon/the-100-correct-way-to-structure-a-react-app-or-why-theres-no-such-thing-3ede534ef1ed
+* During the course, we have created the frontend and backend into separate repositories. This is a very typical approach. However, we did the deployment by copying the bundled frontend code into the backend repository. A possibly better approach would have been to deploy the frontend code separately.
+* Sometimes, there may be a situation where the entire application is to be put into a single repository. In this case, a common approach is to put the package.json and webpack.config.js in the root directory, as well as place the frontend and backend code into their own directories, e.g. client and server.
+* A sophisticated way to keep the frontend and backend data in sync is to use WebSockets (https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) which allow for establishing a two-way communication channel between the browser and the server. In this case, the browser does not need to poll the backend, and instead only has to define callback functions for situations when the server sends data about updating state using a WebSocket.
+* Instead of directly using the WebSocket API, it is advisable to use the Socket.io (https://socket.io/) library, which provides various fallback options in case the browser does not have full support for WebSockets.
+* When a software developer uses React, they rarely or never directly manipulate the DOM. The function defining the React component returns a set of React elements (https://reactjs.org/docs/glossary.html#elements). Although some of the elements look like normal HTML elements
+  const element = <h1>Hello, world</h1>
+* The React elements defining the appearance of the components of the application make up the Virtual DOM (https://reactjs.org/docs/faq-internals.html#what-is-the-virtual-dom), which is stored in system memory during runtime.
+* With the help of the ReactDOM (https://react.dev/reference/react-dom) library, the virtual DOM defined by the components is rendered to a real DOM that can be shown by the browser using the DOM API:
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+* When the state of the application changes, a new virtual DOM gets defined by the components. React has the previous version of the virtual DOM in memory and instead of directly rendering the new virtual DOM using the DOM API, React computes the optimal way to update the DOM (remove, add or modify elements in the DOM) such that the DOM reflects the new virtual DOM.
+* React is primarily a library for managing the creation of views for an application. 
+* If we look at the traditional Model View Controller pattern (https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller), then the domain of React would be View. React has a more narrow area of application than e.g. Angular (https://angular.io/), which is an all-encompassing Frontend MVC framework. Therefore, React is not called a framework, but a library.
+* If we are using Redux, then the applications follow the Flux architecture (https://facebook.github.io/flux/docs/in-depth-overview) and the role of React is even more focused on creating the views. The business logic of the application is handled using the Redux state and action creators.
+* If we're using Redux Thunk (https://fullstackopen.com/en/part6/communicating_with_server_in_a_redux_application#asynchronous-actions-and-redux-thunk) familiar from part 6, then the business logic can be almost completely separated from the React code.
+* Because both React and Flux were created at Facebook, one could say that using React only as a UI library is the intended use case. 
+* If we're talking about a small application or prototype, it might be a good idea to use React "wrong", since over-engineering (https://en.wikipedia.org/wiki/Overengineering) rarely yields an optimal result.
+* React's hook functions useReducer and useContext provide a kind of lightweight version of Redux for state management.
+* React Query, on the other hand, is a library that solves many of the problems associated with handling state on the server, eliminating the need for a React application to store data retrieved from the server directly in frontend state.
+* The Open Web Application Security Project, otherwise known as OWASP (https://www.owasp.org/), publishes an annual list of the most common security risks in Web applications. The most recent list can be found at: https://owasp.org/www-project-top-ten/
+* The most famous type of injection is probably SQL injection: https://stackoverflow.com/questions/332365/how-does-the-sql-injection-from-the-bobby-tables-xkcd-comic-work
+* SQL injections are prevented using parameterized queries (https://security.stackexchange.com/questions/230211/why-are-stored-procedures-and-prepared-statements-the-preferred-modern-methods-f). With them, user input isn't mixed with the SQL query, but the database itself inserts the input values at placeholders in the query (usually ?).
+  execute("SELECT * FROM Users WHERE name = ?", [userName])
+* Injection attacks are also possible in NoSQL databases. However, mongoose prevents them by sanitizing (https://zanon.io/posts/nosql-injection-in-mongodb) the queries. More on the topic can be found e.g. here: https://web.archive.org/web/20220901024441/https://blog.websecurify.com/2014/08/hacking-nodejs-and-mongodb.html
+* Cross-site scripting (XSS) is an attack where it is possible to inject malicious JavaScript code into a legitimate web application. The malicious code would then be executed in the browser of the victim.
+* React takes care of sanitizing data in variables (https://reactjs.org/docs/introducing-jsx.html#jsx-prevents-injection-attacks). Some versions of React have been vulnerable (https://medium.com/dailyjs/exploiting-script-injection-flaws-in-reactjs-883fb1fe36c1) to XSS attacks. 
+* One needs to remain vigilant when using libraries; if there are security updates to those libraries, it is advisable to update those libraries in one's applications. Security updates for Express are found in the library's documentation (https://expressjs.com/en/advanced/security-updates.html) and the ones for Node are found in this blog (https://nodejs.org/en/blog/).
+* You can check how up-to-date your dependencies are using the command:
+  npm outdated --depth 0
+* The dependencies can be brought up to date by updating the file package.json. The best way to do that is by using a tool called npm-check-updates. It can be installed globally by running the command:
+  npm install -g npm-check-updates
+* Using this tool, the up-to-dateness of dependencies is checked in the following way:
+  npm-check-updates
+* The file package.json is brought up to date by running the command:
+  ncu -u
+* Then it is time to update the dependencies by running the command npm install. However, old versions of the dependencies are not necessarily a security risk.
+* The npm audit (https://docs.npmjs.com/cli/audit) command can be used to check the security of dependencies. It compares the version numbers of the dependencies in your application to a list of the version numbers of dependencies containing known security threats in a centralized error database.
+* Running npm audit:
+  npm audit
+* Fix security issues:
+  npm audit fix
+* By default, audit fix does not update dependencies if their major version number has increased. Updating these dependencies could lead to the whole application breaking down.
+* Running npm audit fix --force would upgrade the library version but would also upgrade the library react-scripts and that would potentially break down the development environment.
+* One of the threats mentioned in the list from OWASP is Broken Authentication and the related Broken Access Control. The token-based authentication we have been using is fairly robust if the application is being used on the traffic-encrypting HTTPS protocol.
+* When implementing access control, one should e.g. remember to not only check a user's identity in the browser but also on the server. Bad security would be to prevent some actions to be taken only by hiding the execution options in the code of the browser.
+* On Mozilla's MDN, there is a very good Website security guide (https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Website_security), which brings up this very important topic:
+  "The single most important lesson you can learn about website security is to NEVER TRUST DATA FROM THE BROWSER. This includes, but is not limited to data in URL parameters of GET requests, POST requests, HTTP headers and cookies, and user-uploaded files. Always check and sanitize all incoming data. Always assume the worst."
+* For Express: Production Best Practices: Security (https://expressjs.com/en/advanced/best-practice-security.html)
+* It is also recommended to add a library called Helmet (https://helmetjs.github.io/) to the backend. It includes a set of middleware that eliminates some security vulnerabilities in Express applications.
+* Using the ESlint security-plugin (https://github.com/nodesecurity/eslint-plugin-security) is also worth doing.
+* Sometimes, the dynamic typing (https://developer.mozilla.org/en-US/docs/Glossary/Dynamic_typing) of JavaScript variables creates annoying bugs. In part 5, we talked briefly about PropTypes: a mechanism which enables one to enforce type-checking for props passed to React components.
+* Lately, there has been a notable uplift in the interest in static type checking (https://en.wikipedia.org/wiki/Type_system#Static_type_checking). At the moment, the most popular typed version of Javascript is TypeScript (https://www.typescriptlang.org/) which has been developed by Microsoft.
+* The browser is not the only domain where components defined using React can be rendered. The rendering can also be done on the server (https://react.dev/reference/react-dom/server).
+* This kind of approach is increasingly being used, such that, when accessing the application for the first time, the server serves a pre-rendered page made with React. From here onwards, the operation of the application continues, as usual, meaning the browser executes React, which manipulates the DOM shown by the browser. The rendering that is done on the server goes by the name: server-side rendering.
+* One motivation for server-side rendering is Search Engine Optimization (SEO). Search engines have traditionally been very bad at recognizing JavaScript-rendered content. However, the tide might be turning:
+  - https://www.javascriptstuff.com/react-seo/
+  - https://medium.freecodecamp.org/seo-vs-react-is-it-neccessary-to-render-react-pages-in-the-backend-74ce5015c0c9
+* Using the same programming language throughout the stack in theory simplifies the execution of the concept because the same code can be run on both the front- and backend.
+* Along with server-side rendering, there has been talk of so-called isomorphic applications and universal code, although there has been some debate about their definitions. According to some definitions, an isomorphic web application performs rendering on both frontend and backend. On the other hand, universal code is code that can be executed in most environments, meaning both frontend and backend.
+* React and Node provide a desirable option for implementing an isomorphic application as universal code.
+* Writing universal code directly using React is currently still pretty cumbersome. Lately, a library called Next.js (https://github.com/vercel/next.js), which is implemented on top of React, has garnered much attention and is a good option for making universal applications.
+* Progressive Web App (PWA) launched by Google web applications work on every platform and take advantage of the best parts of those platforms.
+* PWAs should also work flawlessly in offline mode or with a slow internet connection. On mobile devices, they must be installable just like any other application. All the network traffic in a PWA should be encrypted.
+* A monolithic backend is one application that makes up a whole and runs on a single server, serving only a few API endpoints.
+* As the application grows, the monolithic backend approach starts turning problematic both in terms of performance and maintainability.
+* A microservice architecture (microservices) is a way of composing the backend of an application from many separate, independent services, which communicate with each other over the network. An individual microservice's purpose is to take care of a particular logical functional whole. In a pure microservice architecture, the services do not use a shared database.
+* For example, the bloglist application could consist of two services: one handling the user and another taking care of the blogs. The responsibility of the user service would be user registration and user authentication, while the blog service would take care of operations related to the blogs.
+* There is often a so-called API gateway (http://microservices.io/patterns/apigateway) between the microservices and the frontend, which provides an illusion of a more traditional "everything on the same server" API.
+* Microservice architectures emerged and evolved for the needs of large internet-scale applications. The trend was set by Amazon far before the appearance of the term microservice.
+* Microservices by Amazon CEO Jeff Bezos:
+  All teams will henceforth expose their data and functionality through service interfaces.
+  Teams must communicate with each other through these interfaces.
+  There will be no other form of inter-process communication allowed: no direct linking, no direct reads of another team’s data store, no shared-memory model, no back-doors whatsoever. The only communication allowed is via service interface calls over the network.
+  It doesn’t matter what technology you use.
+  All service interfaces, without exception, must be designed from the ground up to be externalize-able. That is to say, the team must plan and design to be able to expose the interface to developers in the outside world.
+* It might make sense to go monolith first (https://martinfowler.com/bliki/MonolithFirst.html) by initially making a traditional all-encompassing backend. Or maybe not (https://martinfowler.com/articles/dont-start-monolith.html).
+* After the release of Amazon's lambda (https://aws.amazon.com/lambda/) service at the end of 2014, a new trend started to emerge in web application development: serverless (https://serverless.com/).
+* The main thing about Amazon Lambda (Google Cloud Functions, https://cloud.google.com/functions/ or Microsoft Azure Functions, https://azure.microsoft.com/en-us/services/functions/) is that it enables the execution of individual functions in the cloud. Before, the smallest executable unit in the cloud was a single process, e.g. a runtime environment running a Node backend.
+* Using Amazon's API gateway it is possible to make serverless applications where the requests to the defined HTTP API get responses directly from cloud functions. Usually, the functions already operate using stored data in the databases of the cloud service.
+* Serverless is not about there not being a server in applications, but about how the server is defined. Software developers can shift their programming efforts to a higher level of abstraction as there is no longer a need to programmatically define the routing of HTTP requests, database relations, etc., since the cloud infrastructure provides all of this. Cloud functions also lend themselves to creating a well-scaling system, e.g. Amazon's Lambda can execute a massive amount of cloud functions per second. All of this happens automatically through the infrastructure and there is no need to initiate new servers, etc.
+* Useful libraries:
+  - lodash: https://www.npmjs.com/package/lodash (handle comlicated data)
+  - ramda: https://ramdajs.com/ (handle complicated data, functional programming style)
+  - date-fns: https://github.com/date-fns/date-fns (handling dates and times)
+  - React Hook Form: https://react-hook-form.com/ (complex forms)
+  - recharts: http://recharts.org/en-US/ (graphs)
+  - highcharts: https://github.com/highcharts/highcharts-react (graphs)
+  - immer: https://github.com/mweststrate/immer (immutable implementations of some data structures)
+  - redux-saga: https://redux-saga.js.org/ (async actions for Redux Thunk)
+  - React Google Analytics: https://github.com/react-ga/react-ga (gathering of analytics data)
+  - React Native: https://facebook.github.io/react-native/ (mobile app development)
+* Reducers must be pure functions, meaning they must not modify the store's state but instead have to replace it with a new one when a change occurs.
+* For single-page applications, the gathering of analytics data on the interaction between the users and the page is more challenging (https://developers.google.com/analytics/devguides/collection/gtagjs/single-page-applications) than for traditional web applications where the entire page is loaded.
+* When it comes to the tools used for the management and bundling of JavaScript projects, the community has been very fickle.
+  - 2011 Bower, https://www.npmjs.com/package/bower
+  - 2012 Grunt, https://www.npmjs.com/package/grunt
+  - 2013-2014 Gulp, https://www.npmjs.com/package/gulp
+  - 2012-2014 Browserify, https://www.npmjs.com/package/browserify
+  - 2015- Webpack, https://www.npmjs.com/package/webpack
+  - Parcel, https://parceljs.org/
+  - esbuild, https://esbuild.github.io/
+* The site https://reactpatterns.com/ provides a concise list of best practices for React, some of which are already familiar from this course. Another similar list is react bits (https://vasanthk.gitbooks.io/react-bits/).
+* Reactiflux (https://www.reactiflux.com/) is a big chat community of React developers on Discord. It could be one possible place to get support after the course has concluded. For example, numerous libraries have their own channels.
+* One good piece of advice for both refactoring and writing new code is to take baby steps. Losing your sanity is almost guaranteed if you leave the application in a completely broken state for long periods while refactoring.
