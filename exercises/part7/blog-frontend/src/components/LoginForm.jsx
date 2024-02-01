@@ -19,13 +19,8 @@ const LoginForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    try {
-      dispatch(login(username, password))
-      resetForm()
-    } catch (error) {
-      console.log('vakava virhe')
-      console.error(error)
-    }
+    dispatch(login(username, password))
+    resetForm()
   }
 
   return (
