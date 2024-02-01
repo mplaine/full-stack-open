@@ -3683,3 +3683,150 @@ Part 7: React router, custom hooks, styling app with CSS and webpack
 * The site https://reactpatterns.com/ provides a concise list of best practices for React, some of which are already familiar from this course. Another similar list is react bits (https://vasanthk.gitbooks.io/react-bits/).
 * Reactiflux (https://www.reactiflux.com/) is a big chat community of React developers on Discord. It could be one possible place to get support after the course has concluded. For example, numerous libraries have their own channels.
 * One good piece of advice for both refactoring and writing new code is to take baby steps. Losing your sanity is almost guaranteed if you leave the application in a completely broken state for long periods while refactoring.
+* Better solutions for the React blog app:
+  App.jsx
+    import { useNotification, useInitialization, useClearUser } from './hooks/index'
+    import { SmallButton, Page, Navigation } from './components/styled'
+    const App = () => {
+      const blogFormRef = useRef()
+      const stateInitializer = useInitialization()
+      const clearUser = useClearUser()
+      useEffect(() => {
+        stateInitializer()
+      }, [])
+      / ...
+      return (
+        <Page>
+          // ...
+          <Togglable buttonLabel="new blog" ref={blogFormRef}>
+            <NewBlog hideMe={() => blogFormRef.current.toggleVisibility()} />
+          </Togglable>
+        </Page>
+      )
+  hooks/index.js
+    import { useState } from 'react'
+    import { useDispatch } from 'react-redux'
+    import { notify } from '../reducers/notification'
+    import { initializeBlogs } from '../reducers/blogs'
+    import { initializeUsers } from '../reducers/users'
+    import { initUser, clearUser } from '../reducers/user'
+
+    export const useNotification = () => {
+      const dispatch = useDispatch()
+      return (message, type = 'info')  => {
+        dispatch(notify(message, type))
+      }
+    }
+
+    export const useInitialization = () => {
+      const dispatch = useDispatch()
+      return ()  => {
+        dispatch(initializeBlogs())
+        dispatch(initializeUsers())
+        dispatch(initUser())
+      }
+    }
+
+    export const useClearUser = () => {
+      const dispatch = useDispatch()
+      return ()  => {
+        dispatch(clearUser())
+      }
+    }
+
+    export const useField = (type) => {
+      const [value, setValue] = useState('')
+      const onChange = (event) => {
+        setValue(event.target.value)
+      }
+      return {
+        type,
+        value,
+        onChange
+      }
+    }
+  services/user.js
+    let token = null
+    const STORAGE_KEY = 'loggedBlogAppUser'
+    const setUser = (user) => {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
+      token = user.token
+    }
+    const getUser = () => {
+      const loggedUserJSON = window.localStorage.getItem(STORAGE_KEY)
+      if (loggedUserJSON) {
+        const user = JSON.parse(loggedUserJSON)
+        token = user.token
+        return user
+      }
+      return null
+    }
+    const clearUser = () => {
+      localStorage.clear()
+      token = null
+    }
+    const getToken = () => token
+    export default {
+      setUser,
+      getUser,
+      clearUser,
+      getToken,
+    }
+  services/storage.js
+    const KEY = 'bloggappUser'
+    const saveUser = (user) => {
+      localStorage.setItem(KEY, JSON.stringify(user))
+    }
+    const loadUser = () => {
+      return JSON.parse(window.localStorage.getItem(KEY))
+    }
+    const removeUser = () => {
+      localStorage.removeItem(KEY)
+    }
+    export default {
+      saveUser,
+      loadUser,
+      removeUser,
+    }
+  services/blogs.js
+    const headers = {
+      Authorization: storageService.loadUser()
+        ? `Bearer ${storageService.loadUser().token}`
+        : null,
+    }
+    const comment = async (id, comment) => {
+      const request = await axios.post(`${baseUrl}/${id}/comments`, { comment }, { headers })
+      return request.data
+    }
+  reducers/notification.js
+    export const notify = (message, type='success') => {
+      // ...
+    }
+  reducers/blogs.js
+    set(state, { payload }) {
+      return payload
+    },
+  components/index.js
+    import styled from 'styled-components'
+    export const Info = styled.div`
+      color: ${(props) => (props.alert ? 'red' : 'green')};
+      background: white;
+      font-size: 20px;
+      border-style: solid;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    `
+  components/User.js
+    const user = useSelector(({ users }) => users.find(u => u.id === id) )
+  models/blog.js
+    comments: [ String ],
+  controllers/blogs.js
+    router.post('/:id/comments', async (request, response) => {
+      const { comment } = request.body
+      const blog = await Blog.findById(request.params.id)
+      blog.comments = blog.comments.concat(comment)
+      await blog.save()
+      response.json(blog) // status code 200
+    })
