@@ -12,7 +12,15 @@ ENV REACT_APP_BACKEND_URL http://localhost:3000
 RUN npm run build
 
 
+# Test stage
+FROM build-stage AS test-stage
+
+ENV CI true
+
+RUN npm run test
+
+
 # Serve stage
 FROM nginx:1.25.3-alpine
 
-COPY --from=build-stage /usr/src/app/build /usr/share/nginx/html
+COPY --from=test-stage /usr/src/app/build /usr/share/nginx/html
