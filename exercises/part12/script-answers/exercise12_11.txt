@@ -1,0 +1,32 @@
+Script started on Fri Feb  2 09:45:41 2024
+Restored session: Fri Feb  2 09:44:56 EET 2024
+[1m[7m%[27m[1m[0m                                                                                                                                                                                   ]7;file://Markkus-MBP/Users/markku/Codes/GitHub/full-stack-open/exercises/part12/todo-app/todo-backend[0m[27m[24m[J[34mtodo-app/todo-backend[39m [31mdocker-desktop[39m [33mmain[39m % [K[?2004hddocker container ls[?2004l
+CONTAINER ID   IMAGE     COMMAND                  CREATED             STATUS          PORTS                     NAMES
+ea2256b70bd1   redis     "docker-entrypoint.s…"   About an hour ago   Up 25 minutes   0.0.0.0:6379->6379/tcp    todo-backend-redis-1
+a9dd994025f3   mongo     "docker-entrypoint.s…"   19 hours ago        Up 25 minutes   0.0.0.0:3456->27017/tcp   todo-backend-mongo-1
+[1m[7m%[27m[1m[0m                                                                                                                                                                                   ]7;file://Markkus-MBP/Users/markku/Codes/GitHub/full-stack-open/exercises/part12/todo-app/todo-backend[0m[27m[24m[J[34mtodo-app/todo-backend[39m [31mdocker-desktop[39m [33mmain[39m % [K[?2004hddocker exec -it todo-backend-redis-1 bash[?2004l
+[?2004hroot@ea2256b70bd1:/data# redis-cli KEYS "*"
+[?2004l1) "added_todos"
+[?2004hroot@ea2256b70bd1:/data# redis-cli KEYS "*"S[1P[1P[1P[1P[1@G[1@E[1@T "*[1P"a"d"d"e"d"_"t"o"d"o"s"
+[?2004l"1"
+[?2004hroot@ea2256b70bd1:/data# redis-cli GET "added_todos"G[1P[1@SET "added_todos" 9001
+[?2004lOK
+[?2004hroot@ea2256b70bd1:/data# redis-cli SET "added_todos" 9001[5PGET "added_todos"
+[?2004l"9001"
+[?2004hroot@ea2256b70bd1:/data# redis-cli GET "added_todos"
+[?2004l"9002"
+[?2004hroot@ea2256b70bd1:/data# redis-cli GET "added_todos"[1P[1P[1P[1@D[1@E[1@L "added_todos"
+[?2004l(integer) 1
+[?2004hroot@ea2256b70bd1:/data# redis-cli DEL "added_todos"GET "added_todos"
+[?2004l(nil)
+[?2004hroot@ea2256b70bd1:/data# redis-cli GET "added_todos"
+[?2004l"1"
+[?2004hroot@ea2256b70bd1:/data# exit
+[?2004lexit
+[1m[7m%[27m[1m[0m                                                                                                                                                                                   ]7;file://Markkus-MBP/Users/markku/Codes/GitHub/full-stack-open/exercises/part12/todo-app/todo-backend[0m[27m[24m[J[34mtodo-app/todo-backend[39m [31mdocker-desktop[39m [33mmain[39m % [K[?2004heexit[?2004l
+
+Saving session...
+...saving history...truncating history files...
+...completed.
+
+Script done on Fri Feb  2 09:48:25 2024
