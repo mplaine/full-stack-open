@@ -1,0 +1,12 @@
+# Build stage
+FROM node:21.6.1
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN npm i
+
+ENV REACT_APP_BACKEND_URL http://localhost:3000
+
+CMD ["npm", "start"]
