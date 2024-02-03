@@ -1,13 +1,17 @@
 # Build stage
-FROM node:21.6.1 AS build-stage
+FROM node:21.6.1-alpine AS build-stage
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package*.json ./
 
 RUN npm ci --only=production
 
-ENV REACT_APP_BACKEND_URL http://localhost:3000
+COPY . .
+
+ARG BACKEND_URL
+
+ENV REACT_APP_BACKEND_URL ${BACKEND_URL}
 
 RUN npm run build
 
@@ -24,3 +28,7 @@ RUN npm run test
 FROM nginx:1.25.3-alpine
 
 COPY --from=test-stage /usr/src/app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
