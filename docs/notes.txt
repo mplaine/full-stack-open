@@ -3830,3 +3830,413 @@ Part 7: React router, custom hooks, styling app with CSS and webpack
       await blog.save()
       response.json(blog) // status code 200
     })
+
+
+Part 12: Containers
+-------------------
+* Containers encapsulate your application into a single package. This package will then include all of the dependencies with the application. As a result, each container can run isolated from the other containers.
+* Containers prevent the application inside from accessing files and resources of the device. Developers can give the contained applications permission to access files and specify available resources. More accurately, containers are OS-level virtualization. 
+* VMs are used to run multiple operating systems on a single physical machine. They have to run the whole operating system, whereas a container runs the software using the host operating system.
+* There is hardly any overhead when running containers; they only need to run a single process.
+* As containers are relatively lightweight, at least compared to virtual machines, they can be quick to scale. And as they isolate the software running inside, it enables the software to run identically almost anywhere. As such, they are the go-to option in any cloud environment or application with more than a handful of users.
+* Cloud services like AWS, Google Cloud, and Microsoft Azure all support containers in multiple different forms.
+  - Serverless options: AWS Fargate, Google Cloud Run
+* You can install container runtime on most machines and run containers there yourself - including your own machine.
+* Benefits of containers:
+  - You can run applications in their respective containers, isolated from each other.
+  - You can run applications in the same execution environment both on your machine and on the server.
+* Sometimes you may hear about the "Works in my container" issue. The phrase describes a situation in which the application works fine in a container running on your machine but breaks when the container is started on a server.
+* As we are dealing with OS-level virtualization, the tools will require superuser access on the computer.
+* Docker (https://www.docker.com/) is a set of products that we will use for containerization and the management of containers.
+* Get Docker: https://docs.docker.com/get-docker/
+* Image: includes all of the code, dependencies and instructions on how to run the application.
+* Container: a runtime instance of an image. Containers package software into standardized units.
+* Containers only exist during runtime. 
+* Images are immutable files. As a result of the immutability, you can not edit an image after you have created one.
+* Docker is the most popular containerization technology and pioneered the standards most containerization technologies use today.
+* Docker engine will take care of turning the immutable files called images into containers.
+* For managing the Docker containers, there is also a tool called Docker Compose that allows one to orchestrate (control) multiple containers at the same time.
+* Docker container run command can run a container even if the image to run is not downloaded on our device yet.
+* Docker Hub is a free registry for Docker images: https://hub.docker.com/
+  - hello-world: https://hub.docker.com/_/hello-world
+  - node: https://hub.docker.com/_/node
+  - mongo:  https://hub.docker.com/_/mongo
+  - redis: https://hub.docker.com/_/redis
+  - nginx: https://hub.docker.com/_/nginx
+* Image names consist of multiple parts, kind of like an URL. An image name is in the following format:
+  registry/organisation/image:tag (with "hello-world", the 3 missing fields defaulted to index.docker.io/library/hello-world:latest)
+* In the Docker Hub url, the "library" organization is shortened to _.
+* Each image has a unique digest based on the layers from which the image is built. In practice, each step or command that was used in building the image creates a unique layer.
+* Docker daemon is a background service that makes sure the containers are running, and we use the Docker client to interact with the daemon.
+* Start recording terminal commands:
+  script [options] [file]
+  script exercise12_1.txt     # text output file
+  script -r exercise12_1.txt  # binary output file
+* Stop recording terminal commands:
+  exit
+* Replay recorded terminal commands:
+  cat exercise12_1.txt        # text input file
+  script -p exercise12_1.txt  # binary input file
+* We have two options when addressing a container. The identifier in the first column can be used to interact with the container almost always. Plus, most commands accept the container name as a more human-friendly method of working with them. The name of the container was automatically generated to be "hopeful_clarke" in my case.
+* Install "nano" on Ubuntu:
+  apt-get update
+  apt-get -y install nano
+* Install "curl" on Ubuntu:
+  apt-get update
+  apt-get -y install curl
+* Install "nodejs" on Ubuntu:
+  curl -sL https://deb.nodesource.com/setup_16.x | bash
+  apt install -y nodejs
+* With Node.js installed, you can execute JavaScript in the container!
+* Dockerfile is a simple text file that contains all of the instructions for creating an image.
+* The best location to place a Dockerfile file is usually at the root of the project.
+* Example Dockerfile:
+  FROM node:16
+  WORKDIR /usr/src/app
+  COPY ./index.js ./index.js
+  CMD node index.js
+* FROM instruction will tell Docker that the base for the image should be node:16.
+* WORKDIR instruction will ensure we don't interfere with the contents of the image. It will guarantee all of the following commands will have /usr/src/app set as the working directory. If the directory doesn't exist in the base image, it will be automatically created.
+* COPY instruction will copy the file index.js from the host machine to the file with the same name in the image.
+* CMD instruction tells what happens when docker run is used. CMD is the default command that can then be overwritten with the parameter given after the image name.
+* You can point to any Dockerfile, but in our case, a simple dot will mean the Dockerfile in this directory. That is why the command ends with a period.
+* As images are just files, they can be moved around, downloaded and deleted.
+* Override the default command, defined by the CMD in the Dockerfile, if needed. For example, open a bash session to the container:
+  docker run -it fs-hello-world bash
+* Create a basic Express application skeleton:
+  npx express-generator  # deprecated
+* The -p flag will inform Docker that a port from the host machine should be opened and directed to a port in the container. The format for is -p host-port:application-port.
+* When we ran npm install on our machine, in some cases the Node package manager may install operating system specific dependencies during the install step. We may accidentally move non-functional parts to the image with the COPY instruction. This can easily happen if we copy the node_modules directory into the image.
+* It's best to do most things, such as to run npm install during the build process inside the container rather than doing those prior to building.
+  - Only copy files that you would push to GitHub. Build artefacts or dependencies should not be copied since those can be installed during the build process.
+* The file .dockerignore is very similar to .gitignore, you can use that to prevent unwanted files from being copied to your image. The file should be placed next to the Dockerfile. Here is a possible content of a .dockerignore:
+  .dockerignore
+  .gitignore
+  node_modules
+  Dockerfile
+* The npm install can be risky. Instead of using npm install, npm offers a much better tool for installing dependencies, the ci command.
+* Differences between ci and install:
+  - install may update the package-lock.json
+  - install may install a different version of a dependency if you have ^ or ~ in the version of the dependency.
+  - ci will delete the node_modules folder before installing anything
+  - ci will follow the package-lock.json and does not alter any files!!!
+* So in short: ci creates reliable builds based on package-lock.json, while install is the one to use when you want to install new dependencies (uses package.json).
+* Even better, we can use npm ci --only=production to not waste time installing development dependencies.
+* Chain two bash commands with &&.
+  - When chaining commands with && if one command fails, the next ones in the chain will not be executed.
+  - Example: docker build -t express-server . && docker run -p 3123:3000 express-server
+* Dockerfile best practices. There are 2 rules of thumb you should follow when creating images:
+  - Try to create as secure of an image as possible
+  - Try to create as small of an image as possible
+* Snyk has a great list of 10 best practices for Node/Express containerization: https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
+  1. Use explicit and deterministic Docker base image tags
+  2. Install only production dependencies in the Node.js Docker image
+  3. Optimize Node.js tooling for production
+  4. Don’t run containers as root
+  5. Safely terminate Node.js Docker web applications
+  6. Graceful shutdown for your Node.js web applications
+  7. Find and fix security vulnerabilities in your Node.js docker image
+  8. Use multi-stage builds
+  9. Keeping unnecessary files out of your Node.js Docker images
+  10. Mounting secrets into the Docker build image
+* Tip: Run an application outside of a container to examine it before starting to containerize.
+* Create docker image and run the container:
+  docker build -t todo-app && docker container run -p 3000:3000 --name todo-app todo-app
+* Docker compose (https://docs.docker.com/compose/) is another fantastic tool, which can help us to manage containers.
+  - docker-compose.yml
+  - Uses the YAML syntax
+  - Documentation: https://docs.docker.com/compose/compose-file/compose-file-v3/
+* Note that some older Docker versions (especially in Windows ) do not support the command docker compose. One way to circumvent this problem is to install the stand alone command docker-compose that works mostly similarly to docker compose. However, the preferable fix is to update the Docker to a more recent version.
+* Creating files like docker-compose.yml that declare what you want instead of script files that you need to run in a specific order / a specific number of times is often a great practice.
+* Docker Hub is the default place where Docker pulls the images from, you can use other registries as well, but since we are already knee-deep in Docker it's a good choice.
+* You can use -f flag to specify a file to run the Docker Compose command with. For example:
+  docker compose -f docker-compose.dev.yml up
+* View the output logs with docker compose -f docker-compose.dev.yml logs -f. There the -f will ensure we follow the logs.
+* mongo-init.js file is used to initialize the database.
+* We could create a new image FROM mongo and COPY the file inside, or we can use a bind mount to mount the file mongo-init.js to the container.
+* Bind mount is the act of binding a file (or directory) on the host machine to a file (or directory) in the container.
+* A bind mount is done by adding a -v flag with container run. The syntax is -v FILE-IN-HOST:FILE-IN-CONTAINER.
+* The result of the bind mount is that the file mongo-init.js in the mongo folder of the host machine is the same as the mongo-init.js file in the container's /docker-entrypoint-initdb.d directory. Changes to either file will be available in the other. We don't need to make any changes during runtime.
+* Be careful when using chmod since granting more privileges can be a security issue. Use the chmod only on the mongo-init.js on your computer.
+* By default, containers are not going to preserve our data. When you close the Mongo container you may or may not be able to get the data back.
+* There are two distinct methods to store the data:
+  - Declaring a location in your filesystem (called bind mount, https://docs.docker.com/storage/bind-mounts/), recommended to avoid deleting data
+  - Letting Docker decide where to store the data (volume, https://docs.docker.com/storage/volumes/)
+* The below will create a directory called mongo_data to your local filesystem and map it into the container as /data/db. This means the data in /data/db is stored outside of the container but still accessible by the container! Just remember to add the directory to .gitignore.
+  services:
+    mongo:
+      volumes:
+        - ./mongo_data:/data/db
+* A similar outcome can be achieved with a named volume:
+  services:
+    mongo:
+      volumes:
+        - mongo_data:/data/db
+  volumes:
+    mongo_data:
+* Now the volume is created but managed by Docker. After starting the application (docker compose -f docker-compose.dev.yml up) you can list the volumes with docker volume ls, inspect one of them with docker volume inspect and even delete them with docker volume rm.
+* The named volume is still stored in your local filesystem but figuring out where may not be as trivial as with the previous option (see docker volume inspect <VOLUME_NAME> > Mountpoint).
+* Volumes in a nutshell:
+  - two-way binding
+  - use explicit path on the host machine
+* When you write a long docker-compose.yml or Dockerfile and it does not work, you need to take a moment and think about the various ways you could confirm something is working.
+* Question Everything is still applicable here. The key is to be systematic. Since the problem can exist anywhere, you must question everything, and eliminate all possible sources of error one by one.
+* The Docker command exec (https://docs.docker.com/engine/reference/commandline/exec/) is a heavy hitter. It can be used to jump right into a container when it's running.
+* Nginx (https://www.nginx.com/) is, among other things, a server capable of serving static HTML files. 
+* When doing development, it is essential to constantly follow the container logs.
+* Remember that all of the changes are lost when the container is deleted.
+* Access the MongoDB database with Mongo CLI:
+  mongosh -u root -p example
+  show dbs
+  use the_database
+  show collections
+  db.todos.find({})
+  db.todos.insertOne({ text: 'Increase the number of tools in my toolbelt', done: false });
+* Exit the MongoDB database:
+  exit
+* Redis (https://redis.io/) is a key-value (https://redis.com/nosql/key-value-databases/) database. In contrast to eg. MongoDB, the data stored to a key-value storage has a bit less structure, there are eg. no collections or tables, it just contains junks of data that can be fetched based on the key that was attached to the data (the value).
+* By default Redis works in-memory, which means that it does not store data persistently.
+* An excellent use case for Redis is to use it as a cache. Caches are often used to store data that is otherwise slow to fetch and save the data until it's no longer valid. After the cache becomes invalid, you would then fetch the data again and store it in the cache.
+* Redis is an open-source, networked, in-memory, key-value data store with optional durability. 
+* Start the todo-app backend with Redis:
+  REDIS_URL=redis://localhost:6379 MONGO_URL=mongodb://the_username:the_password@localhost:3456/the_database npm run dev
+* Redis CLI: https://redis.io/topics/rediscli
+* All Redis CLI commends: https://redis.io/commands/
+* Redis CLI commands:
+  - Get all keys: redis-cli KEYS "*"
+  - Get the value of a key: redis-cli GET "added_todos"
+  - Set key to hold the string value: redis-cli SET "added_todos" "9001"
+  - Remove the specified key: redis-cli DEL "added_todos"
+* Exit Redis CLI:
+  exit
+* By default Redis does not persist the data (works with stopped containers, though). You can configure Redis to persist the data even if the container is deleted.
+* In addition to the GET, SET and DEL operations on keys and values, Redis can do also a quite a lot more. It can for example automatically expire keys, that is a very useful feature when Redis is used as a cache.
+* Redis can also be used to implement so called publish-subscribe (or PubSub) pattern that is a asynchronous communication mechanism for distributed software. In this scenario Redis works as a message broker between two or more services. Some of the services are publishing messages by sending those to Redis, that on arrival of a message, informs the parties that have subscribed to those messages.
+* Express server for static files: https://expressjs.com/en/starter/static-files.html
+* Typical location of application files (WORKDIR) in a container: /usr/src/app
+* A valid option for serving static files now that we already have Node in the container is serve: https://www.npmjs.com/package/serve
+* Install serve:
+  npm install -g serve
+* Use serve (serves static files from the "build" directory):
+  serve build
+* Test all run commands to be included in the Dockerfile within the container using bash.
+* CMD documentation: https://docs.docker.com/engine/reference/builder/#cmd
+* There are three different forms for the CMD out of which the exec form (includes square brackets) is preferred.
+  CMD ["serve", "build"]
+* A good goal is to create Docker images so that they do not contain anything irrelevant. With a minimal number of dependencies, images are less likely to break or become vulnerable over time.
+* Multi-stage builds (https://docs.docker.com/develop/develop-images/multistage-build/) are designed for splitting the build process into many separate stages, where it is possible to limit what parts of the image files are moved between the stages.
+  - Opens possibilities for limiting the size of the image since not all by-products of the build are necessary for the resulting image. Smaller images are faster to upload and download and they help reduce the number of vulnerabilities your software may have.
+  - With multi-stage builds, a tried and true solution like Nginx can be used to serve static files without a lot of headaches. The Docker Hub page for Nginx (https://hub.docker.com/_/nginx) tells us the required info to open the ports and "Hosting some simple static content".
+  - We have declared also another stage where only the relevant files of the first stage (the build directory, that contains the static content) are moved.
+* The default port for Nginx is 80.
+* Multi-stage builds also include some internal optimizations that may affect your builds. As an example, multi-stage builds skip stages that are not used. If we wish to use a stage to replace a part of a build pipeline, like testing or notifications, we must pass some data to the following stages. In some cases this is justified: copy the code from the testing stage to the build stage. This ensures that you are building the tested code.
+* Setting Dynamic Environment Values: Dockerfile doesn’t provide a dynamic tool to set an ENV value during the build process. However, there’s a solution to this problem. We have to use ARG. ARG values don’t work in the same way as ENV, as we can’t access them anymore once the image is built.
+  ARG name
+  ENV env_name $name
+* Usage:
+  docker build -t baeldung_greetings --build-arg name=Baeldung .
+* What if we want to change the name? All we have to do is rebuild the image with a different build-arg value.
+* One interesting possibility to utilize multi-stage builds is to use a separate build stage for testing: https://docs.docker.com/language/nodejs/run-tests/
+  - If the testing stage fails, the whole build process will also fail. Note that it may not be the best idea to move all testing to be done during the building of an image, but there may be some containerization-related tests where it might be worth considering.
+* Run the tests with CI=true npm test. Without the env CI=true set, the create-react-app will start watching for changes and your pipeline will get stuck.
+* Start Todo app frontend without Docker:
+  REACT_APP_BACKEND_URL=http://localhost:3000 PORT=3001 npm run start
+* Move the whole todo application development to a container, which has the following benefits among others:
+  - To keep the environment similar between development and production to avoid bugs that appear only in the production environment
+  - To avoid differences between developers and their personal environments that lead to difficulties in application development
+  - To help new team members hop in by having them install container runtime - and requiring nothing else.
+* We will need to do at least two things to move the application to a container:
+  - Start the application in development mode
+  - Access the files with VS Code
+* Steps to access the files with VSCode (two options):
+  1. The Visual Studio Code Remote - Containers extension: https://code.visualstudio.com/docs/remote/containers
+  2. Volumes, the same thing we used to preserve data with the database (work with all editors, not just VS Code)
+* Hot reload might work in your computer, but it is currently known to have some issues (https://github.com/facebook/create-react-app/issues/11879). So if it does not work for you, just continue without the hot reload support, and reload the browser when you change the frontend code. You may also use use The Visual Studio Code Containers extension (https://code.visualstudio.com/docs/remote/containers).
+* !!! Installing new dependencies is a headache for a development setup like this. One of the better options is to install the new dependency inside the container. So instead of doing e.g. npm install axios, you have to do it in the running container e.g. docker exec hello-front-dev npm install axios, or add it to the package.json and run docker build again.
+* The Docker Compose tool sets up a network between the containers and includes a DNS to easily connect two containers.
+* Busybox (https://www.busybox.net/) is a small executable with multiple tools you may need. It is called "The Swiss Army Knife of Embedded Linux"
+* Busybox can help us to debug our configurations. So if you get lost in the later exercises of this section, you should use Busybox to find out what works and what doesn't.
+* Busybox can be added to the mix by changing docker-compose.yml to:
+  services:
+    debug-helper:
+      image: busybox
+* The Busybox container won't have any process running inside so we can not exec in there.
+* Use wget (included in busybox) to make requests: https://en.wikipedia.org/wiki/Wget
+  - Send requests from the debug-helper to hello-front-dev.
+* With Docker Compose we can use docker compose run SERVICE COMMAND to run a service with a specific command. Command wget requires the flag -O with - to output the response to the stdout:
+  docker compose run debug-helper wget -O - http://app:3000
+* The app is the name of the service specified in the docker-compose.yml and the port used is the port from which the application is available in that container, also specified in the docker-compose.yml.
+* The port does not need to be published for other services in the same network to be able to connect to it. The "ports" in the docker-compose file are only for external access.
+* With docker compose up the application is available in http://localhost:3001 at the host machine, but still docker compose run debug-helper wget -O - http://app:3000 works since the port is still 3000 within the docker network.
+* Docker compose run asks debug-helper to send the request within the network. While the browser in host machine sends the request from outside of the network.
+* Build Docker images and run containers for the todo app (frontend: localhost:3001 and backend: localhost:3000):
+  todo-frontend/docker compose -f docker-compose.dev.yml up --build
+  todo-backend/docker compose -f docker-compose.dev.yml up --build
+* A reverse proxy (https://en.wikipedia.org/wiki/Reverse_proxy) is a type of proxy server that retrieves resources on behalf of a client from one or more servers. 
+* So in our case, the reverse proxy will be the single point of entry to our application, and the final goal will be to set both the React frontend and the Express backend behind the reverse proxy.
+* There are multiple different options for a reverse proxy implementation, such as Traefik, Caddy, Nginx, and Apache (ordered by initial release from newer to older).
+* With containers localhost is unique for each container, leading to the container itself.
+* Docker Compose set up a network when we ran docker compose up. It also added all of the containers in the docker-compose.yml to the network. A DNS makes sure we can find the other container. The containers are each given two names: the service name and the container name. Since we are inside the container, we can also test the DNS!
+* One more thing: we added an option depends_on to the configuration that ensures that the nginx container is not started before the frontend container app is started:
+  depends_on:
+    - app  
+* If we do not enforce the starting order with depends_on there a risk that Nginx fails on startup since it tries to resolve all DNS names that are referred in the config file:
+* Note that depends_on does not guarantee that the service in the depended container is ready for action, it just ensures that the container has been started (and the corresponding entry is added to DNS). If a service needs to wait another service to become ready before the startup, other solutions (https://docs.docker.com/compose/startup-order/) should be used.
+* The proxy_pass directive has an interesting feature with a trailing slash. As we are using the path /api for location but the backend application only answers in paths / or /todos we will want the /api to be removed from the request. In other words, even though the browser will send a GET request to /api/todos/1 we want the Nginx to proxy the request to /todos/1. Do this by adding a trailing slash / to the URL at the end of proxy_pass.
+  location /api/ {
+    ...
+  }
+* More information about this common issue: https://serverfault.com/questions/562756/how-to-remove-the-path-with-an-nginx-proxy-pass
+* We just need to expose the Nginx port to the host machine since the access to the backend and frontend is proxied to the right container port by Nginx. Because Nginx, frontend and backend are defined in the same Docker compose configuration, Docker puts those to the same Docker network and thanks to that, Nginx has direct access to frontend and backend containers ports.
+* You can override default environment variables defined in Dockerfile in docker-compose.yml using the environment declaration.
+* See todo-app/docker-compose.dev.yml and nginx.conf for working development environment setup! Pay special attention to trailing slashes and environment variables!!!!
+* There are many more powerful tools than Docker Compose to run containers in production.
+* Heavyweight container orchestration tools like Kubernetes allow us to manage containers on a completely new level. These tools hide away the physical machines and allow us, the developers, to worry less about the infrastructure.
+* DevOps with Docker course: https://devopswithdocker.com/
+* DevOps with Kubernetes course: https://devopswithkubernetes.com/
+* ENV is for future running containers. ARG for building your Docker image.
+* ENV is mainly meant to provide default values for your future environment variables. Running dockerized applications can access environment variables. It’s a great way to pass configuration values to your project.
+* ARG values are not available after the image is built. A running container won’t have access to an ARG variable value.
+* npm ci installs the same versions defined in the lock file and doesn't try to update them as npm install does.
+* The --only=production flag that skips the installation of devDependencies, which we don't need in production.
+* Remember to include .dockerignore to avoid copying unwanted files, especially node_modules!!!!
+  .git
+  .dockerignore
+  .gitignore
+  node_modules
+  Dockerfile
+  dev.Dockerfile
+* If you map the full frontend or backend to the container in docker-compose.yml, remember to "exclude" node_modules from the mapping as their installations differ from one environment (your computer, macOS) to another (container, Linux):
+  volumes:
+    - ./backend/:/usr/src/app
+    - /usr/src/app/node_modules
+* Create multiple databases with mongo-init.js:
+  blogApp = db.getSiblingDB('blogApp')
+  blogApp.createUser({
+    user: 'the_username',
+    pwd: 'the_password',
+    roles: [
+      {
+        role: 'dbOwner',
+        db: 'blogApp'
+      }
+    ]
+  })
+  blogApp.createCollection('blogs')
+  blogApp.createCollection('users')
+  // Test database
+  testBlogApp = db.getSiblingDB('testBlogApp')
+  // ...
+* !!! When serving React frontend app using React Router, you need to configure Nginx to redirect all requests to index.html as the client-side routing does the job:
+  Dockerfile (frontend)
+  COPY --from=build-stage /usr/src/app/nginx.conf /etc/nginx/conf.d/default.conf
+* For more information, see:
+  - https://www.barrydobson.com/post/react-router-nginx/
+  - https://stackoverflow.com/questions/43951720/react-router-and-nginx
+  - https://www.frontendundefined.com/posts/tutorials/nginx-react-router-404/
+* Dockerfile reference: https://docs.docker.com/engine/reference/builder/
+  - ADD: Add local or remote files and directories.
+  - ARG: Use build-time variables.
+  - CMD: Specify default commands.
+  - COPY: Copy files and directories.
+  - ENTRYPOINT: Specify default executable.
+  - ENV: Set environment variables.
+  - EXPOSE: Describe which ports your application is listening on.
+  - FROM: Create a new build stage from a base image.
+  - HEALTHCHECK: Check a container's health on startup.
+  - LABEL: Add metadata to an image.
+  - MAINTAINER: Specify the author of an image.
+  - ONBUILD: Specify instructions for when the image is used in a build.
+  - RUN: Execute build commands.
+  - SHELL: Set the default shell of an image.
+  - STOPSIGNAL: Specify the system call signal for exiting a container.
+  - USER: Set user and group ID.
+  - VOLUME: Create volume mounts.
+  - WORKDIR: Change working directory.
+* Dockerfile ADD vs. COPY: https://www.baeldung.com/ops/docker-copy-add
+  - The ADD directive is more capable than COPY. While functionally similar, the ADD directive is more powerful in two ways:
+    - It can handle remote URLs
+    - It can auto-extract tar files
+  - Prefer COPY over ADD unless we specifically need one of the two additional features of ADD.
+* Dockerfile ARG vs. ENV: 
+  - ARG values are not available after the image is built. A running container won’t have access to an ARG variable value.
+* Dockerfile ENTRYPOINT vs. CMD: https://spacelift.io/blog/docker-entrypoint-vs-cmd
+  - ENTRYPOINT sets the process to run, while CMD supplies default arguments to that process.
+  - The ENTRYPOINT Dockerfile instruction sets the process that’s executed when your container starts.
+  - When an image is created without an ENTRYPOINT, Docker defaults to using /bin/sh -c.
+  - The somewhat misleadingly named CMD instruction sets the default arguments that are passed to the ENTRYPOINT process. It determines the final form of the command string that will be executed. In the following example, the container will run /usr/bin/my-app help:
+    ENTRYPOINT ["/usr/bin/my-app"]
+    CMD ["help"]
+  - In the ubuntu Dockerfile, a default CMD is specified as: CMD ["bash"]
+* Docker Compose file reference: https://docs.docker.com/compose/compose-file/
+* Docker commands:
+  - List images:
+    docker image ls
+  - List containers:
+    docker container ls
+  - List all containers (incl. stopped):
+    docker container ls -a
+  - Create and run a new container from an image:
+    docker container run <IMAGE_NAME>
+  - Create and run a new container from an image in interactive mode:
+    docker container run -it <IMAGE_NAME> <COMMAND_TO_EXECUTE>
+    docker container run -it <IMAGE_NAME> bash
+  - Create and run a new container with a name from an image in interactive mode:
+    docker container run -it --name <CONTAINER_NAME> <IMAGE_NAME>:<IMAGE_VERSION> <COMMAND_TO_EXECUTE>
+  - Create and run a new container with a published port from an image:
+    docker container run -p <HOST_PORT>:<CONTAINER_PORT> <IMAGE_NAME>
+  - Create and run a new container with a published port and a bind mount volume from an image:
+    docker container run -p <HOST_PORT>:<CONTAINER_PORT> -v <LOCAL_SOURCE_FILE_PATH>:<CONTAINER_TARGET_FILE_PATH> <IMAGE_NAME>
+  - Start one or more stopped containers:
+    docker container start <CONTAINER_ID_OR_CONTAINER_NAME>
+  - Start one or more stopped containers in interactive mode:
+    docker container start -i <CONTAINER_ID_OR_CONTAINER_NAME>
+  - Kill one or more running containers (terminate ommediately):
+    docker container kill <CONTAINER_ID_OR_CONTAINER_NAME>
+  - Stop one or more running containers (terminate gracefully):
+    docker container stop <CONTAINER_ID_OR_CONTAINER_NAME>
+  - Remove one or more containers:
+    docker container rm <CONTAINER_ID_OR_CONTAINER_NAME>
+  - Create a new image from a container's changes:
+    docker commit <CONTAINER_ID_OR_CONTAINER_NAME> <IMAGE_NAME>
+  - Copy files/folders between a container and the local filesystem:
+    docker container cp <LOCAL_SOURCE_FILE_PATH> <CONTAINER_ID_OR_CONTAINER_NAME>:<CONTAINER_TARGET_FILE_PATH>
+  - Build an image with a name from a Dockerfile:
+    docker build -t <IMAGE_NAME_WITH_OR_WITHOUT_TAG> <DOCKERFILE_FILE_PATH>
+    docker build -t fs-hello-world .
+  - Remove one or more images:
+    docker image rm <IMAGE_NAME>
+  - List volumes:
+    docker volume ls
+  - Display detailed information on one or more volumes:
+    docker volume inspect <VOLUME_NAME>
+  - Remove one or more volumes:
+    docker volume rm <VOLUME_NAME>
+  - Execute a command in a running container:
+    docker exec -it <CONTAINER_ID_OR_CONTAINER_NAME> <COMMAND_TO_EXECUTE>
+    docker exec -it wonderful_ramanujan bash
+* Docker Compose commands:
+  - Create and start containers by building images before starting containers:
+    docker compose up --build
+  - Create and start containers by running them in the background (detach):
+    docker compose up -d
+  - Create and start containers using a specific configuration file (defaults to docker-compose.yml):
+    docker compose -f docker-compose.dev.yml up
+  - Stop and remove containers, networks:
+    docker compose down
+  - View output from containers (and follow log output):
+    docker compose logs -f
+* docker-compose.yml commands:
+  - version
+  - services
+    - "service"
+      - image
+      - restart
+      - build
+        - context
+        - dockerfile
+      - volumes
+      - ports
+      - environment
+      - container_name
+      - depends_on

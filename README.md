@@ -38,3 +38,7 @@ My solutions to the Part 6 exercises can be found [here](./exercises/part6/).
 ### Part 7: React router, custom hooks, styling app with CSS and webpack
 
 My solutions to the Part 7 exercises can be found [here](./exercises/part7/).
+
+### Part 12: Containers
+
+My solutions to the Part 12 exercises can be found [here](./exercises/part12/).
