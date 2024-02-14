@@ -21,7 +21,7 @@ My solutions to the Part 2 exercises can be found [here](./exercises/part2/).
 
 My solutions to the Part 3 exercises can be found [here](./exercises/part3/).
 
-The *Phonebook* web service is running online at <https://phonebook-01o9.onrender.com>.
+The *Phonebook* web application is running online at <https://phonebook-01o9.onrender.com>.
 
 ### Part 4: Testing Express servers, user administration
 
@@ -38,6 +38,14 @@ My solutions to the Part 6 exercises can be found [here](./exercises/part6/).
 ### Part 7: React router, custom hooks, styling app with CSS and webpack
 
 My solutions to the Part 7 exercises can be found [here](./exercises/part7/).
+
+### Part 11: CI/CD
+
+My solutions to the Part 11 exercises can be found [here](https://github.com/mplaine/full-stack-open-pokedex) and [here](https://github.com/mplaine/full-stack-open-blog).
+
+The *Pokedex* web application is running online at <https://pokedex-r2q9.onrender.com>.
+
+The *Blog* web application is running online at <https://blog-5a8n.onrender.com>.
 
 ### Part 12: Containers
 

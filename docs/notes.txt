@@ -3832,6 +3832,281 @@ Part 7: React router, custom hooks, styling app with CSS and webpack
     })
 
 
+Part 11: CI/CD
+--------------
+* Git allows multiple copies, streams, or versions of the code to co-exist without overwriting each other. When you first create a repository, you will be looking at the main branch (usually in Git, we call this main or main, but that does vary in older projects).
+* Using branching: https://www.atlassian.com/git/tutorials/using-branches
+* In GitHub merging a branch back to the main branch of software is quite often happening using a mechanism called pull request (https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-pull-requests), where the developer who has done some changes is requesting the changes to be merged to the main branch. Once the pull request, or PR as it's often called, is made or opened, another developer checks that all is ok and merges the PR.
+* In general when we talk about building we mean preparing software to run on the platform where it's intended to run. This might mean, for example, that if you've written your application in TypeScript, and you intend to run it on Node, then the build step might be transpiling the TypeScript into JavaScript. This step is much more complicated (and required) in compiled languages such as C and Rust where the code needs to be compiled into an executable.
+* Deployment refers to putting the software where it needs to be for the end-user to use it. In the case of libraries, this may simply mean pushing an npm package to a package archive (such as npmjs.com) where other users can find it and include it in their software. Deploying a service (such as a web app) can vary in complexity. In part 3 our deployment workflow involved running some scripts manually and pushing the repository code to Fly.io or Render hosting service.
+* Deployments can be significantly more complex, especially if we add requirements such as "the software must be available at all times during the deployment" (zero downtime deployments) or if we have to take things like database migrations (https://fullstackopen.com/en/part13/migrations_many_to_many_relationships#migrations) into account.
+* CI by Martin Fowler: https://www.martinfowler.com/articles/continuousIntegration.html
+* CI refers to merging developer changes to the main branch (https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment) often.
+* Steps to do after a merge:
+  - Lint: to keep our code clean and maintainable
+  - Build: put all of our code together into runnable software bundle
+  - Test: to ensure we don't break existing features
+  - Package: Put it all together in an easily movable batch
+  - Deploy: Make it available to the world
+* Packaging and especially deployment are sometimes NOT considered to fall under the umbrella of CI.
+* The packaging is often an area where issues crop up in CI as this isn't something that's usually tested locally. It makes sense to test the packaging of a project during the CI workflow even if we don't do anything with the resulting package.
+* The terms Continuous Delivery and Continuous Deployment (both of which have the acronym CD) are often used when one talks about CI that also takes care of deployments.
+* Continuous delivery by Martin Fowler: https://martinfowler.com/bliki/ContinuousDelivery.html
+* With the use of continuous integration and systematic ways of working, we can avoid these.
+  - We can disallow commits directly to the main branch
+  - We can have our CI process run on all Pull Requests (PRs) against the main branch and allow merges only when our desired conditions are met e.g. tests pass
+  - We can build our packages for production in the known environment of the CI system
+* There are other advantages to extending this setup:
+  - If we use CI/CD with deployment every time there is a merge to the main branch, then we know that it will always work in production
+  - If we only allow merges when the branch is up to date with the main branch, then we can be sure that different developers don't overwrite each other's changes
+* There are numerous different workflows one can use with Git, e.g. in some cases, it may be a specific "release" branch (instead of "main") that contains the code that is running in production.
+* CI should always be configured to the task at hand and the project itself. The end goal should be kept in mind at all times. You can think of CI as the answer to these questions:
+  - How to make sure that tests run on all code that will be deployed?
+  - How to make sure that the main branch is deployable at all times?
+  - How to ensure that builds will be consistent and will always work on the platform it'd be deploying to?
+  - How to make sure that the changes don't overwrite each other?
+  - How to make deployments happen at the click of a button or automatically when one merges to the main branch?
+* The use of CI/CD correlate heavily with organizational success (e.g. improves profitability and product quality, increases market share, shortens the time to market). CI/CD even makes developers happier by reducing their burnout rate.
+  - https://itrevolution.com/book/accelerate/
+  - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2681909
+* Important principles:
+  - Documented behavior
+  - Know the same thing happend every time
+  - Code always kept deployable
+  - Knowing what code is deployed (sha sum/version)
+* Types of CI setup:
+  - Host your own server
+  - Use a cloud server
+* Among the self-hosted options, Jenkins (https://www.jenkins.io/) is the most popular.
+* In a cloud-hosted setup (e.g., GitHub Actions, https://github.com/features/actions), the setup of the environment is not something you need to worry about. Cloud-based options are also usually billed by build time which is something to consider.
+* In general, if you have a small to medium software project that doesn't have any special requirements (e.g. a need for a graphics card to run tests), a cloud-based solution is probably best. The configuration is simple and you don't need to go to the hassle or expense of setting up your own system. For smaller projects especially, this should be cheaper. For larger projects where more resources are needed or in larger companies where there are multiple teams and projects to take advantage of it, a self-hosted CI setup is probably the way to go.
+* GitHub Actions work on a basis of workflows. A workflow is a series of jobs that are run when a certain triggering event happens. The jobs that are run then themselves contain instructions for what GitHub Actions should do.
+  - Workflows: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#workflows
+  - Jobs: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#jobs
+  - Events: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions#events
+* CI operation can be defined in the form of a specific file inside the repository or it can be defined in the CI system.
+* CI needs an existing repository, defined instructions, and action permissions.
+* GitHub Actions have a great advantage over self-hosted solutions: the repository is hosted with the CI provider. In other words, GitHub provides both the repository and the CI platform. This means that if we've enabled actions for a repository, GitHub is already aware of the fact that we have workflows defined and what those definitions look like.
+* Having frontend and backend code in the same repository makes things much simpler when setting up a CI environment.
+* The core component of creating CI/CD pipelines with GitHub Actions is something called a Workflow. Workflows are process flows that you can set up in your repository to run automated tasks such as building, testing, linting, releasing, and deploying to name a few! The hierarchy of a workflow looks as follows:
+  Workflow
+    Job
+      Step
+      Step
+    Job
+      Step
+* Each workflow must specify at least one Job, which contains a set of Steps to perform individual tasks. The jobs will be run in parallel and the steps in each job will be executed sequentially.
+* Steps can vary from running a custom command to using pre-defined actions, thus the name GitHub Actions. You can create customized actions (https://docs.github.com/en/free-pro-team@latest/actions/creating-actions) or use any actions published by the community, which are plenty.
+* For GitHub to recognize your workflows, they must be specified in .github/workflows folder in your repository. Each Workflow is its own separate file which needs to be configured using the YAML data-serialization language.
+* YAML is a recursive acronym for "YAML Ain't Markup Language". As the name might hint its goal is to be human-readable and it is commonly used for configuration files.
+* Notice that indentations are important in YAML. You can learn more about the syntax here: https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
+* A basic workflow contains three elements in a YAML document. These three elements are:
+  - name: Yep, you guessed it, the name of the workflow
+  - (on) triggers: The events that trigger the workflow to be executed
+  - jobs: The separate jobs that the workflow will execute (a basic workflow might contain only one job).
+* A simple workflow definition looks like this:
+  name: Hello World!
+  on:
+    push:
+      branches:
+        - main
+  jobs:
+    hello_world_job:
+      runs-on: ubuntu-20.04
+      steps:
+        - name: Say hello
+          run: echo "Hello World!"
+* Events that trigger workflows: https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
+  - An event on GitHub occurs such as when someone pushes a commit to a repository or when an issue or pull request is created
+  - A scheduled event, that is specified using the cron-syntax (https://en.wikipedia.org/wiki/Cron), happens
+  - An external event occurs, for example, a command is performed in an external application such as Slack or Discord messaging app
+* To see what your GitHub Action workflow has done, you can navigate to the Actions tab in GitHub where you should see the workflows in your repository and the steps they implement.
+* It is important to replicate the same environment in CI as in production as closely as possible, to avoid situations where the same code works differently in CI and production, which would effectively defeat the purpose of using CI.
+* The uses (https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) keyword tells the workflow to run a specific action. An action is a reusable piece of code, like a function. Actions can be defined in your repository in a separate file or you can use the ones available in public repositories.
+  - actions/checkout@4 (https://github.com/actions/checkout + version 4)
+* The checkout action does what the name implies: it checkouts the project source code from Git.
+* As the application is written in JavaScript, Node.js must be set up to be able to utilize the commands that are specified in package.json. To set up Node.js, actions/setup-node (https://github.com/actions/setup-node) action can be used.
+* The with (https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepswith) keyword is used to give a "parameter" to the action. 
+* After the environment has been set up we can run all the scripts from package.json like we would on our own machine. To lint the code all you have to do is add a step to run the npm run eslint command.
+* Note that the name of a step is optional. Alternatively, the command that is run is used as the default name.
+* Setting up Cypress e2e test in GitHub Actions:
+  - name: e2e tests
+    uses: cypress-io/github-action@v5
+    with:
+      command: npm run test:e2e
+      start: npm run start-prod
+      wait-on: http://localhost:5000
+* Command (https://github.com/cypress-io/github-action#custom-test-command) specifies how to run Cypress tests, start (https://github.com/cypress-io/github-action#start-server) gives npm script that starts the server, and wait-on (https://github.com/cypress-io/github-action#wait-on) says that before the tests are run, the server should have started on url http://localhost:5000.
+* End to end tests are nice since they give us confidence that software works from the end user's perspective. The price we have to pay is the slower feedback time. Now executing the whole workflow takes quite much longer.
+* Some of the things we'll need to consider when deploying applications include:
+  - What if my computer crashes or hangs during deployment?
+  - I'm connected to the server and deploying over the internet, what happens if my internet connection dies?
+  - What happens if any specific instruction in my deployment script/system fails?
+  - What happens if, for whatever reason, my software doesn't work as expected on the server I'm deploying to? Can I roll back to a previous version?
+  - What happens if a user does an HTTP request to our software just before we do deployment (we didn't have time to send a response to the user)?
+* A deployment system should never leave our software in a broken state. We should also always know (or be easily able to find out) what state a deployment is in.
+* Functional requirements for a deployment system:
+  - Our deployment system should be able to fail gracefully at any step of the deployment.
+  - Our deployment system should never leave our software in a broken state.
+  - Our deployment system should let us know when a failure has happened. It's more important to notify about failure than about success.
+  - Our deployment system should allow us to roll back to a previous deployment
+    - Preferably this rollback should be easier to do and less prone to failure than a full deployment
+    - Of course, the best option would be an automatic rollback in case of deployment failures
+  - Our deployment system should handle the situation where a user makes an HTTP request just before/during a deployment.
+  - Our deployment system should make sure that the software we are deploying meets the requirements we have set for this (e.g. don't deploy if tests haven't been run).
+* Non-functional requirements for a deployment system:
+  - We would like it to be fast
+  - We'd like to have no downtime during the deployment (this is distinct from the requirement we have for handling user requests just before/during the deployment).
+* Manage file permissions: https://www.guru99.com/file-permissions.html
+* Automatic Render deployment:
+  - Remember to open the Advanced settings and turn the auto-deploy off since we want to control the deployment in the GitHub Actions.
+  1. Deployment with Render Deploy Hook: A private URL to trigger the deployment. You can get it from your app settings.
+     - DON'T USE the plain URL in your pipeline. Instead create GitHub secrets (Settings > Security > Secrets & variables > Actions > New repository secret) for your key and service id:
+       - name: Trigger deployment
+         run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+     - "Context access might be invalid" warning on VS Code can be addressed by running the "Developer: Reload Window" command in VS Code. For more details, see https://github.com/github/vscode-github-actions/issues/222
+  2. Ready-make custom action: Go to https://github.com/marketplace and search for "render deploy". Pick an option with lots of stars and follow the usage instructions. For example, https://github.com/marketplace/actions/render-deploy-action
+     - name: Deploy to production
+       uses: johnbeynon/render-deploy-action@v0.0.8
+       with:
+         service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+         api-key: ${{ secrets.MY_RENDER_API_KEY }}
+         wait-for-success: true
+* Besides the checks done in the deployment pipeline, it is extremely beneficial to have also some "application level" health checks ensuring that the app for real is in a functional state.
+* The zero downtime deploys in Render should ensure that your app stays functional all the time!
+  - Uses the configured Health Check Path. For example, /health
+  - https://docs.render.com/deploys#zero-downtime-deploys
+* Health check code to included in app.js:
+  app.get('/health', (req, res) => {
+    res.send('ok')
+  })
+* This specific app uses Webpack, so update webpack.config.js as follows to make the feature available in local development:
+  devServer: {
+    // ...
+    onBeforeSetupMiddleware: function (devServer) {
+      if (!devServer) {
+        throw new Error('webpack-dev-server is not defined')
+      }
+
+      devServer.app.get('/health', (req, res) => {
+        res.send('ok')
+      })
+    }
+  },
+* To sum up, if a GitHub Actions CI/CD pipeline fails before the Render deploy step, nothing gets deployed at Render. If all steps before the Render deploy steps complete successfully, then Render attempts to deploy a new release (last step) based on that commit. The last check point for a successful deployment at Render is the health check. If Render health check fails, it prevents the new app version to be released, as it is not healthy according to the given URL. Render keeps trying for 15 minutes before it concludes that the deployment failed. The broken code never gets deployed live, thanks to Render.
+* Your main branch of the code should always remain green. Being green means that all the steps of your build pipeline should complete successfully: the project should build successfully, tests should run without errors, and the linter shouldn't have anything to complain about, etc.
+* Avoid committing any changes directly to the main branch. Instead, commit your code on a branch based on the freshest possible version of the main branch. Once you think the branch is ready to be merged into the main you create a GitHub Pull Request (also referred to as PR).
+* When making changes to a project you checkout a new branch locally, make and commit your changes, push the branch to the remote repository (in our case to GitHub) and create a pull request for someone to review your changes before those can be merged into the main branch.
+* There are several reasons why using pull requests and getting your code reviewed by at least one other person is always a good idea.
+  - Even a seasoned developer can often overlook some issues in their code: we all know of the tunnel vision effect.
+  - A reviewer can have a different perspective and offer a different point of view.
+  - After reading through your changes, at least one other developer will be familiar with the changes you've made.
+  - Using PRs allows you to automatically run all tasks in your CI pipeline before the code gets to the main branch. GitHub Actions provides a trigger for pull requests.
+* You can configure your GitHub repository in such a way that pull requests cannot be merged until they are approved.
+* GitHub's pull request interface presents a description and the discussion interface. At the bottom, it displays all the CI checks (in our case each of our Github Actions) that are configured to run for each PR and the statuses of these checks. A green board is what you aim for! You can click on Details of each check to view details and run logs.
+* To make the workflow run for each pull request we would have to update the trigger part of the workflow. We use the "pull_request" trigger for branch "main" (our main branch) and limit the trigger to events "opened" and "synchronize". Basically, this means, that the workflow will run when a PR into the main branch is opened or updated.
+  on:
+    push:
+      branches:
+        - main
+
+    pull_request:
+      branches: [main]
+      types: [opened, synchronize]
+* Using branches: https://www.atlassian.com/git/tutorials/using-branches
+* IF condition for the deployment step: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsif
+  - Ensures that the step is executed only when the code is being merged or pushed to the main branch. NOT when a PR is made.
+* The workflow context (https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#contexts) gives various kinds of information about the code the workflow is run.
+* The relevant information is found in GitHub context, the field event_name tells us what is the "name" of the event that triggered the workflow. When a pull request is merged, the name of the event is somehow paradoxically push, the same event that happens when pushing the code to the repository. Thus, we get the desired behavior by adding the following condition to the step that deploys the code:
+  - name: Trigger Render deployment
+    if: ${{ github.event_name == 'push' }}
+    run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+* The most important purpose of versioning is to uniquely identify the software we're running and the code associated with it.
+* Semantic versioning (https://semver.org/) uses the following form: {major}.{minor}.{patch}. For example, if the version is 1.2.3, it has 1 as the major version, 2 is the minor version, and 3 is the patch version.
+* In general, changes that fix the functionality without changing how the application works from the outside are patch changes, changes that make small changes to functionality (as viewed from the outside) are minor changes and changes that completely change the application (or major functionality changes) are major changes.
+* Hash versioning (also sometimes known as SHA versioning) is quite different. The version "number" in hash versioning is a hash (that looks like a random string) derived from the contents of the repository and the changes introduced in the commit that created the version. In Git, this is already done for you as the commit hash that is unique for any change set.
+* Hash versioning is almost always used in conjunction with automation. It's a pain (and error-prone) to copy 32 character long version numbers around to make sure that everything is correctly deployed.
+* While we won't cover semantic versioning in detail (since that's a rabbit hole all on its own), it's worth mentioning that this can be as simple as a spreadsheet that lists the Semantic Version and the commit it points to.
+* For the two repository based approaches, the approach with something in the code usually boils down to a version number in a file and the repo/metadata approach usually relies on tags (https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag) or (in the case of GitHub) releases. In the case of tags or releases, this is relatively simple, the tag or release points to a commit, the code in that commit is the code in the release.
+* A list of releases (conveniently provided by a package manager or GitHub) is still needed to know what the last version is but it's easier to look at that list and discuss it: It's easier to say "We need to roll back to 3.2.4" than to try communicate a hash in person.
+* Semantic Versioning works well when deploying services where the version number could be of significance or might actually be looked at. As an example, think of the JavaScript libraries that you're using. If you're using version 3.4.6 of a particular library, and there's an update available to 3.4.8, if the library uses semantic versioning, you could (hopefully) safely assume that you're ok to upgrade without breaking anything. If the version jumps to 4.0.1 then maybe it's not such a safe upgrade.
+* Hash versioning is very useful where most commits are being built into artifacts (e.g. runnable binaries or Docker images) that are themselves uploaded or stored. As an example, if your testing requires building your package into an artifact, uploading it to a server, and running tests against it, it would be convenient to have hash versioning as it would prevent accidents.
+* Having an error happen when something goes wrong is almost always preferable to having a problem silently ignored in CI.
+* From the comparison above, it would seem that the semantic versioning makes sense for releasing software while hash-based versioning (or artifact naming) makes more sense during development. This doesn't necessarily cause a conflict.
+* We discussed at the beginning of this part that we always have to know exactly what is happening with our code, for example, we need to be sure that we have tested the code we want to deploy. Having two parallel versioning (or naming) conventions can make this a little more difficult.
+* When we have a project that uses hash-based artifact builds for testing, it's always possible to track the result of every build, lint, and test to a specific commit and developers know the state their code is in. This is all automated and transparent to the developers. They never need to be aware of the fact that the CI system is using the commit hash underneath to name build and test artifacts. When the developers merge their code to the main branch, again the CI takes over. This time, it will build and test all the code and give it a semantic version number all in one go. It attaches the version number to the relevant commit with a Git tag.
+* It would not be incorrect to say that the project uses semantic versioning and simply ignore that the CI system tests individual developer branches/PRs with a hash-based naming system. We do this because the version we care about (the one that is released) is given a semantic version.
+* Extend our workflow so that it will automatically increase (bump) the version when a pull request is merged into the main branch and tag (https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag) the release with the version number. We will use an open source action developed by a third party: anothrNick/github-tag-action (https://github.com/anothrNick/github-tag-action).
+  - name: Bump version and push tag
+    uses: anothrNick/github-tag-action@1.67.0
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+* Ensure that the GITHUB_TOKEN has read and write permissions at repository settings > Actions > General > Workflow permissions
+* The anothrNick/github-tag-action (https://github.com/anothrNick/github-tag-action) action accepts some environment variables that modify the way the action tags your releases. You can look at these in the README (https://github.com/anothrNick/github-tag-action) and see what suits your needs.
+  - Defaults to minor bump
+* Remember that we want only to bump the version when the change happens to the main branch! So add a similar if condition to prevent version bumps on pull request as was done in Exercise 11.14 to prevent deployment on pull request related events.
+* Do not just add it as another step, but configure it as a separate job that depends on the job that takes care of linting, testing and deployment. So change your workflow definition as follows:
+  jobs:
+    simple_deployment_pipeline:
+      runs-on: ubuntu-20.04
+      steps:
+        // steps here
+    tag_release:
+      needs: [simple_deployment_pipeline]
+      runs-on: ubuntu-20.04
+      steps:
+        // steps here
+* As was mentioned earlier jobs of a workflow are executed in parallel but since we want the linting, testing and deployment to be done first, we set a dependency that the tag_release waits the another job to execute first since we do not want to tag the release unless it passes tests and is deployed.
+* In general, the more often you deploy the main branch to production, the better. However, there might be some valid reasons sometimes to skip a particular commit or a merged pull request to become tagged and released to production.
+* Developing workflows is not easy, and quite often the only option is trial and error. It might actually be advisable to have a separate repository for getting the configuration right, and when it is done, to copy the right configurations to the actual repository.
+* It would also be possible to install a tool such as act that makes it possible to run your workflows locally. Unless you end up using more involved use cases like creating your own custom actions, going through the burden of setting up a tool such as act is most likely not worth the trouble.
+* GitHub events that trigger workflows: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+  - push
+  - pull_request
+* GitHub Actions expressions: https://docs.github.com/en/actions/learn-github-actions/expressions
+* GitHub pull request (PR) generates an event_name 'pull_request' without any commit messages.
+* GitHub merge generates an event_name 'push' with one or more commit messages.
+* GitHub push generates an event_name 'push' with a commit messages.
+* Skip specific CI/CD pipeline steps that include #skip somewhere in a commit message or detail text.
+  - name: Trigger Render deployment
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ', '), '#skip') }}
+    run: curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+* When using a third-party action such that github-tag-action it might be a good idea to specify the used version with hash instead of using a version number. The reason for this is that the version number, that is implemented with a Git tag can in principle be moved. So today's version 1.61.0 might be a different code that is at next week the version 1.61.0!
+  - The code in a commit with a particular hash does not change in any circumstances, so if we want to be 100% sure about the code we use, it is safest to use the hash.
+  - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+* Security: By pointing to the hash of a specific commit we can be sure that the code we use when running the workflow will not change because changing the underlying commit and its contents would also change the hash.
+* GitHub allows you to set up protected branches. It is important to protect your most important branch that should never be broken: main.
+* From CI point of view, the most important protection is requiring status checks to pass before a PR can be merged into the main branch. This means that if you have set up GitHub Actions to run e.g. linting and testing tasks, then until all the lint errors are fixed and all the tests pass the PR cannot be merged. Because you are the administrator of your repository, you will see an option to override the restriction. However, non-administrators will not have this option.
+* Branch protection: Settings > Branches > Add branch protection rule
+* A simple, effective, and robust CI system helps developers to work together, maintain code quality, and deploy safely.
+* There are often integrations between Git and whatever project management/bug tracking software the team is using.
+  - A common use of this is to have some reference to the tracking system in Git pull requests or commits. This way, for example, when you're working on issue number 123, you might name your pull request BUG-123: Fix user copy issue and the bug tracking system would notice the first part of the PR name and automatically move the issue to Done when the PR is merged.
+* By default, GitHub Actions sends an email on a build failure. This can be changed to send notifications regardless of build status and can also be configured to alert you on the GitHub web interface.
+* There are integrations for example to various messaging applications such as Slack (https://slack.com/intl/en-fi/) or Discord (https://discord.com/), to send notifications. These integrations still decide what to send and when to send it based on logic from GitHub.
+  - name: Notify on failure
+    uses: rjstone/discord-webhook-notify@v1
+    if: ${{ failure() }}
+    with:
+      text: Build failed
+      description: commit ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} by ${{ github.actor }} broke the build :(
+      severity: error
+      webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+* Knowing what caused the increase in build time can be very useful in helping to solve it. If the build time increased linearly from 5 minutes to 10 minutes over the last year, maybe we can expect it to take another few months to get to 15 minutes and we have an idea of how much value there is in spending time speeding up the CI process.
+* Metrics can either be self-reported (also called 'push' metrics, where each build reports how long it took) or the data can be fetched from the API afterward (sometimes called 'pull' metrics). The risk with self-reporting is that the self-reporting itself takes time and may have a significant impact on "total time taken for all builds".
+* This data can be sent to a time-series database or to an archive of another type. There are plenty of cloud services where you can easily aggregate the metrics, one good option is Datadog (https://www.datadoghq.com/).
+* There are often periodic tasks that need to be done in a software development team. Some of these can be automated with commonly available tools and some you will need to automate yourself.
+* The former category includes things like checking packages for security vulnerabilities. Several tools can already do this for you. Some of these tools would even be free for certain types (e.g. open source) projects. GitHub provides one such tool, Dependabot (https://dependabot.com/).
+* If your budget allows it, it's almost always better to use a tool that already does the job than to roll your own solution.
+* GitHub Actions provides a scheduled trigger that can be used to execute a task at a particular time.
+* It is possible to schedule (https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) GitHub actions to happen regularly.
+* Use now the action url-health-check (https://github.com/marketplace/actions/url-health-check) or any other alternative and schedule a periodic health check ping to your deployed software.
+* Own project: A logical first step is to store both the frontend and backend code in the same repository. This is not a requirement but it is recommended since it makes things much more simple.
+  - One possible repository structure would be to have the backend at the root of the repository and the frontend as a subdirectory.
+
+
 Part 12: Containers
 -------------------
 * Containers encapsulate your application into a single package. This package will then include all of the dependencies with the application. As a result, each container can run isolated from the other containers.
