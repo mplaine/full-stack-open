@@ -4105,6 +4105,9 @@ Part 11: CI/CD
 * Use now the action url-health-check (https://github.com/marketplace/actions/url-health-check) or any other alternative and schedule a periodic health check ping to your deployed software.
 * Own project: A logical first step is to store both the frontend and backend code in the same repository. This is not a requirement but it is recommended since it makes things much more simple.
   - One possible repository structure would be to have the backend at the root of the repository and the frontend as a subdirectory.
+* How to access GitHub commit info on deployment success and failure:
+  Success: description: to https://calm-wildwood-40210.herokuapp.com/ by ${{ github.event.head_commit.author.username }}
+  Failure: description: commit ${{ github.event.head_commit.url }} by ${{ github.event.head_commit.author.username }} broke the build :(
 
 
 Part 12: Containers
