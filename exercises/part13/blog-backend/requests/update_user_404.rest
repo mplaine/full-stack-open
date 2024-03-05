@@ -2,5 +2,5 @@ PUT http://localhost:3003/api/users/nonexisting-username
 Content-Type: application/json
 
 {
-    "username": "tammy"
+    "username": "tammy@speedcurve.com"
 }
