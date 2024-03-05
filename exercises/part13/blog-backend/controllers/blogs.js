@@ -8,9 +8,11 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const body = request.body
-  const blog = await Blog.create(body)
+  const user = request.user
+
+  const blog = await Blog.create({ ...body, userId: user.id, date: new Date() })
   response.status(201).json(blog)
 })
 

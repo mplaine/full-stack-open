@@ -1,4 +1,6 @@
+const jwt = require('jsonwebtoken')
 const { Blog, User } = require('../models')
+const { SECRET } = require('./config')
 const logger = require('./logger')
 
 const errorHandler = (error, request, response, next) => {
@@ -15,6 +17,14 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === 'SequelizeValidationError') {
     return response.status(400).json({
       error: error.errors.map((error) => error.message)
+    })
+  } else if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({
+      error: error.message
+    })
+  } else if (error.name === 'TokenExpiredError') {
+    return response.status(401).json({
+      error: 'expired token'
     })
   }
 
@@ -40,9 +50,27 @@ const userFinder = async (request, response, next) => {
   next()
 }
 
+const userExtractor = async (request, response, next) => {
+  const authorization = request.get('authorization')
+  if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
+    return response.status(401).json({ error: 'Missing token' })
+  }
+
+  const token = authorization.substring(7)
+  const decodedToken = jwt.verify(token, SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'Invalid token' })
+  }
+
+  request.user = await User.findByPk(decodedToken.id)
+
+  next()
+}
+
 module.exports = {
   blogFinder,
   errorHandler,
   unknownEndpoint,
+  userExtractor,
   userFinder
 }
