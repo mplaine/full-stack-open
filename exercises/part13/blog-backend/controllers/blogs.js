@@ -1,4 +1,5 @@
 const blogsRouter = require('express').Router()
+const ValidationError = require('../utils/errors')
 const middleware = require('../utils/middleware')
 const { Blog } = require('../models')
 
@@ -9,13 +10,8 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
-
-  try {
-    const blog = await Blog.create(body)
-    response.status(201).json(blog)
-  } catch (error) {
-    return response.status(400).json({ error })
-  }
+  const blog = await Blog.create(body)
+  response.status(201).json(blog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
@@ -34,7 +30,11 @@ blogsRouter.put('/:id', middleware.blogFinder, async (request, response) => {
   const body = request.body
 
   if (blog) {
-    blog.likes = body.likes === undefined ? 0 : body.likes
+    if (body.likes === undefined) {
+      throw new ValidationError('missing likes')
+    }
+
+    blog.likes = body.likes
     await blog.save()
     response.json(blog)
   } else {
