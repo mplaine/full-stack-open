@@ -1,4 +1,4 @@
-const { Blog } = require('../models')
+const { Blog, User } = require('../models')
 const logger = require('./logger')
 
 const errorHandler = (error, request, response, next) => {
@@ -32,8 +32,17 @@ const blogFinder = async (request, response, next) => {
   next()
 }
 
+const userFinder = async (request, response, next) => {
+  const username = request.params.username
+  request.user = await User.findOne({
+    where: { username: username }
+  })
+  next()
+}
+
 module.exports = {
   blogFinder,
   errorHandler,
-  unknownEndpoint
+  unknownEndpoint,
+  userFinder
 }

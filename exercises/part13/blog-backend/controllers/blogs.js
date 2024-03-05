@@ -1,7 +1,7 @@
 const blogsRouter = require('express').Router()
+const { Blog } = require('../models')
 const ValidationError = require('../utils/errors')
 const middleware = require('../utils/middleware')
-const { Blog } = require('../models')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.findAll()
