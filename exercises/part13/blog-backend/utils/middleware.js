@@ -1,3 +1,4 @@
+const { Blog } = require('../models')
 const logger = require('./logger')
 
 const errorHandler = (error, request, response, next) => {
@@ -22,7 +23,13 @@ const unknownEndpoint = (request, response) => {
   })
 }
 
+const blogFinder = async (request, response, next) => {
+  request.blog = await Blog.findByPk(request.params.id)
+  next()
+}
+
 module.exports = {
+  blogFinder,
   errorHandler,
   unknownEndpoint
 }
