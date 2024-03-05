@@ -1,6 +1,6 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRhbW15QHNwZWVkY3VydmUuY29tIiwiaWQiOjIsImlhdCI6MTcwOTY1NDUxMSwiZXhwIjoxNzA5NjU4MTExfQ.esvjvY1vwNhs1Y0nmG7fWaYdI2m1INBaDVCg06iD3kQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRhbW15QHNwZWVkY3VydmUuY29tIiwiaWQiOjIsImlhdCI6MTcwOTY1NjYwMCwiZXhwIjoxNzA5NjYwMjAwfQ.ostG9gIl7-xdww7cgRCba3JXRPJSB5W8glsCby0I1B4
 
 {
     "title": "Performance audit: Lego.com",

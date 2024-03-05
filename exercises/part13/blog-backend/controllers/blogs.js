@@ -16,11 +16,15 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   response.status(201).json(blog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  const deletedCount = await Blog.destroy({ where: { id: id } })
+blogsRouter.delete('/:id', middleware.userExtractor, middleware.blogFinder, async (request, response) => {
+  const blog = request.blog
+  const user = request.user
+  if (blog) {
+    if (blog.userId !== user.id) {
+      return response.status(401).json({ error: 'Invalid user' })
+    }
 
-  if (deletedCount === 1) {
+    await blog.destroy()
     response.status(204).end()
   } else {
     response.status(404).end()
