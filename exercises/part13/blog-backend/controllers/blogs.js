@@ -1,10 +1,16 @@
 const blogsRouter = require('express').Router()
-const { Blog } = require('../models')
+const { Blog, User } = require('../models')
 const ValidationError = require('../utils/errors')
 const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.findAll()
+  const blogs = await Blog.findAll({
+    attributes: { exclude: ['userId'] },
+    include: {
+      model: User,
+      attributes: ['name']
+    }
+  })
   response.json(blogs)
 })
 
