@@ -5,11 +5,21 @@ const ValidationError = require('../utils/errors')
 const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
-  const where = {}
-
+  let where = {}
   if (request.query.search) {
-    where.title = {
-      [Op.iLike]: `%${request.query.search}%`
+    where = {
+      [Op.or]: [
+        {
+          title: {
+            [Op.iLike]: `%${request.query.search}%`
+          }
+        },
+        {
+          author: {
+            [Op.iLike]: `%${request.query.search}%`
+          }
+        }
+      ]
     }
   }
 
