@@ -29,7 +29,8 @@ blogsRouter.get('/', async (request, response) => {
       model: User,
       attributes: ['name']
     },
-    where
+    where,
+    order: [['likes', 'DESC']]
   })
   response.json(blogs)
 })
