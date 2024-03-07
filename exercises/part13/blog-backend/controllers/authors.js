@@ -14,7 +14,10 @@ authorsRouter.get('/', async (request, response) => {
       attributes: []
     },
     group: ['user.id'],
-    order: [['name', 'ASC']]
+    order: [
+      ['likes', 'DESC'],
+      ['name', 'ASC']
+    ]
   })
   response.json(authors)
 })
