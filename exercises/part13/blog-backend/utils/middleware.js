@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { Blog, User } = require('../models')
+const { Blog, ReadingList, User } = require('../models')
 const { SECRET } = require('./config')
 const logger = require('./logger')
 
@@ -50,6 +50,11 @@ const userFinder = async (request, response, next) => {
   next()
 }
 
+const readingListFinder = async (request, response, next) => {
+  request.readingList = await ReadingList.findByPk(request.params.id)
+  next()
+}
+
 const userExtractor = async (request, response, next) => {
   const authorization = request.get('authorization')
   if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
@@ -70,6 +75,7 @@ const userExtractor = async (request, response, next) => {
 module.exports = {
   blogFinder,
   errorHandler,
+  readingListFinder,
   unknownEndpoint,
   userExtractor,
   userFinder

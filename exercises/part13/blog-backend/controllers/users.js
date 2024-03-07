@@ -53,7 +53,7 @@ usersRouter.put('/:username', middleware.userFinder, async (request, response) =
 
   if (user) {
     if (body.username === undefined) {
-      throw new ValidationError('missing username')
+      throw new ValidationError('missing the "username" property')
     }
 
     user.username = body.username
