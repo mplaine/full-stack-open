@@ -1,5 +1,5 @@
 const usersRouter = require('express').Router()
-const { Blog, User } = require('../models')
+const { Blog, ReadingList, User } = require('../models')
 const ValidationError = require('../utils/errors')
 const middleware = require('../utils/middleware')
 
@@ -14,7 +14,8 @@ usersRouter.get('/', async (request, response) => {
 })
 
 usersRouter.get('/:id', async (request, response) => {
-  const user = await User.findByPk(request.params.id, {
+  const userId = request.params.id
+  const user = await User.findByPk(userId, {
     attributes: ['name', 'username'],
     include: [
       {
@@ -23,7 +24,17 @@ usersRouter.get('/:id', async (request, response) => {
         attributes: { exclude: ['createdAt', 'updatedAt', 'userId'] },
         through: {
           attributes: []
-        }
+        },
+        include: [
+          {
+            model: ReadingList,
+            as: 'readinglists',
+            attributes: { exclude: ['userId', 'blogId'] },
+            where: {
+              userId: userId
+            }
+          }
+        ]
       }
     ]
   })
