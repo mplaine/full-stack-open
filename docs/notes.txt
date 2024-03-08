@@ -4518,3 +4518,446 @@ Part 12: Containers
       - environment
       - container_name
       - depends_on
+
+
+Part 13: Using relational databases
+-----------------------------------
+* SQL tutorials:
+  - SQLBolt: https://sqlbolt.com/
+  - Intro to SQL: https://www.khanacademy.org/computing/computer-programming/sql
+* Document database: https://en.wikipedia.org/wiki/Document-oriented_database
+  - schemaless (schema exists only in the program code)
+* Advantages of schemaless databases:
+  - flexibility
+  - easier and faster app development
+* Disadvantages of schemaless databases:
+  - error-prone
+  - data integrity
+* PostgreSQL (Postgres), the most popular open-source relational database: https://www.postgresql.org/
+* ElephantSQL, a Postgres cloud service: https://www.elephantsql.com/
+* Fly.io allows to create a Postgres database: https://fly.io/docs/reference/postgres/#creating-a-postgres-app
+* Postgres Docker image: https://hub.docker.com/_/postgres
+* Start Postgres Docker image:
+  docker run -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres
+* Connect to Postgres running in the Docker container:
+  docker exec -it <CONTAINER_ID> psql -U postgres postgres
+* Persist data by using a volume: https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata
+* pgAdmin, a GUI for Postgres: https://www.pgadmin.org/
+* psql command-line tool: https://www.postgresql.org/docs/current/app-psql.html
+* Primary key columen type is SERIAL (= integer with auto increment): id SERIAL PRIMARY KEY
+  https://www.postgresql.org/docs/9.1/datatype-numeric.html#DATATYPE-SERIAL
+* Example table:
+  CREATE TABLE notes (
+    id SERIAL PRIMARY KEY,
+    content text NOT NULL,
+    important boolean,
+    date time
+  );
+* In addition to the notes table, Postgres created a subtable called notes_id_seq, which keeps track of what value is assigned to the id column when creating the next note.
+* Sequelize (https://sequelize.org/master/) is a so-called Object relational mapping (ORM) library (https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping) that allows you to store JavaScript objects in a relational database without using the SQL language itself, similar to Mongoose that we used with MongoDB.
+* The database connect string, that contains the database address and the credentials must be defined in the .env file.
+  DATABASE_URL=postgres://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE_NAME>
+* Use in a Node.js application:
+  require('dotenv').config()
+  const { Sequelize, QueryTypes } = require('sequelize')
+  const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+  });
+  const main = async () => {
+    try {
+      await sequelize.authenticate()
+      const notes = await sequelize.query("SELECT * FROM notes", { type: QueryTypes.SELECT })
+      console.log(notes)
+      sequelize.close()
+    } catch (error) {
+      console.error('Unable to connect to the database:', error)
+    }
+  }
+  main()
+* Using direct SQL (https://sequelize.org/master/manual/raw-queries.html) with the sequelize method query (https://sequelize.org/api/v6/class/src/sequelize.js~sequelize#instance-method-query).
+* Change a Node.js app into a web app using Express and API endpoints.
+* When using Sequelize, each table in the database is represented by a model (https://sequelize.org/master/manual/model-basics.html), which is effectively it's own JavaScript class.
+* Sequelize model definition:
+  const { Sequelize, Model, DataTypes } = require('sequelize')
+  class Note extends Model {}
+  Note.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    important: {
+      type: DataTypes.BOOLEAN
+    },
+    date: {
+      type: DataTypes.DATE
+    }
+  }, {
+    sequelize,
+    underscored: true,
+    timestamps: false,
+    modelName: 'note'
+  })
+* The second parameter in the model definition contains the sequelize attribute as well as other configuration information. We also defined that the table does not have to use the timestamps columns (created_at and updated_at).
+* We also defined underscored: true, which means that table names are derived from model names as plural snake case versions.
+* Sequelize can automatically infer table names, but also allows explicitly defining them. The same naming policy applies to columns as well.
+* We have also defined modelName: 'note', the default "model name" would be capitalized Note. However we want to have a lowercase initial, it will make a few things a bit more convenient going forward.
+* The database operation is easy to do using the query interface (https://sequelize.org/master/manual/model-querying-basics.html) provided by models.
+  - findAll: https://sequelize.org/api/v6/class/src/model.js~model#static-method-findAll
+  - create: https://sequelize.org/master/manual/model-querying-basics.html#simple-insert-queries
+* Instead of the create method, it is also possible (https://sequelize.org/master/manual/model-instances.html#creating-an-instance) to save to a database using the build (https://sequelize.org/api/v6/class/src/model.js~model#static-method-build) method first to create a Model-object from the desired data, and then calling the save (https://sequelize.org/master/class/lib/model.js~Model.html#instance-method-save) method on it:
+  const note = Note.build(req.body)
+  await note.save()
+* Initialize Sequelize with SSL/TSL and disable logging:
+  const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    logging: false,
+  })
+* ESLint Stylistic: https://eslint.style/packages/js
+* Sequelize is actually able to generate a schema automatically from the model definition by using the models method sync (https://sequelize.org/master/manual/model-basics.html#model-synchronization).
+* SQL: drop table notes;
+* Create tables if not exist using Sequelize by adding this after the model definition:
+  Note.sync()
+* Searching for a single note is possible with the method findByPk (https://sequelize.org/docs/v6/core-concepts/model-querying-finders/#findbypk), because it is retrieved based on the id of the primary key.
+  const note = await Note.findByPk(req.params.id)
+  note.important = req.body.important
+  await note.save()
+* Use the model-object method toJSON to return a JSON representation:
+  console.log(note.toJSON())
+* In the case of a collection of objects, the method toJSON does not work directly, the method must be called separately for each object in the collection:
+  console.log(notes.map(n => n.toJSON()))
+* A better solution is to turn the collection into JSON for printing by using the method JSON.stringify (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify):
+  console.log(JSON.stringify(notes))
+* A slightly more reader-friendly format. This can be done with the following command:
+  console.log(JSON.stringify(notes, null, 2))
+* Retrieve one object from the database using a model with the findOne method (https://sequelize.org/master/manual/model-querying-finders.html#-code-findone--code-).
+* Foreign key definition (one-to-many relationship connection between the users and notes entries) in models/index.js:
+  User.hasMany(Note)
+  Note.belongsTo(User)
+  Note.sync({ alter: true })
+  User.sync({ alter: true })
+* Sequelize will automatically create an attribute called userId on the Note model to which, when referenced gives access to the database column user_id.
+* Alternative way of defining references between models:
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'users', key: 'id' },
+  }
+* The join query is done using the include (https://sequelize.org/master/manual/assocs.html#eager-loading-example) option as a query parameter.
+  const users = await User.findAll({
+    include: {
+      model: Note
+    }
+  })
+* Restrict (https://sequelize.org/master/manual/model-querying-basics.html#specifying-attributes-for-select-queries) the values of which fields we want. For each note, we return all fields including the name of the user associated with the note but excluding the userId.
+  const notes = await Note.findAll({
+    attributes: { exclude: ['userId'] },
+    include: {
+      model: User,
+      attributes: ['name']
+    }
+  })
+  const users = await User.findAll({
+    include: {
+      model: Note,
+      attributes: { exclude: ['userId'] }
+    }
+  })
+* Timestamp creation in Sequelize: https://sequelize.org/master/manual/model-basics.html#timestamps
+  - created_at
+  - updated_at
+* Sequelize provides a set of pre-defined validations (https://sequelize.org/master/manual/validations-and-constraints.html) for the model fields, which it performs before storing the objects in the database.
+* Request query parameters in Express: http://expressjs.com/en/5x/api.html#req.query
+* Accepted options:
+  let important = {
+    [Op.in]: [true, false]
+  }
+  if ( req.query.important ) {
+    important = req.query.important === "true"
+  }
+  ...
+  where: {
+    important
+  }
+* Let us set the missing values in the psql console and change the schema so that the column does not allow a null value.
+* Search query parameter to match to the "content" field:
+  where: {
+    content: {
+      [Op.substring]: req.query.search ? req.query.search : ''
+    }
+  }
+* Avoid unnecessary where clauses by generating its value dynamically:
+  const where = {}
+  if (req.query.search) {
+    where.content = {
+      [Op.substring]: req.query.search
+    }
+  }
+  const notes = await Note.findAll({
+    attributes: { exclude: ['userId'] },
+    include: {
+      model: User,
+      attributes: ['name']
+    },
+    where
+  })
+* Sequelize operators: https://sequelize.org/master/manual/model-querying-basics.html#operators
+* Migrations: We could proceed as before, i.e. change the model that defines the table and rely on Sequelize to synchronize the changes to the database. This is specified by these lines in the file models/index.js:
+  Note.sync({ alter: true })
+  User.sync({ alter: true })
+* A migration is a single JavaScript file that describes some modification to a database. A separate migration file is created for each single or multiple changes at once. Sequelize keeps a record of which migrations have been performed, i.e. which changes caused by the migrations are synchronized to the database schema. When creating new migrations, Sequelize keeps up to date on which changes to the database schema are yet to be made. In this way, changes are made in a controlled manner, with the program code stored in version control.
+* Migrations documentation: https://sequelize.org/master/manual/migrations.html#migration-skeleton
+* The migration file defines the functions up and down, the first of which defines how the database should be modified when the migration is performed. The function down tells you how to undo the migration if there is a need to do so.
+* Changes in the schema are defined by calling the queryInterface object methods:
+  await queryInterface.createTable('users', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+  })
+* When defining migrations, it is essential to remember that unlike models, column and table names are written in snake case form. So in migrations, the names of the tables and columns are written exactly as they appear in the database, while models use Sequelize's default camelCase naming convention.
+  await queryInterface.addColumn('notes', 'user_id', {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'users', key: 'id' },
+  })
+* Save the migration code in the file migrations/20211209_00_initialize_notes_and_users.js. Migration file names should always be named alphabetically when created so that previous changes are always before newer changes. One good way to achieve this order is to start the migration file name with the date and a sequence number.
+* We could run the migrations from the command line using the Sequelize command line tool (https://github.com/sequelize/cli).
+* Perform the migrations manually from the program code using the Umzug (https://github.com/sequelize/umzug) library.
+* The runMigrations function that performs migrations is now executed every time the application opens a database connection when it starts. Sequelize keeps track of which migrations have already been completed, so if there are no new migrations, running the runMigrations function does nothing.
+  const connectToDatabase = async () => {
+    try {
+      await sequelize.authenticate()
+      await runMigrations()
+      console.log('connected to the database')
+      ...
+* If we restart the application, the log also shows that the migration did not repeat already executed migrations.
+* So Sequelize has created a migrations table that allows it to keep track of the migrations that have been performed.
+* isAdmin middleware:
+  const isAdmin = async (req, res, next) => {
+    const user = await User.findByPk(req.decodedToken.id)
+    if (!user.admin) {
+      return res.status(401).json({ error: 'operation not allowed' })
+    }
+    next()
+  }
+* Note how two middleware are chained to the route, both of which are executed before the actual route handler. It is possible to chain an arbitrary number of middleware to a request.
+  router.put('/:username', tokenExtractor, isAdmin, async (req, res) => {
+* The way we implement disabling users here is problematic. Whether or not the user is disabled is only checked at login, if the user has a token at the time the user is disabled, the user may continue to use the same token, since no lifetime has been set for the token and the disabled status of the user is not checked when creating notes.
+* npm script to rollback:
+  "migration:down": "node util/rollback.js"
+* utils/rollback.js:
+  const { rollbackMigration } = require('./db')
+  rollbackMigration()
+* Migrations are currently executed automatically when the program is started. In the development phase of the program, it might sometimes be more appropriate to disable the automatic execution of migrations and make migrations manually from the command line.
+* Validations are checks performed in the Sequelize level, in pure JavaScript. They can be arbitrarily complex if you provide a custom validator function, or can be one of the built-in validators offered by Sequelize. If a validation fails, no SQL query will be sent to the database at all.
+  - Validations are automatically run on create, update and save. You can also call validate() to manually validate an instance.
+* Constraints are rules defined at SQL level. The most basic example of constraint is an Unique Constraint. If a constraint check fails, an error will be thrown by the database and Sequelize will forward this error to JavaScript (in this example, throwing a SequelizeUniqueConstraintError). Note that in this case, the SQL query was performed, unlike the case for validations.
+* Since an arbitrary number of users can join one team, and one user can join an arbitrary number of teams, we are dealing with a many-to-many relationship, which is traditionally implemented in relational databases using a connection table.
+* The models contain almost the same code as the migration, excluding the model options, such as underscored, timestamps, and modelName.
+  - Note the difference between the migration of the connection table and the model when defining foreign key fields. During the migration, fields are defined in snake case form:
+    await queryInterface.createTable('memberships', {
+      // ...
+      user_id: {
+        // ...
+  - in the model, the same fields are defined in camel case:
+    Membership.init({
+      // ...
+      userId: {
+        // ...
+* There is not always a relevant name for a connection table, in which case the name of the connection table can be a combination of the names of the tables that are joined, e.g. user_teams could fit our situation.
+* We make a small addition to the models/index.js file to connect teams and users at the code level using the belongsToMany (https://sequelize.org/master/manual/assocs.html#implementation-3) method.
+  User.belongsToMany(Team, { through: Membership })
+  Team.belongsToMany(User, { through: Membership })
+* Specifying attributes from the through table: https://sequelize.org/master/manual/advanced-many-to-many.html#specifying-attributes-from-the-through-table
+  const users = await User.findAll({
+    include: [
+      {
+        model: Note,
+        attributes: { exclude: ['userId'] }
+      },
+      {
+        model: Team,
+        attributes: ['name', 'id'],
+        through: {
+          attributes: []
+        }
+      }
+    ]
+  })
+* Thanks to model definitions, we also have direct access to, for example, the user's notes in the code. In the following code, we will search for a user with id 1 and print the notes associated with the user:
+  const user = await User.findByPk(1, {
+    include: {
+      model: Note
+    }
+  })
+  user.notes.forEach(note => {
+    console.log(note.content)
+  })
+* The User.hasMany(Note) definition therefore attaches a notes property to the user object, which gives access to the notes made by the user. The User.belongsToMany(Team, { through: Membership })) definition similarly attaches a teams property to the user object.
+* The objects returned by Sequelize are not normal objects where the addition of new fields works as we intend.
+  - A better solution is to create a completely new object based on the data retrieved from the database:
+    {
+      username: user.username,
+      name: user.name,
+      note_count: user.notes.length
+    }
+* belongsToMany is used, which now links users to notes via the UserNotes model corresponding to the connection table. However, this time we give an alias name for the attribute formed using the keyword as (https://sequelize.org/master/manual/advanced-many-to-many.html#aliases-and-custom-key-names), the default name (a user's notes) would overlap with its previous meaning, i.e. notes created by the user.
+  User.belongsToMany(Note, { through: UserNotes, as: 'marked_notes' })
+  Note.belongsToMany(User, { through: UserNotes, as: 'users_marked' })
+* Usage within a route:
+  const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: [''] } ,
+    include:[{
+        model: Note,
+        attributes: { exclude: ['userId'] }
+      },
+      {
+        model: Note,
+        as: 'marked_notes',
+        attributes: { exclude: ['userId']},
+        through: {
+          attributes: []
+        }
+      },
+      // ...
+* With eager fetch (https://sequelize.org/master/manual/assocs.html#basics-of-queries-involving-associations), all the notes made by the user are fetched from the database.
+  User.findOne({
+    include: {
+      model: Note
+    }
+  })
+* With lazy fetch, we search for user related teams only if they are needed.
+* So now, the User.findByPk query does not retrieve teams, but they are retrieved if necessary by the user method getTeams, which is automatically generated by Sequelize for the model object. Similar get- and a few other useful methods are automatically generated (https://sequelize.org/master/manual/assocs.html#special-methods-mixins-added-to-instances) when defining associations for tables at the Sequelize level.
+  let teams = undefined
+  if (req.query.teams) {
+    teams = await user.getTeams({
+      attributes: ['name'],
+      joinTableAttributes: []  
+    })
+  }
+  res.json({ ...user.toJSON(), teams })
+* There are some situations where, by default, we do not want to handle all the rows of a particular table. One such case could be that we don't normally want to display users that have been disabled in our application. In such a situation, we could define the default scopes (https://sequelize.org/master/manual/scopes.html) for the model like this:
+  User.init({
+    // field definition
+  }, {
+    sequelize,
+    underscored: true,
+    timestamps: false,
+    modelName: 'user',
+    defaultScope: {
+      where: {
+        disabled: false
+      }
+    },
+    scopes: {
+      admin: {
+        where: {
+          admin: true
+        }
+      },
+      disabled: {
+        where: {
+          disabled: true
+        }
+      },
+      name(value) {
+        return {
+          where: {
+            name: {
+              [Op.iLike]: value
+            }
+          }
+        }
+      }
+    }
+  })
+* Scopes are used as follows:
+  // all admins
+  const adminUsers = await User.scope('admin').findAll()
+  // all inactive users
+  const disabledUsers = await User.scope('disabled').findAll()
+  // users with the string jami in their name
+  const jamiUsers = User.scope({ method: ['name', '%jami%'] }).findAll()
+* It is also possible to chain scopes:
+  // admins with the string jami in their name
+  const jamiUsers = User.scope('admin', { method: ['name', '%jami%'] }).findAll()
+* Since Sequelize models are normal JavaScript classes (https://sequelize.org/master/manual/model-basics.html#taking-advantage-of-models-being-classes), it is possible to add new methods to them.
+* There are custom instance methods for instances of the model:
+  class User extends Model {
+    async number_of_notes() {
+      return (await this.getNotes()).length
+    }
+    // ...
+  const jami = await User.findOne({ name: 'Jami Kousa'})
+  const cnt = await jami.number_of_notes()
+  console.log(`Jami has created ${cnt} notes`)
+* There are also custom class methods for the model:
+  class User extends Model {
+    static async with_notes(limit){
+      return await User.findAll({
+        attributes: {
+          include: [[ sequelize.fn("COUNT", sequelize.col("notes.id")), "note_count" ]]
+        },
+        include: [
+          {
+            model: Note,
+            attributes: []
+          },
+        ],
+        group: ['user.id'],
+        having: sequelize.literal(`COUNT(notes.id) > ${limit}`)
+      })
+    }
+    // ...
+  const users = await User.with_notes(2)
+  console.log(JSON.stringify(users, null, 2))
+  users.forEach(u => {
+    console.log(u.name)
+  })
+* The migration code should be completely separate from the model code. The problem is that the definition of the model may change over time, for example the name field may change or its data type may change.
+* Sequelize's command line tool (https://sequelize.org/master/manual/migrations.html#creating-the-first-model--and-migration-) generates both models and migration files based on commands given at the command line.
+* For example, the following command would create a User model with name, username, and admin as attributes, as well as the migration that manages the creation of the database table:
+  npx sequelize-cli model:generate --name User --attributes name:string,username:string,admin:boolean
+* psql commands (backslash does not work with Finnish keyboards: use US keyboard or copy-paste the backslash letter):
+  - Connect to database: psql -U <USERNAME> <DATABASE_NAME>
+  - Connect to database: psql -d "<DATABASE_URL>"
+  - Test database connection: pg_isready -d "<DATABASE_URL>"
+  - Exit: \q
+  - Show tables: \d
+  - Show table schema: \d <TABLE_NAME>
+* npm commands to setup the app:
+  - npm init
+  - npm install nodemon --save-dev
+  - npm install express dotenv pg sequelize
+  - npm install eslint --save-dev
+  - npx eslint --init
+  - npm install --save-dev @stylistic/eslint-plugin-js
+  - npm run lint
+  - npm install express-async-errors cors cross-env
+  - npm install jsonwebtoken
+  - npm install umzug
