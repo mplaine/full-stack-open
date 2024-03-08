@@ -50,3 +50,7 @@ The *Blog* web application is running online at <https://blog-5a8n.onrender.com>
 ### Part 12: Containers
 
 My solutions to the Part 12 exercises can be found [here](./exercises/part12/).
+
+### Part 13: Using relational databases
+
+My solutions to the Part 13 exercises can be found [here](./exercises/part13/).
