@@ -10,13 +10,13 @@ readingListsRouter.post('/', async (request, response) => {
 })
 
 readingListsRouter.put('/:id', middleware.userExtractor, middleware.readingListFinder, async (request, response) => {
-  const user = request.user
+  const user = request.loggedinuser
   const readingList = request.readingList
   const body = request.body
 
   if (readingList) {
     if (readingList.userId !== user.id) {
-      return response.status(401).json({ error: 'Invalid user' })
+      return response.status(401).json({ error: 'invalid user' })
     }
 
     if (body.read === undefined) {

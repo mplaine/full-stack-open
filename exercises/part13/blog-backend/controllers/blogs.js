@@ -37,7 +37,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const body = request.body
-  const user = request.user
+  const user = request.loggedinuser
 
   const blog = await Blog.create({ ...body, userId: user.id, date: new Date() })
   response.status(201).json(blog)
@@ -45,10 +45,10 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 
 blogsRouter.delete('/:id', middleware.userExtractor, middleware.blogFinder, async (request, response) => {
   const blog = request.blog
-  const user = request.user
+  const user = request.loggedinuser
   if (blog) {
     if (blog.userId !== user.id) {
-      return response.status(401).json({ error: 'Invalid user' })
+      return response.status(401).json({ error: 'invalid user' })
     }
 
     await blog.destroy()
