@@ -1,3 +1,4 @@
+const { Op } = require('sequelize')
 const usersRouter = require('express').Router()
 const { Blog, ReadingList, User } = require('../models')
 const ValidationError = require('../utils/errors')
@@ -15,6 +16,23 @@ usersRouter.get('/', async (request, response) => {
 
 usersRouter.get('/:id', async (request, response) => {
   const userId = request.params.id
+  const read = request.query.read
+  let where = {
+    userId: userId
+  }
+  if (read) {
+    where = {
+      [Op.and]: [
+        {
+          userId: userId
+        },
+        {
+          read: read
+        }
+      ]
+    }
+  }
+
   const user = await User.findByPk(userId, {
     attributes: ['name', 'username'],
     include: [
@@ -30,9 +48,7 @@ usersRouter.get('/:id', async (request, response) => {
             model: ReadingList,
             as: 'readinglists',
             attributes: { exclude: ['userId', 'blogId'] },
-            where: {
-              userId: userId
-            }
+            where
           }
         ]
       }
