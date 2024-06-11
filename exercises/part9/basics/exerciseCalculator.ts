@@ -1,3 +1,5 @@
+import { parseExerciseArgs } from './utils'
+
 interface Result {
   periodLength: number
   trainingDays: number
@@ -6,24 +8,6 @@ interface Result {
   ratingDescription: string
   target: number
   average: number
-}
-
-interface ExerciseArgs {
-  dailyExerciseHours: number[]
-  targetAmount: number
-}
-
-const parseExerciseArgs = (args: string[]): ExerciseArgs => {
-  if (args.length < 4) throw new Error('Not enough arguments')
-
-  if (!isNaN(Number(args[2])) && args.slice(3).every((arg) => !isNaN(Number(arg)))) {
-    return {
-      dailyExerciseHours: args.slice(3).map(Number),
-      targetAmount: Number(args[2])
-    }
-  } else {
-    throw new Error('Provided values were not numbers!')
-  }
 }
 
 const calculateExercises = (dailyExerciseHours: number[], targetAmount: number): Result => {
@@ -54,7 +38,7 @@ const calculateExercises = (dailyExerciseHours: number[], targetAmount: number):
 }
 
 try {
-  const { dailyExerciseHours, targetAmount } = parseExerciseArgs(process.argv)
+  const { dailyExerciseHours, targetAmount } = parseExerciseArgs(process.argv.slice(2))
   console.log(calculateExercises(dailyExerciseHours, targetAmount))
 } catch (error: unknown) {
   let errorMessage = 'Something bad happened.'
