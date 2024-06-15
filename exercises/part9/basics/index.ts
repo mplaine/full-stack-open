@@ -1,8 +1,13 @@
 import express from 'express';
-import { parseBmiArgs } from './utils';
-import calculateBmi from './bmiCalculator';
+import {
+  calculateBmi,
+  calculateExercises,
+  parseBmiArgs,
+  parseExerciseBody,
+} from './utils';
 
 const app = express();
+app.use(express.json());
 
 app.get('/hello', (_req, res) => {
   res.send('Hello Full Stack!');
@@ -24,6 +29,21 @@ app.get('/bmi', (req, res) => {
   } catch (error) {
     res.status(400).json({
       error: 'malformatted parameters',
+    });
+  }
+});
+
+app.post('/exercises', (req, res) => {
+  try {
+    const { dailyExerciseHours, targetAmount } = parseExerciseBody(req.body);
+    res.json(calculateExercises(dailyExerciseHours, targetAmount));
+  } catch (error: unknown) {
+    let errorMessage: string = 'Something bad happened.';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    res.status(400).json({
+      error: errorMessage,
     });
   }
 });
