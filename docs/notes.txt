@@ -4323,6 +4323,57 @@ Part 9: TypeScript
   const Welcome = (props: WelcomeProps) => {
     return <h1>Hello, {props.name}</h1>;
   };
+* The kind attribute has a literal (https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types) type, it is a "hard coded" string, distinct for each course part.
+* Common type using union (https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types):
+  type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+* Our editor will automatically warn us if we use the wrong type for an attribute, use an extra attribute, or forget to set an expected attribute.
+  {
+    name: "Fundamentals",
+    exerciseCount: 10,
+    description: "This is an awesome course part",
+    kind: "basic"
+  },
+* TypeScript knows that the entry does not only have the type CoursePart but it is actually meant to be a CoursePartBasic. So here the attribute kind "narrows" the type of the entry from a more general to a more specific type that has a certain set of attributes.
+* There is still a lot of duplication in our types, and we want to avoid that. We start by identifying the attributes all course parts have in common, and defining a base type that contains them. Then we will extend (https://www.typescriptlang.org/docs/handbook/2/objects.html#extending-types) that base type to create our kind-specific types:
+  interface CoursePartBase {
+    name: string;
+    exerciseCount: number;
+  }
+  interface CoursePartBasic extends CoursePartBase {
+    description: string;
+    kind: "basic"
+  }
+  interface CoursePartGroup extends CoursePartBase {
+    groupProjectCount: number;
+    kind: "group"
+  }
+  interface CoursePartBackground extends CoursePartBase {
+    description: string;
+    backgroundMaterial: string;
+    kind: "background"
+  }
+  type CoursePart = CoursePartBasic | CoursePartGroup | CoursePartBackground;
+* TypeScript will only allow an operation (or attribute access) if it is valid for every member of the union.
+* The solution is to narrow the union with code... Narrowing occurs when TypeScript can deduce a more specific type for a value based on the structure of the code.
+* Type narrowing: https://www.typescriptlang.org/docs/handbook/2/narrowing.html
+* One handy way to narrow these kinds of types in TypeScript is to use switch case expressions. Once TypeScript has inferred that a variable is of union type and that each type in the union contains a certain literal attribute (in our case kind), we can use that as a type identifier.
+* The specific technique of type narrowing where a union type is narrowed based on literal attribute value is called discriminated union (https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
+* With TypeScript, we can use a method called exhaustive type checking (https://www.typescriptlang.org/docs/handbook/2/narrowing.html#exhaustiveness-checking). Its basic principle is that if we encounter an unexpected value, we call a function that accepts a value with the type never (https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-never-type) and also has the return type never.
+  /**
+   * Helper function for exhaustive type checking
+   */
+  const assertNever = (value: never): never => {
+    throw new Error(
+      `Unhandled discriminated union member: ${JSON.stringify(value)}`
+    );
+  };
+  // ... (switch case)
+  default:
+    return assertNever(part);
+* The error message says that:
+  "'CoursePartBackground' is not assignable to parameter of type 'never'."
+  which tells us that we are using a variable somewhere where it should never be used. This tells us that something needs to be fixed.
+* NEXT UP: https://fullstackopen.com/en/part9/react_with_types#react-app-with-state
 
 
 Part 11: CI/CD

@@ -1,53 +1,49 @@
-import { v4 as uuidv4 } from 'uuid';
-
-interface HeaderProps {
-  name: string;
-}
-
-interface ContentProps {
-  parts: Part[];
-}
-
-interface Part {
-  name: string;
-  exerciseCount: number;
-}
-
-interface PartProps {
-  part: Part;
-}
-
-interface TotalProps {
-  sum: number;
-}
-
-const Header = (props: HeaderProps) => <h1>{props.name}</h1>;
-
-const Content = (props: ContentProps) =>
-  props.parts.map((part) => <Part key={uuidv4()} part={part} />);
-
-const Part = (props: PartProps) => (
-  <p>
-    {props.part.name} {props.part.exerciseCount}
-  </p>
-);
-
-const Total = (props: TotalProps) => <p>Number of exercises {props.sum}</p>;
+import { Header } from './components/Header';
+import { Content } from './components/Content';
+import { Total } from './components/Total';
+import { CoursePart } from './types';
 
 const App = () => {
-  const courseName = 'Half Stack application development';
-  const courseParts = [
+  const courseName: string = 'Half Stack application development';
+  const courseParts: CoursePart[] = [
     {
       name: 'Fundamentals',
       exerciseCount: 10,
+      description: 'This is an awesome course part',
+      kind: 'basic',
     },
     {
       name: 'Using props to pass data',
       exerciseCount: 7,
+      groupProjectCount: 3,
+      kind: 'group',
+    },
+    {
+      name: 'Basics of type Narrowing',
+      exerciseCount: 7,
+      description: 'How to go from unknown to string',
+      kind: 'basic',
     },
     {
       name: 'Deeper type usage',
       exerciseCount: 14,
+      description: 'Confusing description',
+      backgroundMaterial:
+        'https://type-level-typescript.com/template-literal-types',
+      kind: 'background',
+    },
+    {
+      name: 'TypeScript in frontend',
+      exerciseCount: 10,
+      description: 'a hard part',
+      kind: 'basic',
+    },
+    {
+      name: 'Backend development',
+      exerciseCount: 21,
+      description: 'Typing the backend',
+      requirements: ['nodejs', 'jest'],
+      kind: 'special',
     },
   ];
 
